@@ -1,0 +1,83 @@
+use aiken/cbor
+use aiken/collection/dict
+use aiken/collection/list
+use aiken/merkle_patricia_forestry/merkling.{null_hash}
+use cardano/address.{Credential}
+use cardano/assets.{PolicyId, quantity_of, tokens}
+use cardano/certificate.{Certificate}
+use cardano/transaction.{InlineDatum, Output, Transaction}
+use hydra_dex/hydra_tree_utils.{Tree, compute_tree_hash, extract_key_values}
+use hydra_dex/types.{DexOrderBookDatum, HydraOrderBookDatum}
+use hydra_dex/utils.{get_dex_order_book_datum}
+
+validator split_order_merkle(oracle_nft: PolicyId) {
+  withdraw(redeemer: Tree, _credential: Credential, tx: Transaction) {
+    let Transaction { inputs, outputs, .. } = tx
+    // THe dex order book datum is taken from inputs rather than
+    // reference inputs, as the datum is changed in this transaction.
+    let input_order_book_datum: DexOrderBookDatum =
+      inputs |> get_dex_order_book_datum(oracle_nft)
+    let DexOrderBookDatum {
+      hydra_order_book_address,
+      hydra_order_book_token,
+      dex_order_book_token,
+      dex_order_book_address,
+      limit_orders_merkle_root,
+      ..
+    } = input_order_book_datum
+    let key_values = extract_key_values(redeemer)
+    let filtered_outputs =
+      outputs
+        |> list.filter(
+            fn(output: Output) {
+              output.address == hydra_order_book_address && dict.size(
+                tokens(output.value, hydra_order_book_token),
+              ) == 1
+            },
+          )
+    // The way orders are placed into the tree is a little bit different to
+    // how they are done in account balance merkle tree. The key is `order_id`
+    // and the value is the entire `HydraOrderBookDatum` datum serialised.
+    let output_serialised_datum_list: List<Pair<ByteArray, ByteArray>> =
+      filtered_outputs
+        |> list.map(
+            fn(output: Output) {
+              expect InlineDatum(output_datum) = output.datum
+              expect hydra_order_book_datum: HydraOrderBookDatum = output_datum
+              Pair(
+                hydra_order_book_datum.order_id,
+                cbor.serialise(hydra_order_book_datum),
+              )
+            },
+          )
+    expect [dex_order_book_output] =
+      list.filter(
+        outputs,
+        fn(output: Output) {
+          output.address == dex_order_book_address && quantity_of(
+            output.value,
+            dex_order_book_token,
+            "",
+          ) == 1
+        },
+      )
+    expect InlineDatum(output_datum) = dex_order_book_output.datum
+    expect output_dex_order_book_datum: DexOrderBookDatum = output_datum
+    and {
+      (compute_tree_hash(redeemer) == limit_orders_merkle_root)?,
+      (key_values == output_serialised_datum_list)?,
+      (output_dex_order_book_datum == DexOrderBookDatum {
+        ..input_order_book_datum,
+        limit_orders_merkle_root: null_hash,
+      })?,
+    }
+  }
+
+  publish(_redeemer: Data, _credential: Certificate, _tx: Transaction) {
+    True
+  }
+
+  else(_) {
+    fail @"unsupported purpose"
+  }
+}

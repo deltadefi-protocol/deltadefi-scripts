@@ -1,0 +1,14 @@
+[[packages]]
+name = "aiken-lang/stdlib"
+version = "v2.2.0"
+source = "github"
+
+[[packages]]
+name = "aiken-lang/merkle-patricia-forestry"
+version = "2.0.0"
+source = "github"
+
+[[packages]]
+name = "sidan-lab/vodka"
+version = "0.1.13"
+source = "github"
