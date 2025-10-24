@@ -1,8 +1,10 @@
 use aiken/builtin.{blake2b_256}
 use aiken/collection/list
+use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/helpers.{combine, nibbles, suffix}
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use aiken/primitive/bytearray
+use hydra_dex/types.{MPFDelete, MPFInsert, MPFProof, Tree, TreeBranch, TreeLeaf}
 
 // -----------------------------------------------------------------------------
 // ---------------------------------------------------- Custom Tree Computations
@@ -10,11 +12,6 @@ use aiken/primitive/bytearray
 
 // Experimental function to compute the hash of an entire tree. The structure
 // is expected to be a valid tree, and branch nodes are given in a sorted order
-
-pub type Tree {
-  TreeBranch { nibble: ByteArray, nodes: List<Pair<Int, Tree>> }
-  TreeLeaf { path: ByteArray, key: ByteArray, value: ByteArray }
-}
 
 pub fn compute_tree_hash(tree: Tree) -> ByteArray {
   go_compute_tree_hash(tree, "")
@@ -55,13 +52,27 @@ pub fn go_compute_tree_hash(tree: Tree, prefix_nibbles: ByteArray) -> ByteArray 
   }
 }
 
-// This operation is going to be inefficient since we're pushing to the end of the list repeatedly. 
-// TODO: optimize
 fn build_merkle_hash(child_hashes: List<ByteArray>) -> ByteArray {
   when child_hashes is {
     [x] -> x
-    [x, y, ..xs] -> build_merkle_hash(list.concat(xs, [combine(x, y)]))
+    [_x, ..] -> go_build_merkle_hash(child_hashes, [])
     _ -> fail @"invalid child hashes, must be a non-empty list"
+  }
+}
+
+fn go_build_merkle_hash(
+  unmerged: List<ByteArray>,
+  merged: List<ByteArray>,
+) -> ByteArray {
+  when unmerged is {
+    [] -> go_build_merkle_hash(list.reverse(merged), [])
+    [x] ->
+      when merged is {
+        [] -> x
+        [_z, ..] ->
+          go_build_merkle_hash(list.reverse(merged) |> list.push(x), [])
+      }
+    [x, y, ..xs] -> go_build_merkle_hash(xs, merged |> list.push(combine(x, y)))
   }
 }
 
@@ -135,5 +146,49 @@ pub fn extract_key_values(tree: Tree) -> List<Pair<ByteArray, ByteArray>> {
       nodes
         |> list.map(fn(pair: Pair<Int, Tree>) { pair.2nd })
         |> list.foldr([], fn(x, xs) { list.concat(extract_key_values(x), xs) })
+  }
+}
+
+pub fn recursive_insert(
+  old_root: mpf.MerklePatriciaForestry,
+  serialised_inputs: List<Pair<ByteArray, ByteArray>>,
+  proofs: List<MPFProof>,
+) -> mpf.MerklePatriciaForestry {
+  when proofs is {
+    [] -> old_root
+    [proof_head, ..proof_tail] ->
+      when serialised_inputs is {
+        [] -> fail @"not enough key-values to match proofs"
+        [key_value_head, ..key_value_tail] -> {
+          let proof: MPFProof = proof_head
+          expect MPFInsert { proof: insert_proof } = proof
+          let Pair(input_key, input_value) = key_value_head
+          let new_root =
+            mpf.insert(old_root, input_key, input_value, insert_proof)
+          recursive_insert(new_root, key_value_tail, proof_tail)
+        }
+      }
+  }
+}
+
+pub fn recursive_delete(
+  old_root: mpf.MerklePatriciaForestry,
+  serialised_inputs: List<Pair<ByteArray, ByteArray>>,
+  proofs: List<MPFProof>,
+) -> mpf.MerklePatriciaForestry {
+  when proofs is {
+    [] -> old_root
+    [proof_head, ..proof_tail] ->
+      when serialised_inputs is {
+        [] -> fail @"not enough key-value pairs to match proofs"
+        [key_value_head, ..key_value_tail] -> {
+          let proof: MPFProof = proof_head
+          expect MPFDelete { proof: delete_proof } = proof
+          let Pair(input_key, input_value) = key_value_head
+          let new_root =
+            mpf.delete(old_root, input_key, input_value, delete_proof)
+          recursive_delete(new_root, key_value_tail, proof_tail)
+        }
+      }
   }
 }

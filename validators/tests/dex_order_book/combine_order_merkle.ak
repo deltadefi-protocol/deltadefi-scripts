@@ -5,8 +5,8 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use dex_order_book/combine_order_merkle
-use hydra_dex/hydra_tree_utils.{Tree, TreeBranch, TreeLeaf, compute_tree_hash}
-use hydra_dex/types.{DexOrderBookDatum}
+use hydra_dex/hydra_tree_utils.{compute_tree_hash}
+use hydra_dex/types.{DexOrderBookDatum, FullTree, Tree, TreeBranch, TreeLeaf}
 use mocktail.{
   complete, mock_tx_hash, mocktail_tx, tx_in, tx_in_inline_datum, tx_out,
   tx_out_inline_datum,
@@ -165,7 +165,7 @@ test s6_spend_success_combine_order_merkle() {
   let tx = mock_combine_order_merkle_tx(test_case)
   combine_order_merkle.combine_order_merkle.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )
@@ -182,7 +182,7 @@ test s6_spend_fail_combine_order_merkle_invalid_tree() fail {
   let tx = mock_combine_order_merkle_tx(test_case)
   combine_order_merkle.combine_order_merkle.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )
@@ -199,7 +199,7 @@ test s6_spend_fail_combine_order_merkle_invalid_inputs() fail {
   let tx = mock_combine_order_merkle_tx(test_case)
   combine_order_merkle.combine_order_merkle.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )
@@ -216,7 +216,7 @@ test s6_spend_fail_combine_order_merkle_invalid_input_root_hash() fail {
   let tx = mock_combine_order_merkle_tx(test_case)
   combine_order_merkle.combine_order_merkle.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )

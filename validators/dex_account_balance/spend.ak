@@ -1,8 +1,9 @@
 use aiken/collection/dict.{is_empty}
+use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use cardano/assets.{PolicyId, tokens}
-use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{key_signed, outputs_at_with_policy}
+use cardano/transaction.{Output, OutputReference, Transaction, find_input}
+use cocktail.{key_signed}
 use cocktail/vodka_inputs.{input_inline_datum, inputs_at_with_policy}
 use hydra_dex/hydra_commit_utils.{validate_hydra_commit}
 use hydra_dex/types.{
@@ -77,20 +78,12 @@ validator dex_account_balance(
         let dex_order_book_input_datum: DexOrderBookDatum =
           reference_inputs
             |> get_dex_order_book_datum(dex_order_book_token)
-        expect [account_balance_input] =
-          inputs_at_with_policy(
-            inputs,
-            dex_order_book_input_datum.dex_order_book_address,
-            dex_order_book_input_datum.dex_order_book_token,
-          )
-        expect [account_balance_output] =
-          outputs_at_with_policy(
-            outputs,
-            dex_order_book_input_datum.dex_order_book_address,
-            dex_order_book_input_datum.dex_order_book_token,
-          )
+        expect Some(own_input) = find_input(inputs, utxo)
         let is_input_equal_output =
-          account_balance_input.output == account_balance_output
+          list.any(
+            outputs,
+            fn(output: Output) -> Bool { output == own_input.output },
+          )
 
         let is_operation_key_signed =
           key_signed(

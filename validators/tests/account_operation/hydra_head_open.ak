@@ -4,9 +4,10 @@ use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
-use hydra_dex/hydra_tree_utils.{Tree, TreeBranch, TreeLeaf, compute_tree_hash}
+use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
-  Account, DexAccountBalanceDatum, HydraAccountBalanceDatum, UserSpotAccount,
+  Account, DexAccountBalanceDatum, FullTree, HydraAccountBalanceDatum, Tree,
+  TreeBranch, TreeLeaf, UserSpotAccount,
 }
 use mocktail.{
   complete, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum, tx_in,
@@ -198,7 +199,7 @@ test s5_spend_success_hydra_open() {
   let tx = mock_hydra_open_tx(test_case)
   hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )
@@ -214,7 +215,7 @@ test s5_spend_fail_hydra_open_tree_invalid() fail {
   let tx = mock_hydra_open_tx(test_case)
   hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )
@@ -230,7 +231,7 @@ test s5_spend_fail_hydra_open_output_root_hash_invalid() fail {
   let tx = mock_hydra_open_tx(test_case)
   hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    tree,
+    FullTree { tree },
     Script(""),
     tx,
   )

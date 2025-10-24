@@ -1,5 +1,5 @@
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, from_asset_list, negate}
+use cardano/assets.{PolicyId, from_asset_list, negate, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
@@ -45,7 +45,11 @@ validator hydra_internal_transfer(oracle_nft: PolicyId) {
 
     //  - The intent token is burnt
     let is_intent_token_burnt =
-      assets.match(mint, negate(intent_input.output.value), ==)
+      assets.match(
+        mint,
+        negate(without_lovelace(intent_input.output.value)),
+        ==,
+      )
 
     let account_inputs =
       inputs_at_with_policy(

@@ -1,17 +1,21 @@
 use aiken/cbor
 use aiken/collection/list
+use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Credential}
 use cardano/assets.{PolicyId, quantity_of}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
-use hydra_dex/hydra_tree_utils.{Tree, compute_tree_hash, extract_key_values}
+use hydra_dex/hydra_tree_utils.{
+  compute_tree_hash, extract_key_values, recursive_delete,
+}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, HydraAccountBalanceDatum,
+  DexAccountBalanceDatum, DexOrderBookDatum, FullTree, HydraAccountBalanceDatum,
+  Proofs, TreeOrProofs,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_head_open(oracle_nft: PolicyId) {
-  withdraw(redeemer: Tree, _credential: Credential, tx: Transaction) {
+  withdraw(redeemer: TreeOrProofs, _credential: Credential, tx: Transaction) {
     let Transaction { inputs, reference_inputs, outputs, .. } = tx
     let DexOrderBookDatum {
       dex_account_balance_token,
@@ -33,9 +37,9 @@ validator hydra_head_open(oracle_nft: PolicyId) {
             },
           )
     expect InlineDatum(tree_root) = dex_account_balance_input.output.datum
-    expect DexAccountBalanceDatum { account_balance_merkle_root }: DexAccountBalanceDatum =
-      tree_root
-    let key_values = extract_key_values(redeemer)
+    expect DexAccountBalanceDatum {
+      account_balance_merkle_root: input_merkle_root,
+    }: DexAccountBalanceDatum = tree_root
     let filtered_outputs =
       outputs
         |> list.filter(
@@ -72,10 +76,27 @@ validator hydra_head_open(oracle_nft: PolicyId) {
       )
     expect InlineDatum(output_datum) = dex_account_balance_output.datum
     expect output_account_balance_datum: DexAccountBalanceDatum = output_datum
-    and {
-      (compute_tree_hash(redeemer) == account_balance_merkle_root)?,
-      (key_values == output_serialised_datum_list)?,
-      (output_account_balance_datum.account_balance_merkle_root == null_hash)?,
+    when redeemer is {
+      FullTree { tree } -> {
+        let key_values = extract_key_values(tree)
+        and {
+          (compute_tree_hash(tree) == input_merkle_root)?,
+          (key_values == output_serialised_datum_list)?,
+          (output_account_balance_datum.account_balance_merkle_root == null_hash)?,
+        }
+      }
+      Proofs { proofs } -> {
+        let old_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(input_merkle_root)
+        let new_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(
+            output_account_balance_datum.account_balance_merkle_root,
+          )
+        let computed_new_root: mpf.MerklePatriciaForestry =
+          recursive_delete(old_root, output_serialised_datum_list, proofs)
+
+        mpf.root(new_root) == mpf.root(computed_new_root)
+      }
     }
   }
 

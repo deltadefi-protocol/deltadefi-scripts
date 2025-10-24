@@ -6,10 +6,20 @@ use cardano/transaction.{OutputReference}
 
 // Common
 
+pub type Tree {
+  TreeBranch { nibble: ByteArray, nodes: List<Pair<Int, Tree>> }
+  TreeLeaf { path: ByteArray, key: ByteArray, value: ByteArray }
+}
+
 pub type MPFProof {
   MPFInsert { proof: Proof }
   MPFUpdate { from: ByteArray, to: ByteArray, to_proof: Proof }
   MPFDelete { proof: Proof }
+}
+
+pub type TreeOrProofs {
+  FullTree { tree: Tree }
+  Proofs { proofs: List<MPFProof> }
 }
 
 // Mint Redeemer

@@ -1,6 +1,8 @@
 use cardano/assets.{PolicyId}
 use cardano/transaction.{Transaction}
-use cocktail.{only_minted_token, output_inline_datum, outputs_at_with_policy}
+use cocktail.{
+  key_signed, only_minted_token, output_inline_datum, outputs_at_with_policy,
+}
 use hydra_dex/account_utils.{trade_auth_by_account, withdrawal_auth_by_account}
 use hydra_dex/types.{
   BurnIntent, CancelOrderIntent, CancelWithdrawalIntent, DexOrderBookDatum,
@@ -182,7 +184,8 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           withdrawals,
           dex_order_book_input_datum.withdrawal_script_hashes.hydra_internal_transfer,
         )
-      BurnIntent -> False
+      BurnIntent ->
+        key_signed(extra_signatories, dex_order_book_input_datum.operation_key)
     }
   }
 

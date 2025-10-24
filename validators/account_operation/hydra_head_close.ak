@@ -1,6 +1,7 @@
 use aiken/builtin.{blake2b_256}
 use aiken/cbor
 use aiken/collection/list.{length}
+use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use aiken/primitive/bytearray
 use cardano/address.{Credential}
@@ -8,14 +9,17 @@ use cardano/assets.{PolicyId, quantity_of}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
 use cocktail.{only_minted_token}
-use hydra_dex/hydra_tree_utils.{Tree, compute_tree_hash, extract_key_values}
+use hydra_dex/hydra_tree_utils.{
+  compute_tree_hash, extract_key_values, recursive_insert,
+}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, HydraAccountBalanceDatum,
+  DexAccountBalanceDatum, DexOrderBookDatum, FullTree, HydraAccountBalanceDatum,
+  Proofs, TreeOrProofs,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_head_close(oracle_nft: PolicyId) {
-  withdraw(redeemer: Tree, _credential: Credential, tx: Transaction) {
+  withdraw(redeemer: TreeOrProofs, _credential: Credential, tx: Transaction) {
     let Transaction { inputs, reference_inputs, outputs, mint, .. } = tx
     let DexOrderBookDatum {
       dex_account_balance_token,
@@ -67,13 +71,6 @@ validator hydra_head_close(oracle_nft: PolicyId) {
               )
             },
           )
-    let sorted_serialised_inputs: List<Pair<ByteArray, ByteArray>> =
-      serialised_inputs
-        |> list.sort(
-            fn(a: Pair<ByteArray, ByteArray>, b: Pair<ByteArray, ByteArray>) {
-              bytearray.compare(blake2b_256(a.1st), blake2b_256(b.1st))
-            },
-          )
     expect [dex_account_balance_output] =
       outputs
         |> list.filter(
@@ -89,11 +86,38 @@ validator hydra_head_close(oracle_nft: PolicyId) {
     expect input_dex_account_balance_datum: DexAccountBalanceDatum = input_datum
     expect InlineDatum(output_datum) = dex_account_balance_output.datum
     expect output_account_balance_datum: DexAccountBalanceDatum = output_datum
-    and {
-      (input_dex_account_balance_datum.account_balance_merkle_root == null_hash)?,
-      (compute_tree_hash(redeemer) == output_account_balance_datum.account_balance_merkle_root)?,
-      (extract_key_values(redeemer) == sorted_serialised_inputs)?,
-      hydra_account_balance_burnt_check?,
+    when redeemer is {
+      FullTree { tree } -> {
+        let sorted_serialised_inputs: List<Pair<ByteArray, ByteArray>> =
+          serialised_inputs
+            |> list.sort(
+                fn(a: Pair<ByteArray, ByteArray>, b: Pair<ByteArray, ByteArray>) {
+                  bytearray.compare(blake2b_256(a.1st), blake2b_256(b.1st))
+                },
+              )
+        and {
+          (input_dex_account_balance_datum.account_balance_merkle_root == null_hash)?,
+          (compute_tree_hash(tree) == output_account_balance_datum.account_balance_merkle_root)?,
+          (extract_key_values(tree) == sorted_serialised_inputs)?,
+          hydra_account_balance_burnt_check?,
+        }
+      }
+      Proofs { proofs } -> {
+        let old_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(
+            input_dex_account_balance_datum.account_balance_merkle_root,
+          )
+        let new_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(
+            output_account_balance_datum.account_balance_merkle_root,
+          )
+        let computed_new_root: mpf.MerklePatriciaForestry =
+          recursive_insert(old_root, serialised_inputs, proofs)
+        and {
+          mpf.root(new_root) == mpf.root(computed_new_root),
+          hydra_account_balance_burnt_check?,
+        }
+      }
     }
   }
 
