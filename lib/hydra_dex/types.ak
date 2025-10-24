@@ -198,6 +198,8 @@ pub type DexOrderBookDatum {
   hydra_order_book_token: PolicyId,
   hydra_order_book_address: Address,
   withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
+  hydra_tokens_policy_id: PolicyId,
+  hydra_assets_map: Pairs<(PolicyId, AssetName), ByteArray>,
 }
 
 pub type DexOrderBookWithdrawalScripts {
@@ -299,6 +301,13 @@ pub type MValue =
 
 pub type FillOrderRedeemer {
   filler_order_id: ByteArray,
+}
+
+// 10 - HydraTokens
+pub type HydraTokensRedeemer {
+  MintAtHydraOpen
+  BurnAtHydraClose
+  BurnAtWithdrawal
 }
 
 // From Hydra scripts
