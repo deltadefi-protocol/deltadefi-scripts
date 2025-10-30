@@ -56,8 +56,8 @@ validator place_order(oracle_nft: PolicyId) {
             list_price_times_1bil: intent_list_price_times_1bil,
             order_size: intent_order_size,
             fee_amount_bp: intent_fee_amount_bp,
-            extra_value: intent_extra_value,
             account: intent_account,
+            ..
           }: HydraUserIntentDatum = input_inline_datum(intent_input)
 
           when
@@ -79,6 +79,8 @@ validator place_order(oracle_nft: PolicyId) {
                 is_long,
                 fee_amount_bp,
                 account,
+                list_price_times_1bil,
+                order_size,
                 ..
               } = order_datum
 
@@ -96,29 +98,17 @@ validator place_order(oracle_nft: PolicyId) {
                 policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
 
               let is_datum_correct =
-                intent_order_id == order_id && intent_long_token == long_token && intent_short_token == short_token && intent_is_long == is_long && intent_fee_amount_bp == fee_amount_bp && intent_account == account
+                intent_order_id == order_id && intent_long_token == long_token && intent_short_token == short_token && intent_is_long == is_long && intent_fee_amount_bp == fee_amount_bp && intent_account == account && intent_order_size == order_size
               let order_value = get_order_value(order_datum)
 
-              let intent_order_book_datum: HydraOrderBookDatum =
-                HydraOrderBookDatum {
-                  order_id: intent_order_id,
-                  long_token: intent_long_token,
-                  short_token: intent_short_token,
-                  is_long: intent_is_long,
-                  list_price_times_1bil: intent_list_price_times_1bil,
-                  order_size: intent_order_size,
-                  fee_amount_bp: intent_fee_amount_bp,
-                  extra_value: intent_extra_value,
-                  account: intent_account,
+              let is_price_correct =
+                when intent_is_long is {
+                  True -> list_price_times_1bil <= intent_list_price_times_1bil
+                  False -> list_price_times_1bil >= intent_list_price_times_1bil
                 }
 
-              let order_value_check =
-                get_order_value(intent_order_book_datum) == get_order_value(
-                  order_datum,
-                )
-
               (
-                is_order_token_minted? && is_intent_token_burnt? && is_datum_correct? && order_value_check?,
+                is_order_token_minted? && is_intent_token_burnt? && is_datum_correct? && is_price_correct?,
                 order_value,
               )
             }

@@ -325,8 +325,8 @@ test it_hfo_1_fail_without_all_complete_orders_burnt() {
 test it_hfo_1_fail_without_balanced_value_1() {
   let (order_1, order_2, input_balances, _) = base_case()
 
-  let (_, o1_payoff, _, o1_fee) = get_order_settlement_info(order_1, None)
-  let (_, o2_payoff, _, o2_fee) = get_order_settlement_info(order_2, None)
+  let (_, o1_payoff, _, o1_fee, _, _) = get_order_settlement_info(order_1, None)
+  let (_, o2_payoff, _, o2_fee, _, _) = get_order_settlement_info(order_2, None)
 
   let output_balances =
     [
@@ -352,8 +352,8 @@ test it_hfo_1_fail_without_balanced_value_1() {
 test it_hfo_1_fail_without_balanced_value_2() {
   let (order_1, order_2, input_balances, _) = base_case()
 
-  let (_, o1_payoff, _, o1_fee) = get_order_settlement_info(order_1, None)
-  let (_, o2_payoff, _, o2_fee) = get_order_settlement_info(order_2, None)
+  let (_, o1_payoff, _, o1_fee, _, _) = get_order_settlement_info(order_1, None)
+  let (_, o2_payoff, _, o2_fee, _, _) = get_order_settlement_info(order_2, None)
 
   let output_balances =
     [

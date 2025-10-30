@@ -22,7 +22,7 @@ test ou_gosi_1() {
       mock_account,
     )
 
-  let (order_value, order_payoff, _, fee_amount) =
+  let (order_value, order_payoff, _, fee_amount, _, _) =
     get_order_settlement_info(order, None)
   let is_order_value_correct = order_value == from_lovelace(order_size)
   let is_order_payoff_correct = order_payoff == mock_usd(short_qty)
@@ -51,7 +51,7 @@ test ou_gosi_2() {
       mock_account,
     )
 
-  let (order_value, order_payoff, _, fee_amount) =
+  let (order_value, order_payoff, _, fee_amount, _, _) =
     get_order_settlement_info(order, None)
   let is_order_value_correct = order_value == mock_usd(short_qty)
   let is_order_payoff_correct = order_payoff == from_lovelace(order_size)
@@ -80,7 +80,7 @@ test ou_gosi_3() {
       mock_account,
     )
 
-  let (order_value, order_payoff, extra_value_value, fee_amount) =
+  let (order_value, order_payoff, extra_value_value, fee_amount, _, _) =
     get_order_settlement_info(order, None)
   let is_order_value_correct = order_value == mock_usd(short_qty)
   let is_extra_value_correct = extra_value_value == mock_usd(extra_value)

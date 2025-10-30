@@ -2,8 +2,8 @@ use aiken/collection/list
 use aiken/collection/pairs
 use cardano/address.{Credential}
 use cardano/assets.{
-  PolicyId, Value, flatten, from_asset, from_asset_list, merge, negate,
-  without_lovelace, zero,
+  PolicyId, Value, from_asset, from_asset_list, merge, negate, without_lovelace,
+  zero,
 }
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Output, Transaction}
@@ -140,6 +140,10 @@ validator fill_order(oracle_nft: PolicyId) {
       limit_order_values,
       // total_payoff: Total order value - extra value
       total_payoff,
+      // filled_long_qty: Total long token qty filled
+      filled_long_qty,
+      // filled_short_qty: Total short token qty filled
+      filled_short_qty,
       // to_burn_tokens: Order tokens to be burnt (fully filled orders)
       to_burn_tokens,
       // filler_order_input_opt: The order input that matches the filler order id
@@ -149,13 +153,15 @@ validator fill_order(oracle_nft: PolicyId) {
     ) =
       list.foldr(
         order_inputs,
-        ([], zero, zero, zero, None, order_outputs),
+        ([], zero, zero, 0, 0, zero, None, order_outputs),
         fn(
           order_input,
           (
             account_payoff_acc,
             order_values_acc,
             total_payoff_acc,
+            filled_long_qty_acc,
+            filled_short_qty_acc,
             to_burn_token_acc,
             filler_order_acc,
             order_outputs_acc,
@@ -170,18 +176,32 @@ validator fill_order(oracle_nft: PolicyId) {
               account_payoff_acc,
               order_values_acc,
               total_payoff_acc,
+              filled_long_qty_acc,
+              filled_short_qty_acc,
               to_burn_token_acc,
               Some(order_input),
               order_outputs_acc,
             )
           } else {
             // The remaining order is one of the limit orders
+
+            // Calculate order value by
+            // input order value - output order value (if any)
             let (remaining_order_opt, order_outputs_new_acc) =
               find_remaining_order(order_datum.order_id, order_outputs_acc)
-            let (order_value, order_payoff, extra_value, fee_value) =
-              get_order_settlement_info(order_datum, remaining_order_opt)
-            let net_payoff =
-              negate(fee_value) |> merge(order_payoff) |> merge(extra_value)
+            let (
+              filled_order_value,
+              filled_order_payoff,
+              filled_extra_value,
+              filled_fee_value,
+              filled_long_qty,
+              filled_short_qty,
+            ) = get_order_settlement_info(order_datum, remaining_order_opt)
+
+            let net_maker_payoff =
+              negate(filled_fee_value)
+                |> merge(filled_order_payoff)
+                |> merge(filled_extra_value)
 
             let to_burn_token_acc =
               when remaining_order_opt is {
@@ -190,15 +210,23 @@ validator fill_order(oracle_nft: PolicyId) {
               }
             // Handle fee
             let account_payoff_acc =
-              add_to_payoff(account_payoff_acc, fee_account, fee_value)
+              add_to_payoff(account_payoff_acc, fee_account, filled_fee_value)
             // Handle user payoff
             let account_payoff_acc =
-              add_to_payoff(account_payoff_acc, order_datum.account, net_payoff)
+              add_to_payoff(
+                account_payoff_acc,
+                order_datum.account,
+                net_maker_payoff,
+              )
 
             (
               account_payoff_acc,
-              order_values_acc |> merge(order_value),
-              total_payoff_acc |> merge(net_payoff) |> merge(fee_value),
+              order_values_acc |> merge(filled_order_value),
+              total_payoff_acc
+                |> merge(net_maker_payoff)
+                |> merge(filled_fee_value),
+              filled_long_qty_acc + filled_long_qty,
+              filled_short_qty_acc + filled_short_qty,
               to_burn_token_acc,
               filler_order_acc,
               order_outputs_new_acc,
@@ -219,34 +247,81 @@ validator fill_order(oracle_nft: PolicyId) {
           // The remaining order is filler order
           let (remaining_filler_order_opt, _) =
             find_remaining_order(filler_order_datum.order_id, order_outputs)
-          let (filler_order_value, _, filler_extra_value, _) =
-            get_order_settlement_info(filler_order_datum, None)
-          let (filler_remaining_order_value, _, filler_remaining_extra_value, _) =
-            when remaining_filler_order_opt is {
-              Some(remaining_filler_order) ->
-                get_order_settlement_info(remaining_filler_order, None)
-              None -> (zero, zero, zero, zero)
+          let (filler_order_value, _, filler_extra_value, _, _, _) =
+            get_order_settlement_info(
+              filler_order_datum,
+              remaining_filler_order_opt,
+            )
+
+          let long_value =
+            from_asset(
+              filler_order_datum.long_token.1st,
+              filler_order_datum.long_token.2nd,
+              filled_long_qty,
+            )
+
+          let short_value =
+            from_asset(
+              filler_order_datum.short_token.1st,
+              filler_order_datum.short_token.2nd,
+              filled_short_qty,
+            )
+
+          let (taker_payoff_value, taker_filled_order_value, taker_fee_value) =
+            if filler_order_datum.is_long {
+              // When taker is buy order
+              let fee_value =
+                from_asset(
+                  filler_order_datum.long_token.1st,
+                  filler_order_datum.long_token.2nd,
+                  get_fee(filled_long_qty, filler_order_datum.fee_amount_bp),
+                )
+              (long_value, short_value, fee_value)
+            } else {
+              let fee_value =
+                from_asset(
+                  filler_order_datum.short_token.1st,
+                  filler_order_datum.short_token.2nd,
+                  get_fee(filled_short_qty, filler_order_datum.fee_amount_bp),
+                )
+              // When taker is sell order
+              (short_value, long_value, fee_value)
             }
 
-          let order_fee_bp = filler_order_datum.fee_amount_bp
-
-          // Handle filler order fees
-          let fee_value =
-            limit_order_values
-              |> flatten()
-              |> list.foldr(
-                  zero,
-                  fn((policy, name, qty), acc) {
-                    acc
-                      |> merge(
-                          from_asset(policy, name, get_fee(qty, order_fee_bp)),
-                        )
-                  },
-                )
-          let filler_net_payoff =
-            negate(fee_value)
-              |> merge(limit_order_values)
+          // Remaining order value = start - to pay - new order qty
+          // start - new order qty = filler_order_value + filler_extra_value
+          // to pay = taker_filled_order_value
+          let remaining_filler_order_value =
+            filler_order_value
               |> merge(filler_extra_value)
+              |> merge(negate(taker_filled_order_value))
+
+          // To receive - fee - remaining order value
+          let filler_net_payoff =
+            negate(taker_fee_value)
+              |> merge(taker_payoff_value)
+              |> merge(filler_extra_value)
+
+          // If negative remaining_filler_order_value, deduct from fee
+          // Also adjust filler_net_payoff with remaining_filler_order_value
+          let (taker_fee_value, filler_net_payoff) =
+            assets.reduce(
+              remaining_filler_order_value,
+              (taker_fee_value, filler_net_payoff),
+              fn(
+                policy_id,
+                asset_name,
+                qty,
+                (acc_fee_value, acc_filler_net_payoff),
+              ) {
+                let deduct_value = from_asset(policy_id, asset_name, qty)
+                if qty < 0 {
+                  (acc_fee_value |> merge(deduct_value), acc_filler_net_payoff)
+                } else {
+                  (acc_fee_value, acc_filler_net_payoff |> merge(deduct_value))
+                }
+              },
+            )
 
           let to_burn_tokens =
             when remaining_filler_order_opt is {
@@ -260,23 +335,21 @@ validator fill_order(oracle_nft: PolicyId) {
               filler_order_datum.account,
               filler_net_payoff,
             )
+
           // Handle fee
           let account_payoff =
-            add_to_payoff(account_payoff, fee_account, fee_value)
-
+            add_to_payoff(account_payoff, fee_account, taker_fee_value)
           // Handle balance tx
           let total_order_values =
             limit_order_values
               |> merge(filler_order_value)
               |> merge(filler_extra_value)
-          let total_payoff =
-            total_payoff |> merge(filler_net_payoff) |> merge(fee_value)
 
+          let total_payoff =
+            total_payoff |> merge(filler_net_payoff) |> merge(taker_fee_value)
           let remaining_value =
             total_order_values
               |> merge(negate(total_payoff))
-              |> merge(negate(filler_remaining_order_value))
-              |> merge(negate(filler_remaining_extra_value))
 
           if !value_geq(remaining_value, zero) {
             fail
@@ -311,6 +384,8 @@ validator fill_order(oracle_nft: PolicyId) {
         hydra_account_balance_token,
       )
 
+    // input + payoff >= output
+    // if input + payoff > output, difference goes to fee account payoff 
     // Add account existing balance
     let account_payoff =
       list.foldr(
@@ -363,6 +438,7 @@ validator fill_order(oracle_nft: PolicyId) {
     let is_all_order_tokens_burnt =
       mint == negate(without_lovelace(to_burn_tokens))
     let is_fill_order_authorized = key_signed(extra_signatories, operation_key)
+
     is_all_account_balance_updated? && is_all_order_tokens_burnt? && is_fill_order_authorized?
   }
 
