@@ -7,7 +7,6 @@
 ## Datum
 
 - Key: `account`: the account information with withdrawal and trade key credentials
-- `balance`: `MValue` - marking the account balance
 
 ## User Action
 
@@ -44,6 +43,6 @@
 7. Remove Empty Account Balance
 
    - Operation key is signed
-   - Obtain the only `HydraAccountBalance` input and its merkle tree account value
-   - Balance is empty
+   - Obtain the only `HydraAccountBalance` input and its value
+   - Check balance against value by removing lovelace - is empty
    - Check if the token with `HydraAccountBalance` is burnt

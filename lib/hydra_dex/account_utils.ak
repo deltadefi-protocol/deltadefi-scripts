@@ -112,8 +112,8 @@ pub fn hydra_balance_increase(
 ) -> Bool {
   expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
   expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
-  let old_balance = from_asset_list(input_datum.balance)
-  let new_balance = from_asset_list(output_datum.balance)
+  let old_balance = input.output.value
+  let new_balance = output.value
   let expected_balance = old_balance |> merge(increase)
   let is_same_account = input_datum.account == output_datum.account
   is_same_account? && (expected_balance == new_balance)?
@@ -126,8 +126,8 @@ pub fn hydra_balance_decrease(
 ) -> Bool {
   expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
   expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
-  let old_balance = from_asset_list(input_datum.balance)
-  let new_balance = from_asset_list(output_datum.balance)
+  let old_balance = input.output.value
+  let new_balance = output.value
   let expected_balance = old_balance |> merge(negate(decrease))
   let is_same_account = input_datum.account == output_datum.account
   is_same_account && expected_balance == new_balance
