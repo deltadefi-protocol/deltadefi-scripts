@@ -1,10 +1,7 @@
-use cardano/assets.{from_asset, from_lovelace, zero}
+use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance_spend
-use hydra_dex/types.{
-  HydraAccountBalanceDatum, HydraAccountBalanceRemoveEmptyBalance,
-  UserSpotAccount,
-}
+use hydra_dex/types.{HydraAccountBalanceRemoveEmptyBalance, UserSpotAccount}
 use mocktail.{
   complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_in_inline_datum,
@@ -12,7 +9,7 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_operation_key, to_mvalue,
+  mock_hydra_account_balance_token, mock_hydra_lovelace, mock_operation_key,
 }
 
 // type SpamPreventionWithdrawTestCase {
@@ -151,17 +148,17 @@ fn mock_remove_empty_balance_tx(
     is_operation_key_signed,
   } = test_case
 
-  let auth_value = from_asset(mock_hydra_account_balance_token, "", 1)
+  let account = UserSpotAccount { account: mock_account }
 
-  let datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: if is_empty_balance {
-        to_mvalue(zero)
-      } else {
-        from_lovelace(1_000_000) |> to_mvalue()
-      },
+  let balance =
+    if is_empty_balance {
+      zero
+    } else {
+      mock_hydra_lovelace(1_000_000)
     }
+
+  let auth_value =
+    from_asset(mock_hydra_account_balance_token, "", 1) |> merge(balance)
 
   mocktail_tx()
     |> ref_tx_in(
@@ -179,7 +176,7 @@ fn mock_remove_empty_balance_tx(
         auth_value,
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(True, datum)
+    |> tx_in_inline_datum(True, account)
     |> tx_in(
         !is_only_account_balance_input,
         mock_tx_hash(0),
@@ -187,7 +184,7 @@ fn mock_remove_empty_balance_tx(
         auth_value,
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(!is_only_account_balance_input, datum)
+    |> tx_in_inline_datum(!is_only_account_balance_input, account)
     |> mint(is_auth_token_burnt, -1, mock_hydra_account_balance_token, "")
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
@@ -233,7 +230,7 @@ test s8_spend_fail_remove_empty_balance_with_multiple_account_balance_input() fa
   )
 }
 
-test s8_spend_fail_remove_empty_balance_with_non_empty_balance() {
+test s8_spend_fail_remove_empty_balance_with_non_empty_balance() fail {
   let tx =
     mock_remove_empty_balance_tx(
       RemoveEmptyBalanceTestCase {
@@ -244,7 +241,7 @@ test s8_spend_fail_remove_empty_balance_with_non_empty_balance() {
       },
     )
 
-  !hydra_account_balance_spend.hydra_account_balance.spend(
+  hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
     HydraAccountBalanceRemoveEmptyBalance,

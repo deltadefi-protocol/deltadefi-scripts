@@ -6,7 +6,7 @@
 
 ## Datum
 
-- Key: `account`: the account information with withdrawal and trade key credentials
+- UserAccount
 
 ## User Action
 

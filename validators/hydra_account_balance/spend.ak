@@ -4,18 +4,18 @@ use cardano/transaction.{OutputReference, Transaction}
 use cocktail.{key_signed}
 use cocktail/vodka_inputs.{inputs_at_with_policy}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraAccountBalanceDatum, HydraAccountBalanceRedeemer,
+  DexOrderBookDatum, HydraAccountBalanceRedeemer,
   HydraAccountBalanceRemoveEmptyBalance, HydraCombineUtxosAtClose,
-  HydraCombineUtxosAtOpen, UpdataBalanceWithCancelOrder,
-  UpdataBalanceWithFillOrder, UpdataBalanceWithReleaseExtraValue,
-  UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithPlaceOrder,
-  UpdateBalanceWithTransfer, UpdateBalanceWithWithdrawal,
+  HydraCombineUtxosAtOpen, UpdateBalanceWithCancelOrder,
+  UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithFillOrder,
+  UpdateBalanceWithPlaceOrder, UpdateBalanceWithReleaseExtraValue,
+  UpdateBalanceWithTransfer, UpdateBalanceWithWithdrawal, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum, withdrawal_script_validated}
 
 validator hydra_account_balance(dex_oracle_nft: PolicyId) {
   spend(
-    _datum_opt: Option<HydraAccountBalanceDatum>,
+    _datum_opt: Option<UserAccount>,
     redeemer: HydraAccountBalanceRedeemer,
     _utxo: OutputReference,
     self: Transaction,
@@ -44,17 +44,17 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
           withdrawals,
           withdrawal_script_hashes.hydra_place_order,
         )
-      UpdataBalanceWithFillOrder ->
+      UpdateBalanceWithFillOrder ->
         withdrawal_script_validated(
           withdrawals,
           withdrawal_script_hashes.hydra_fill_order,
         )
-      UpdataBalanceWithCancelOrder ->
+      UpdateBalanceWithCancelOrder ->
         withdrawal_script_validated(
           withdrawals,
           withdrawal_script_hashes.hydra_cancel_order,
         )
-      UpdataBalanceWithReleaseExtraValue ->
+      UpdateBalanceWithReleaseExtraValue ->
         withdrawal_script_validated(
           withdrawals,
           withdrawal_script_hashes.hydra_release_extra_value,

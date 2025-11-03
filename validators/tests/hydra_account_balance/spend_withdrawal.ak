@@ -2,8 +2,8 @@ use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance_spend
 use hydra_dex/types.{
-  HydraCombineUtxosAtClose, UpdataBalanceWithCancelOrder,
-  UpdataBalanceWithFillOrder, UpdateBalanceWithCancelWithdrawal,
+  HydraCombineUtxosAtClose, UpdateBalanceWithCancelOrder,
+  UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithFillOrder,
   UpdateBalanceWithPlaceOrder, UpdateBalanceWithWithdrawal,
 }
 use mocktail.{
@@ -83,7 +83,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s8_spend_w_success_updata_balance_with_place_order_intent() {
+test s8_spend_w_success_update_balance_with_place_order_intent() {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -107,7 +107,7 @@ test s8_spend_w_success_updata_balance_with_place_order_intent() {
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_place_order_intent_with_no_dex_oracle_inputed() fail {
+test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -131,7 +131,7 @@ test s8_spend_w_fail_updata_balance_with_place_order_intent_with_no_dex_oracle_i
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_place_order_intent_with_no_auth_attached() {
+test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_auth_attached() {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -155,8 +155,8 @@ test s8_spend_w_fail_updata_balance_with_place_order_intent_with_no_auth_attache
   )
 }
 
-test s8_spend_w_success_updata_balance_with_fill_order() {
-  let redeemer = UpdataBalanceWithFillOrder
+test s8_spend_w_success_update_balance_with_fill_order() {
+  let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
       TestCase {
@@ -179,8 +179,8 @@ test s8_spend_w_success_updata_balance_with_fill_order() {
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_fill_order_with_no_dex_oracle_inputed() fail {
-  let redeemer = UpdataBalanceWithFillOrder
+test s8_spend_w_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed() fail {
+  let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
       TestCase {
@@ -203,8 +203,8 @@ test s8_spend_w_fail_updata_balance_with_fill_order_with_no_dex_oracle_inputed()
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_fill_order_with_no_auth_attached() {
-  let redeemer = UpdataBalanceWithFillOrder
+test s8_spend_w_fail_update_balance_with_fill_order_with_no_auth_attached() {
+  let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
       TestCase {
@@ -227,8 +227,8 @@ test s8_spend_w_fail_updata_balance_with_fill_order_with_no_auth_attached() {
   )
 }
 
-test s8_spend_w_success_updata_balance_with_cancel_order() {
-  let redeemer = UpdataBalanceWithCancelOrder
+test s8_spend_w_success_update_balance_with_cancel_order() {
+  let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
       TestCase {
@@ -251,8 +251,8 @@ test s8_spend_w_success_updata_balance_with_cancel_order() {
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_cancel_order_with_no_dex_oracle_inputed() fail {
-  let redeemer = UpdataBalanceWithCancelOrder
+test s8_spend_w_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed() fail {
+  let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
       TestCase {
@@ -275,8 +275,8 @@ test s8_spend_w_fail_updata_balance_with_cancel_order_with_no_dex_oracle_inputed
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_cancel_order_with_no_auth_attached() {
-  let redeemer = UpdataBalanceWithCancelOrder
+test s8_spend_w_fail_update_balance_with_cancel_order_with_no_auth_attached() {
+  let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
       TestCase {
@@ -299,7 +299,7 @@ test s8_spend_w_fail_updata_balance_with_cancel_order_with_no_auth_attached() {
   )
 }
 
-test s8_spend_w_success_updata_balance_with_withdrawal_intent() {
+test s8_spend_w_success_update_balance_with_withdrawal_intent() {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -323,7 +323,7 @@ test s8_spend_w_success_updata_balance_with_withdrawal_intent() {
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -347,7 +347,7 @@ test s8_spend_w_fail_updata_balance_with_withdrawal_intent_with_no_dex_oracle_in
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_withdrawal_intent_with_no_auth_attached() {
+test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_auth_attached() {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -371,7 +371,7 @@ test s8_spend_w_fail_updata_balance_with_withdrawal_intent_with_no_auth_attached
   )
 }
 
-test s8_spend_w_success_updata_balance_with_cancel_withdrawal_intent() {
+test s8_spend_w_success_update_balance_with_cancel_withdrawal_intent() {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
@@ -395,7 +395,7 @@ test s8_spend_w_success_updata_balance_with_cancel_withdrawal_intent() {
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
@@ -419,7 +419,7 @@ test s8_spend_w_fail_updata_balance_with_cancel_withdrawal_intent_with_no_dex_or
   )
 }
 
-test s8_spend_w_fail_updata_balance_with_cancel_withdrawal_intent_with_no_auth_attached() {
+test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_attached() {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
