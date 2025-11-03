@@ -8,7 +8,10 @@
 
 1. Validate split of merkle tree
 
-   - Combine account balance for every single entry in `DexAccountBalance` merkle tree & `DexAccountBalance`, with key of key hash (pub key hash or script hash)
-   - For the combined balance, split it into 1 distinct hydra account utxo per account at `HydraAccountBalance` with `HydraAccountBalance` auth token
-   - Updated merkle output at `DexAccountBalance` with 1 auth token and empty merkle tree
-   - Updated merkle output at `DexAccountBalance` with 1 auth token and empty merkle tree
+   - Find the `DexAccountBalance` input and output, locate the merkle root
+   - Obtain the `HydraAccountBalance` outputs with auth token and value
+   - Validate the merkle root is updated correctly, the deducted amount for each equal to `HydraToken` with token name of hash of unit (which is minted in current tx)
+     - Split entire trie: New root is empty and the new balances minted equals to full trie
+     - Split partial trie: Delete one by one and the updated root is tied.
+   - Balance value is minted
+   - Signed by operation key

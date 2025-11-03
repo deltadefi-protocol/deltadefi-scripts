@@ -1,10 +1,11 @@
 use aiken/cbor
 use cardano/address.{Script, VerificationKey, from_script}
 use cardano/assets.{Value, from_asset}
+use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, DexOrderBookWithdrawalScripts,
-  HydraAccountBalanceDatum, HydraInfo, HydraOrderBookDatum, MValue,
-  PlaceOrderIntent, UserSpotAccount, WithdrawalScriptHashes,
+  HydraInfo, HydraOrderBookDatum, MValue, PlaceOrderIntent, TokenMap,
+  UserAccount, UserSpotAccount, WithdrawalScriptHashes,
 }
 use mocktail.{
   mock_policy_id, mock_pub_key_hash, mock_script_hash,
@@ -59,6 +60,8 @@ pub const mock_withdrawal_script_hashes: WithdrawalScriptHashes =
     emergency_cancel_order: mock_emergency_cancel_order,
   }
 
+pub const mock_hydra_token_policy_id = mock_script_hash(800)
+
 pub const mock_hydra_initial_hash = mock_script_hash(999)
 
 pub const mock_hydra_script_address = mock_script_address(999, None)
@@ -90,6 +93,7 @@ pub const mock_input_oracle_datum: AppOracleDatum =
     emergency_withdrawal_request_token: mock_emergency_withdrawal_request_token,
     emergency_withdrawal_request_address: mock_emergency_withdrawal_request_address,
     all_withdrawal_script_hashes: mock_withdrawal_script_hashes,
+    hydra_tokens_policy_id: mock_hydra_token_policy_id,
     hydra_info: HydraInfo {
       hydra_initial_hash: mock_hydra_initial_hash,
       hydra_signers: mock_hydra_signers,
@@ -186,6 +190,7 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     hydra_order_book_token: mock_hydra_order_book_token,
     hydra_order_book_address: mock_hydra_order_book_address,
     withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
+    hydra_tokens_policy_id: mock_hydra_token_policy_id,
   }
 
 pub fn to_mvalue(value: Value) -> MValue {
@@ -335,12 +340,38 @@ pub fn mock_usd(qty: Int) -> Value {
   )
 }
 
-pub fn mock_hydra_balance(
-  account: Account,
-  balance: Value,
-) -> HydraAccountBalanceDatum {
-  HydraAccountBalanceDatum {
-    account: UserSpotAccount { account },
-    balance: balance |> to_mvalue(),
-  }
+pub const mock_hydra_usd_token_name: ByteArray =
+  hash_token(
+    #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+    #"55534458",
+  )
+
+pub fn mock_hydra_usd(qty: Int) -> Value {
+  from_asset(mock_hydra_token_policy_id, mock_hydra_usd_token_name, qty)
+}
+
+pub fn mock_hydra_lovelace(qty: Int) -> Value {
+  from_asset(mock_hydra_token_policy_id, hash_token("", ""), qty)
+}
+
+pub fn mock_hydra_account(account: Account) -> UserAccount {
+  UserSpotAccount { account }
+}
+
+pub const mock_token_map: TokenMap =
+  [
+    Pair("", ("", "")),
+    Pair(
+      #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960",
+      (#"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b", #"55534458"),
+    ),
+  ]
+
+test hashing_tokens() {
+  let hash =
+    hash_token(
+      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+      #"55534458",
+    )
+  hash == #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960"
 }

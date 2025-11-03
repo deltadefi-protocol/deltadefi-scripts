@@ -22,6 +22,9 @@ pub type TreeOrProofs {
   Proofs { proofs: List<MPFProof> }
 }
 
+pub type TokenMap =
+  Pairs<ByteArray, (PolicyId, AssetName)>
+
 // Mint Redeemer
 
 pub type MintPolarity {
@@ -66,6 +69,7 @@ pub type AppOracleDatum {
   emergency_withdrawal_request_token: PolicyId,
   emergency_withdrawal_request_address: Address,
   all_withdrawal_script_hashes: WithdrawalScriptHashes,
+  hydra_tokens_policy_id: PolicyId,
   hydra_info: HydraInfo,
 }
 
@@ -105,6 +109,11 @@ pub type ProcessHydraWithdrawal {
 
 pub type ProcessHydraCancelWithdrawal {
   mpf_action: MPFProof,
+}
+
+pub type HydraHeadOpen {
+  proof: TreeOrProofs,
+  token_map: TokenMap,
 }
 
 // 3 - AppDepositRequest
@@ -199,7 +208,6 @@ pub type DexOrderBookDatum {
   hydra_order_book_address: Address,
   withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
   hydra_tokens_policy_id: PolicyId,
-  hydra_assets_map: Pairs<(PolicyId, AssetName), ByteArray>,
 }
 
 pub type DexOrderBookWithdrawalScripts {
@@ -254,16 +262,11 @@ pub type HydraUserIntentDatum {
 
 // 8 - HydraAccountBalance
 
-pub type HydraAccountBalanceDatum {
-  account: UserAccount,
-  balance: MValue,
-}
-
 pub type HydraAccountBalanceRedeemer {
   UpdateBalanceWithPlaceOrder
-  UpdataBalanceWithFillOrder
-  UpdataBalanceWithCancelOrder
-  UpdataBalanceWithReleaseExtraValue
+  UpdateBalanceWithFillOrder
+  UpdateBalanceWithCancelOrder
+  UpdateBalanceWithReleaseExtraValue
   UpdateBalanceWithWithdrawal
   UpdateBalanceWithCancelWithdrawal
   UpdateBalanceWithTransfer

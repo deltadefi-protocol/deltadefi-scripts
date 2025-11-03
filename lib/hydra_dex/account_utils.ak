@@ -1,19 +1,76 @@
 use aiken/cbor
+use aiken/collection/dict
 use aiken/collection/list
-use aiken/crypto.{ScriptHash, VerificationKeyHash}
+use aiken/collection/pairs
+use aiken/crypto.{ScriptHash, VerificationKeyHash, blake2b_256}
 use aiken/merkle_patricia_forestry as mpf
 use aiken/primitive/bytearray
 use cardano/address.{Credential, Script, VerificationKey}
-use cardano/assets.{Lovelace, Value, from_asset_list, merge, negate}
+use cardano/assets.{
+  AssetName, Lovelace, PolicyId, Value, from_asset_list, merge, negate, tokens,
+  zero,
+}
 use cardano/transaction.{Input, Output}
 use cocktail.{input_inline_datum, one_of_keys_signed, output_inline_datum}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, HydraAccountBalanceDatum,
-  HydraOrderBookDatum, MPFDelete, MPFInsert, MPFProof, MPFUpdate, MValue,
-  UserAccount, UserFundingAccount, UserMobileAccount, UserSpotAccount,
+  DexAccountBalanceDatum, DexOrderBookDatum, HydraOrderBookDatum, MPFDelete,
+  MPFInsert, MPFProof, MPFUpdate, MValue, TokenMap, UserAccount,
+  UserFundingAccount, UserMobileAccount, UserSpotAccount,
 }
 use hydra_dex/utils.{withdrawal_script_hashes}
 
+//  Account Value related
+
+pub fn hash_token(policy_id: PolicyId, asset_name: AssetName) -> AssetName {
+  if asset_name == "" && asset_name == "" {
+    ""
+  } else {
+    blake2b_256(policy_id |> bytearray.concat(asset_name))
+  }
+}
+
+pub fn from_value_to_hydra_balance(
+  account_value: Value,
+  hydra_tokens_policy_id: PolicyId,
+) -> Value {
+  account_value
+    |> assets.reduce(
+        zero,
+        fn(policy_id, asset_name, qty, acc) {
+          let token_hash = hash_token(policy_id, asset_name)
+          acc |> assets.add(hydra_tokens_policy_id, token_hash, qty)
+        },
+      )
+}
+
+pub fn from_hydra_balance_to_value(
+  hydra_value: Value,
+  hydra_tokens_policy_id: PolicyId,
+  token_map: TokenMap,
+) -> Value {
+  let hydra_value_with_hydra_tokens =
+    hydra_value
+      |> tokens(hydra_tokens_policy_id)
+
+  trace @"hydra_value_with_hydra_tokens"
+  trace hydra_tokens_policy_id
+  trace hydra_value
+
+  hydra_value_with_hydra_tokens
+    |> dict.foldr(
+        zero,
+        fn(token_hash, token_qty, account_value_acc) {
+          when pairs.get_first(token_map, token_hash) is {
+            Some((policy_id, asset_name)) ->
+              account_value_acc
+                |> assets.add(policy_id, asset_name, token_qty)
+            None -> fail @"Token hash not found in token map"
+          }
+        },
+      )
+}
+
+//
 pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
   let a_account_id = get_account_id(a)
   let b_account_id = get_account_id(b)
@@ -110,12 +167,12 @@ pub fn hydra_balance_increase(
   output: Output,
   increase: Value,
 ) -> Bool {
-  expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
-  expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
+  expect input_datum: UserAccount = input_inline_datum(input)
+  expect output_datum: UserAccount = output_inline_datum(output)
   let old_balance = input.output.value
   let new_balance = output.value
   let expected_balance = old_balance |> merge(increase)
-  let is_same_account = input_datum.account == output_datum.account
+  let is_same_account = input_datum == output_datum
   is_same_account? && (expected_balance == new_balance)?
 }
 
@@ -124,12 +181,12 @@ pub fn hydra_balance_decrease(
   output: Output,
   decrease: Value,
 ) -> Bool {
-  expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
-  expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
+  expect input_datum: UserAccount = input_inline_datum(input)
+  expect output_datum: UserAccount = output_inline_datum(output)
   let old_balance = input.output.value
   let new_balance = output.value
   let expected_balance = old_balance |> merge(negate(decrease))
-  let is_same_account = input_datum.account == output_datum.account
+  let is_same_account = input_datum == output_datum
   is_same_account && expected_balance == new_balance
 }
 
@@ -240,9 +297,8 @@ pub fn get_account_input(
   inputs
     |> list.find(
         fn(account_input) {
-          expect datum: HydraAccountBalanceDatum =
-            input_inline_datum(account_input)
-          datum.account == account
+          expect datum_account: UserAccount = input_inline_datum(account_input)
+          datum_account == account
         },
       )
 }
@@ -253,10 +309,10 @@ pub fn get_account_output(
 ) -> Option<Output> {
   outputs
     |> list.find(
-        fn(accout_output) {
-          expect datum: HydraAccountBalanceDatum =
-            output_inline_datum(accout_output)
-          datum.account == account
+        fn(account_output) {
+          expect datum_account: UserAccount =
+            output_inline_datum(account_output)
+          datum_account == account
         },
       )
 }
