@@ -1,8 +1,8 @@
 use account_operation/hydra_combine_balance
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace, merge}
+use cardano/assets.{add, from_asset, merge}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{HydraAccountBalanceDatum, UserSpotAccount}
+use hydra_dex/types.{UserSpotAccount}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
@@ -12,7 +12,7 @@ use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_combine_balance, mock_operation_key, to_mvalue,
+  mock_hydra_combine_balance, mock_hydra_lovelace, mock_operation_key,
 }
 
 type HydraCombineBalanceTestCase {
@@ -32,8 +32,8 @@ fn mock_hydra_combine_balance_tx(
     is_account_burnt,
   } = test_case
 
-  let balance_a = from_lovelace(1_000_000_000)
-  let balance_b = from_lovelace(1_000_000_000)
+  let balance_a = mock_hydra_lovelace(1_000_000_000)
+  let balance_b = mock_hydra_lovelace(1_000_000_000)
   let combined_balance =
     if is_balance_updated {
       merge(balance_a, balance_b)
@@ -59,49 +59,31 @@ fn mock_hydra_combine_balance_tx(
         True,
         mock_tx_hash(0),
         0,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        balance_a |> add(mock_hydra_account_balance_token, "", 1),
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account },
-          balance: balance_a |> to_mvalue(),
-        },
-      )
+    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
     |> tx_in(
         True,
         mock_tx_hash(0),
         1,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        balance_b |> add(mock_hydra_account_balance_token, "", 1),
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account },
-          balance: balance_b |> to_mvalue(),
-        },
-      )
+    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
     |> tx_out(
         True,
         mock_hydra_account_balance_address,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        combined_balance |> add(mock_hydra_account_balance_token, "", 1),
       )
-    |> tx_out_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account },
-          balance: combined_balance |> to_mvalue(),
-        },
-      )
+    |> tx_out_inline_datum(True, UserSpotAccount { account })
     |> mint(is_account_burnt, -1, mock_hydra_account_balance_token, "")
     |> script_withdrawal(True, mock_hydra_combine_balance, 0)
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
 }
 
-test s1_whit_success() {
+test s1_whcb_success() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,
@@ -120,7 +102,7 @@ test s1_whit_success() {
   )
 }
 
-test s1_whit_failed_without_operation_key_signed() {
+test s1_whcb_failed_without_operation_key_signed() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: False,
@@ -139,7 +121,7 @@ test s1_whit_failed_without_operation_key_signed() {
   )
 }
 
-test s1_whit_failed_with_different_account() {
+test s1_whcb_failed_with_different_account() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,
@@ -158,7 +140,7 @@ test s1_whit_failed_with_different_account() {
   )
 }
 
-test s1_whit_failed_with_balance_not_combined() {
+test s1_whcb_failed_with_balance_not_combined() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,
@@ -177,7 +159,7 @@ test s1_whit_failed_with_balance_not_combined() {
   )
 }
 
-test s1_whit_failed_with_account_not_burnt() {
+test s1_whcb_failed_with_account_not_burnt() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,

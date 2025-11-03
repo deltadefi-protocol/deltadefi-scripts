@@ -1,126 +1,91 @@
-use cardano/assets.{add, from_asset, zero}
+use cardano/assets.{add, from_asset}
 use cardano/transaction.{InlineDatum, Input}
 use hydra_dex/account_utils.{hydra_balance_decrease}
-use hydra_dex/types.{HydraAccountBalanceDatum, MValue, UserSpotAccount}
+use hydra_dex/types.{UserSpotAccount}
 use mocktail.{mock_script_address, mock_script_output, mock_utxo_ref}
-use tests/utils.{mock_account, mock_account_2, to_mvalue}
+use tests/utils.{mock_account, mock_account_2}
 
 test au_hbd_1() {
-  let start_balance: MValue =
+  let account = UserSpotAccount { account: mock_account }
+
+  let start_balance =
     from_asset("", "", 1_000_000_000)
       |> add("unit2", "token2", 1_000_000_000)
-      |> to_mvalue()
   let decrease = from_asset("", "", 500_000_000)
-  let end_balance: MValue =
+  let end_balance =
     from_asset("", "", 500_000_000)
       |> add("unit2", "token2", 1_000_000_000)
-      |> to_mvalue()
-
-  let input_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: start_balance,
-    }
-  let output_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: end_balance,
-    }
 
   let input =
     Input {
       output_reference: mock_utxo_ref(0, 0),
       output: mock_script_output(
         mock_script_address(0, None),
-        zero,
-        InlineDatum(input_datum),
+        start_balance,
+        InlineDatum(account),
       ),
     }
   let output =
     mock_script_output(
       mock_script_address(0, None),
-      zero,
-      InlineDatum(output_datum),
+      end_balance,
+      InlineDatum(account),
     )
 
   hydra_balance_decrease(input, output, decrease)
 }
 
 test au_hbd_2() {
-  let start_balance: MValue =
+  let account = UserSpotAccount { account: mock_account }
+  let start_balance =
     from_asset("", "", 1_000_000_000)
       |> add("unit2", "token2", 1_000_000_000)
-      |> to_mvalue()
   let decrease = from_asset("unit2", "token2", 1_000_000_000)
-  let end_balance: MValue =
-    from_asset("", "", 1_000_000_000)
-      |> to_mvalue()
-
-  let input_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: start_balance,
-    }
-  let output_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: end_balance,
-    }
+  let end_balance = from_asset("", "", 1_000_000_000)
 
   let input =
     Input {
       output_reference: mock_utxo_ref(0, 0),
       output: mock_script_output(
         mock_script_address(0, None),
-        zero,
-        InlineDatum(input_datum),
+        start_balance,
+        InlineDatum(account),
       ),
     }
   let output =
     mock_script_output(
       mock_script_address(0, None),
-      zero,
-      InlineDatum(output_datum),
+      end_balance,
+      InlineDatum(account),
     )
 
   hydra_balance_decrease(input, output, decrease)
 }
 
 test au_hbd_fail_diff_account() {
-  let start_balance: MValue =
+  let account1 = UserSpotAccount { account: mock_account }
+  let account2 = UserSpotAccount { account: mock_account_2 }
+
+  let start_balance =
     from_asset("", "", 1_000_000_000)
       |> add("unit2", "token2", 1_000_000_000)
-      |> to_mvalue()
   let decrease = from_asset("unit2", "token2", 1_000_000_000)
-  let end_balance: MValue =
-    from_asset("", "", 1_000_000_000)
-      |> to_mvalue()
-
-  let input_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: start_balance,
-    }
-  let output_datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account_2 },
-      balance: end_balance,
-    }
+  let end_balance = from_asset("", "", 1_000_000_000)
 
   let input =
     Input {
       output_reference: mock_utxo_ref(0, 0),
       output: mock_script_output(
         mock_script_address(0, None),
-        zero,
-        InlineDatum(input_datum),
+        start_balance,
+        InlineDatum(account1),
       ),
     }
   let output =
     mock_script_output(
       mock_script_address(0, None),
-      zero,
-      InlineDatum(output_datum),
+      end_balance,
+      InlineDatum(account2),
     )
 
   !hydra_balance_decrease(input, output, decrease)
