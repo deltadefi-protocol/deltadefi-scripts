@@ -2,9 +2,10 @@ use account_operation/hydra_withdrawal
 use cardano/address.{Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
+use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, HydraAccountBalanceDatum, MPFUpdate,
-  ProcessHydraWithdrawal, UserSpotAccount, WithdrawalIntent,
+  DexAccountBalanceDatum, MPFUpdate, ProcessHydraWithdrawal, UserSpotAccount,
+  WithdrawalIntent,
 }
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -15,9 +16,10 @@ use tests/utils.{
   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_user_intent_address,
+  mock_hydra_account_balance_token, mock_hydra_lovelace,
+  mock_hydra_token_policy_id, mock_hydra_user_intent_address,
   mock_hydra_user_intent_token, mock_hydra_withdrawal, mock_operation_key,
-  to_mvalue,
+  mock_usd, to_mvalue,
 }
 
 type HydraWithdrawalTestCase {
@@ -51,12 +53,8 @@ fn mock_hydra_withdrawal_tx(
       old_root
     }
   let withdrawal_amount =
-    from_asset("", "", 900_000_000)
-      |> add(
-          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-          #"55534458",
-          1_000_000_000,
-        )
+    from_lovelace(900_000_000)
+      |> merge(mock_usd(1_000_000_000))
   let proof =
     MPFUpdate {
       from: #"a140a1401a05f5e100",
@@ -64,10 +62,12 @@ fn mock_hydra_withdrawal_tx(
       to_proof: [],
     }
 
-  let hydra_account_balance_start = from_lovelace(10_000_000)
+  let hydra_account_balance_start = mock_hydra_lovelace(10_000_000)
   let hydra_account_balance_end =
     if is_account_balance_updated {
-      withdrawal_amount |> negate() |> merge(hydra_account_balance_start)
+      from_value_to_hydra_balance(withdrawal_amount, mock_hydra_token_policy_id)
+        |> negate()
+        |> merge(hydra_account_balance_start)
     } else {
       hydra_account_balance_start
     }
@@ -122,29 +122,18 @@ fn mock_hydra_withdrawal_tx(
           True,
           mock_tx_hash(0),
           1,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_start
+            |> add(mock_hydra_account_balance_token, "", 1),
           mock_hydra_account_balance_address,
         )
-      |> tx_in_inline_datum(
-          True,
-          HydraAccountBalanceDatum {
-            account: UserSpotAccount { account: mock_account },
-            balance: hydra_account_balance_start |> to_mvalue(),
-          },
-        )
+      |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
       |> tx_out(
           True,
           mock_hydra_account_balance_address,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_end
+            |> add(mock_hydra_account_balance_token, "", 1),
         )
-      |> tx_out_inline_datum(
-          True,
-          HydraAccountBalanceDatum {
-            account: UserSpotAccount { account: mock_account },
-            balance: hydra_account_balance_end
-              |> to_mvalue(),
-          },
-        )
+      |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
       |> script_withdrawal(True, mock_hydra_withdrawal, 0)
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
       |> required_signer_hash(is_operation_key_signed, mock_operation_key)

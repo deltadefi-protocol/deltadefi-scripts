@@ -6,7 +6,8 @@ use cocktail.{
   input_inline_datum, inputs_at_with_policy, key_signed, outputs_at_with_policy,
 }
 use hydra_dex/account_utils.{
-  dex_account_balance_balance_increase, hydra_balance_decrease,
+  dex_account_balance_balance_increase, from_value_to_hydra_balance,
+  hydra_balance_decrease,
 }
 use hydra_dex/types.{
   DexOrderBookDatum, HydraUserIntentDatum, ProcessHydraWithdrawal,
@@ -37,6 +38,7 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
       hydra_user_intent_address,
       hydra_account_balance_token,
       hydra_account_balance_address,
+      hydra_tokens_policy_id,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -107,7 +109,8 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
           hydra_balance_decrease(
             balance_input,
             balance_output,
-            from_asset_list(withdrawal_amount),
+            from_asset_list(withdrawal_amount)
+              |> from_value_to_hydra_balance(hydra_tokens_policy_id),
           )
         _ -> False
       }
