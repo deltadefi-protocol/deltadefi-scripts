@@ -18,7 +18,7 @@
 
         - Only a single token of current policy id minted
         - No input with current policy id token
-        - Only a single output to `HydraAccountBalance` address with empty balance datum
+        - Only a single output to `HydraAccountBalance` address with current policy id token
         - Signed by operation key
 
 2. Burn - Redeemer `RBurn`

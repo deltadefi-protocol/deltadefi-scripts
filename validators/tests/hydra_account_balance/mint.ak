@@ -1,7 +1,7 @@
-use cardano/assets.{add, from_asset, from_lovelace, zero}
+use cardano/assets.{add, from_asset, merge, zero}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/mint as hydra_account_balance_mint
-use hydra_dex/types.{HydraAccountBalanceDatum, RMint, UserSpotAccount}
+use hydra_dex/types.{RMint, UserSpotAccount}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_out, tx_out_inline_datum,
@@ -9,8 +9,8 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_head_open, mock_operation_key,
-  to_mvalue,
+  mock_hydra_account_balance_token, mock_hydra_head_open, mock_hydra_lovelace,
+  mock_operation_key,
 }
 
 type MintTestCase {
@@ -32,19 +32,22 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
     is_auth_cred_attached,
   } = test_case
 
+  let account = UserSpotAccount { account: mock_account }
+
   let input_value =
     from_asset(mock_hydra_account_balance_token, "", 1)
-      |> add("", "", 2_000_000)
+      |> merge(mock_hydra_lovelace(2_000_000))
 
-  let datum =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: if is_empty_balance {
-        to_mvalue(zero)
-      } else {
-        from_lovelace(1_000_000) |> to_mvalue()
-      },
+  let output_balance =
+    if is_empty_balance {
+      zero
+    } else {
+      mock_hydra_lovelace(1_000_000)
     }
+
+  let output_value =
+    output_balance
+      |> add(mock_hydra_account_balance_token, "", 1)
 
   mocktail_tx()
     |> ref_tx_in(
@@ -65,11 +68,6 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
         input_value,
         mock_hydra_account_balance_address,
       )
-    |> tx_out(
-        True,
-        mock_hydra_account_balance_address,
-        from_asset(mock_hydra_account_balance_token, "", 1),
-      )
     |> mint(
         True,
         if is_single_token_minted {
@@ -80,7 +78,8 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
         mock_hydra_account_balance_token,
         "",
       )
-    |> tx_out_inline_datum(True, datum)
+    |> tx_out(True, mock_hydra_account_balance_address, output_value)
+    |> tx_out_inline_datum(True, account)
     |> script_withdrawal(is_auth_cred_attached, mock_hydra_head_open, 0)
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
@@ -152,7 +151,7 @@ test s8_mint_fail_mint_for_empty_balance_with_current_token_input() {
   )
 }
 
-test s8_mint_fail_mint_for_empty_balance_without_empty_balance() {
+test s8_mint_fail_mint_for_empty_balance_without_empty_balance() fail {
   let redeemer = RMint
   let tx =
     mock_mint_tx(
@@ -166,7 +165,7 @@ test s8_mint_fail_mint_for_empty_balance_without_empty_balance() {
       },
     )
 
-  !hydra_account_balance_mint.hydra_account_balance.mint(
+  hydra_account_balance_mint.hydra_account_balance.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_account_balance_token,

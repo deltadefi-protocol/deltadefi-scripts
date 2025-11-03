@@ -1,13 +1,11 @@
 use aiken/collection/dict
-use cardano/assets.{PolicyId, from_asset_list, zero}
+use cardano/assets.{PolicyId, flatten, without_lovelace}
 use cardano/transaction.{Transaction}
-use cocktail.{output_inline_datum, outputs_at_with_policy}
+use cocktail.{outputs_at_with_policy}
 use cocktail/vodka_extra_signatories.{key_signed}
 use cocktail/vodka_inputs.{inputs_with_policy}
 use cocktail/vodka_mints.{check_policy_only_burn}
-use hydra_dex/types.{
-  DexOrderBookDatum, HydraAccountBalanceDatum, MintPolarity, RBurn, RMint,
-}
+use hydra_dex/types.{DexOrderBookDatum, MintPolarity, RBurn, RMint}
 use hydra_dex/utils.{get_dex_order_book_datum, withdrawal_script_validated}
 
 validator hydra_account_balance(dex_oracle_nft: PolicyId) {
@@ -54,10 +52,13 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
                 hydra_account_balance_address,
                 policy_id,
               )
-            expect HydraAccountBalanceDatum { balance, .. }: HydraAccountBalanceDatum =
-              output_inline_datum(hydra_account_balance_output)
+            expect [(only_output_policy, _, only_output_token_qty)] =
+              hydra_account_balance_output.value
+                |> without_lovelace()
+                |> flatten()
 
-            let is_empty_balance = from_asset_list(balance) == zero
+            let is_output_value_correct =
+              only_output_policy == policy_id && only_output_token_qty == 1
 
             expect [Pair(_asset_name, quantity)] =
               mint |> assets.tokens(policy_id) |> dict.to_pairs()
@@ -65,7 +66,7 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
             let is_operation_key_signed =
               key_signed(extra_signatories, operation_key)
 
-            no_input_with_current_token? && is_empty_balance? && is_single_token_minted? && is_operation_key_signed?
+            no_input_with_current_token? && is_output_value_correct? && is_single_token_minted? && is_operation_key_signed?
           }
         }
       }
