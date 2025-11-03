@@ -1,5 +1,5 @@
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, from_asset_list, negate, without_lovelace}
+use cardano/assets.{PolicyId, from_asset_list, merge, negate, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
@@ -54,12 +54,13 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
       input_inline_datum(intent_input)
 
     //  - The input token is burnt
-    let is_intent_token_burnt =
-      assets.match(
-        mint,
-        negate(without_lovelace(intent_input.output.value)),
-        ==,
-      )
+    let hydra_balance_decrease_value =
+      from_asset_list(withdrawal_amount)
+        |> from_value_to_hydra_balance(hydra_tokens_policy_id)
+    let to_burn_value =
+      without_lovelace(intent_input.output.value)
+        |> merge(hydra_balance_decrease_value)
+        |> negate()
 
     //  - Exactly 1 input from `DexAccountBalance` with auth token
     //  - Exactly 1 output to `DexAccountBalance` with auth token minted with account balance merkle root updated
@@ -109,18 +110,18 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
           hydra_balance_decrease(
             balance_input,
             balance_output,
-            from_asset_list(withdrawal_amount)
-              |> from_value_to_hydra_balance(hydra_tokens_policy_id),
+            hydra_balance_decrease_value,
           )
         _ -> False
       }
     let is_hydra_withdrawal_authorized =
       key_signed(extra_signatories, operation_key)
+    let is_tokens_burnt = assets.match(mint, to_burn_value, ==)
     and {
       is_dex_account_balance_updated?,
       is_account_balance_updated?,
       is_hydra_withdrawal_authorized?,
-      is_intent_token_burnt?,
+      is_tokens_burnt?,
     }
   }
 

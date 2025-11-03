@@ -12,5 +12,6 @@
    - Deduct the account balance (for the `HydraToken`) from `HydraAccountBalance` with corresponding auth token
    - Exactly 1 input from `DexAccountBalance` with auth token
    - Exactly 1 output to `DexAccountBalance` with auth token with account balance merkle root updated (with translated L1 value)
+   - The `HydraToken` deducted is burnt
    - The input token is burnt
    - Signed by operation key

@@ -17,9 +17,9 @@ use tests/utils.{
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
   mock_hydra_account_balance_token, mock_hydra_lovelace,
-  mock_hydra_token_policy_id, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_hydra_withdrawal, mock_operation_key,
-  mock_usd, to_mvalue,
+  mock_hydra_token_policy_id, mock_hydra_usd_token_name,
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
+  mock_hydra_withdrawal, mock_operation_key, mock_usd, to_mvalue,
 }
 
 type HydraWithdrawalTestCase {
@@ -29,6 +29,7 @@ type HydraWithdrawalTestCase {
   is_merkle_tree_udpated: Bool,
   is_account_balance_updated: Bool,
   is_intent_token_burnt: Bool,
+  is_withdraw_value_burnt: Bool,
 }
 
 fn mock_hydra_withdrawal_tx(
@@ -41,6 +42,7 @@ fn mock_hydra_withdrawal_tx(
     is_merkle_tree_udpated,
     is_account_balance_updated,
     is_intent_token_burnt,
+    is_withdraw_value_burnt,
   } = test_case
 
   // MPF
@@ -136,6 +138,18 @@ fn mock_hydra_withdrawal_tx(
       |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
       |> script_withdrawal(True, mock_hydra_withdrawal, 0)
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
+      |> mint(
+          is_withdraw_value_burnt,
+          -900_000_000,
+          mock_hydra_token_policy_id,
+          "",
+        )
+      |> mint(
+          is_withdraw_value_burnt,
+          -1_000_000_000,
+          mock_hydra_token_policy_id,
+          mock_hydra_usd_token_name,
+        )
       |> required_signer_hash(is_operation_key_signed, mock_operation_key)
       // Failing cases
       |> tx_in(
@@ -172,6 +186,7 @@ test s1_whw_success() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -193,6 +208,7 @@ test s1_whw_failed_without_operation_key_signed() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -214,6 +230,7 @@ test s1_whw_failed_with_multiple_dex_account_balance_input() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -235,6 +252,7 @@ test s1_whw_failed_with_multiple_dex_account_balance_output() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -256,6 +274,7 @@ test s1_whw_failed_without_merkle_root_updated() {
       is_merkle_tree_udpated: False,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -277,6 +296,7 @@ test s1_whw_failed_without_account_balance_updated() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: False,
       is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -298,6 +318,29 @@ test s1_whw_failed_without_intent_token_burnt() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: False,
+      is_withdraw_value_burnt: True,
+    }
+
+  let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
+
+  !hydra_withdrawal.hydra_withdrawal.withdraw(
+    mock_dex_order_book_token,
+    redeemer,
+    Script(""),
+    tx,
+  )
+}
+
+test s1_whw_failed_without_withdraw_value_burnt() {
+  let test_case =
+    HydraWithdrawalTestCase {
+      is_operation_key_signed: True,
+      is_single_dex_account_balance_input: True,
+      is_single_dex_account_balance_output: True,
+      is_merkle_tree_udpated: True,
+      is_account_balance_updated: True,
+      is_intent_token_burnt: True,
+      is_withdraw_value_burnt: False,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
