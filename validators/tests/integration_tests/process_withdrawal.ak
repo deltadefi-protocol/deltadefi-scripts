@@ -4,9 +4,10 @@ use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
 use dex_account_balance/spend as dex_account_balance
 use hydra_account_balance/spend as hydra_account_balance
+use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, HydraAccountBalanceDatum, HydraUserIntentDatum,
-  HydraUserWithdrawal, HydraWithdrawal, MPFUpdate, ProcessHydraWithdrawal,
+  DexAccountBalanceDatum, HydraUserIntentDatum, HydraUserWithdrawal,
+  HydraWithdrawal, MPFUpdate, ProcessHydraWithdrawal,
   UpdateBalanceWithWithdrawal, UserSpotAccount, WithdrawalIntent,
 }
 use hydra_user_intent/mint as intent_mint
@@ -20,9 +21,10 @@ use tests/utils.{
   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_hydra_withdrawal, mock_operation_key,
-  mock_oracle_nft, to_mvalue,
+  mock_hydra_account_balance_token, mock_hydra_lovelace,
+  mock_hydra_token_policy_id, mock_hydra_usd, mock_hydra_usd_token_name,
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
+  mock_hydra_withdrawal, mock_operation_key, mock_oracle_nft, to_mvalue,
 }
 
 type TestCase {
@@ -33,6 +35,7 @@ type TestCase {
   is_account_balance_updated: Bool,
   is_intent_token_burnt: Bool,
   is_withdrawal_script_validated: Bool,
+  is_withdraw_value_burnt: Bool,
 }
 
 fn mock_tx(
@@ -41,7 +44,6 @@ fn mock_tx(
   Transaction,
   ProcessHydraWithdrawal,
   HydraUserIntentDatum,
-  HydraAccountBalanceDatum,
   DexAccountBalanceDatum,
 ) {
   let TestCase {
@@ -52,7 +54,10 @@ fn mock_tx(
     is_account_balance_updated,
     is_intent_token_burnt,
     is_withdrawal_script_validated,
+    is_withdraw_value_burnt,
   } = test_case
+
+  let account = UserSpotAccount { account: mock_account }
 
   // MPF
   let old_root =
@@ -77,21 +82,20 @@ fn mock_tx(
       to_proof: [],
     }
 
-  let hydra_account_balance_start = from_lovelace(10_000_000)
+  let hydra_account_balance_start =
+    mock_hydra_lovelace(1_000_000_000) |> merge(mock_hydra_usd(2_000_000_000))
   let hydra_account_balance_end =
     if is_account_balance_updated {
-      withdrawal_amount |> negate() |> merge(hydra_account_balance_start)
+      withdrawal_amount
+        |> from_value_to_hydra_balance(mock_hydra_token_policy_id)
+        |> negate()
+        |> merge(hydra_account_balance_start)
     } else {
       hydra_account_balance_start
     }
   let dex_account_balance_value =
     from_lovelace(2_000_000) |> add(mock_dex_account_balance_token, "", 1)
 
-  let input_balance =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: hydra_account_balance_start |> to_mvalue(),
-    }
   let input_dex_balance =
     DexAccountBalanceDatum { account_balance_merkle_root: old_root }
 
@@ -140,29 +144,36 @@ fn mock_tx(
           True,
           mock_tx_hash(0),
           3,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_start
+            |> add(mock_hydra_account_balance_token, "", 1),
           mock_hydra_account_balance_address,
         )
-      |> tx_in_inline_datum(True, input_balance)
+      |> tx_in_inline_datum(True, account)
       |> tx_out(
           True,
           mock_hydra_account_balance_address,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_end
+            |> add(mock_hydra_account_balance_token, "", 1),
         )
-      |> tx_out_inline_datum(
-          True,
-          HydraAccountBalanceDatum {
-            account: UserSpotAccount { account: mock_account },
-            balance: hydra_account_balance_end
-              |> to_mvalue(),
-          },
-        )
+      |> tx_out_inline_datum(True, account)
       |> script_withdrawal(
           is_withdrawal_script_validated,
           mock_hydra_withdrawal,
           0,
         )
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
+      |> mint(
+          is_withdraw_value_burnt,
+          -900_000_000,
+          mock_hydra_token_policy_id,
+          "",
+        )
+      |> mint(
+          is_withdraw_value_burnt,
+          -1_000_000_000,
+          mock_hydra_token_policy_id,
+          mock_hydra_usd_token_name,
+        )
       |> required_signer_hash(is_operation_key_signed, mock_operation_key)
       // Failing cases
       |> tx_in(
@@ -191,14 +202,12 @@ fn mock_tx(
     mock_tx,
     ProcessHydraWithdrawal { mpf_action: proof },
     intent_datum,
-    input_balance,
     input_dex_balance,
   )
 }
 
 fn check_all_scripts(test_case: TestCase) {
-  let (tx, redeemer, intent_datum, input_balance, input_dex_balance) =
-    mock_tx(test_case)
+  let (tx, redeemer, intent_datum, input_dex_balance) = mock_tx(test_case)
 
   let withdraw =
     hydra_withdrawal.hydra_withdrawal.withdraw(
@@ -226,7 +235,7 @@ fn check_all_scripts(test_case: TestCase) {
   let check_hydra_balance =
     hydra_account_balance.hydra_account_balance.spend(
       mock_dex_order_book_token,
-      Some(input_balance),
+      Some(UserSpotAccount { account: mock_account }),
       UpdateBalanceWithWithdrawal,
       mock_utxo_ref(0, 3),
       tx,
@@ -254,6 +263,7 @@ test it_hpw_success() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   check_all_scripts(test_case)
@@ -269,6 +279,7 @@ test it_hpw_failed_without_operation_key_signed() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -284,6 +295,7 @@ test it_hpw_failed_with_multiple_dex_account_balance_input() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -299,6 +311,7 @@ test it_hpw_failed_with_multiple_dex_account_balance_output() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -314,6 +327,7 @@ test it_hpw_failed_without_merkle_root_updated() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -329,6 +343,7 @@ test it_hpw_failed_without_account_balance_updated() {
       is_account_balance_updated: False,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -344,6 +359,7 @@ test it_hpw_failed_without_intent_token_burnt() {
       is_account_balance_updated: True,
       is_intent_token_burnt: False,
       is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: True,
     }
 
   !check_all_scripts(test_case)
@@ -359,6 +375,23 @@ test it_hpw_failed_without_withdrawal_script() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdrawal_script_validated: False,
+      is_withdraw_value_burnt: True,
+    }
+
+  !check_all_scripts(test_case)
+}
+
+test it_hpw_failed_without_withdraw_value_burnt() {
+  let test_case =
+    TestCase {
+      is_operation_key_signed: True,
+      is_single_dex_account_balance_input: True,
+      is_single_dex_account_balance_output: True,
+      is_merkle_tree_udpated: True,
+      is_account_balance_updated: True,
+      is_intent_token_burnt: True,
+      is_withdrawal_script_validated: True,
+      is_withdraw_value_burnt: False,
     }
 
   !check_all_scripts(test_case)
