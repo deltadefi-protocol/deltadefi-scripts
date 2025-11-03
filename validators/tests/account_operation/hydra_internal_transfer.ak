@@ -1,8 +1,8 @@
 use account_operation/hydra_internal_transfer
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace, merge, negate}
+use cardano/assets.{add, from_asset, merge, negate}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{HydraAccountBalanceDatum, TransferIntent, UserSpotAccount}
+use hydra_dex/types.{TransferIntent, UserSpotAccount}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
@@ -12,8 +12,9 @@ use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_internal_transfer, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_operation_key, to_mvalue,
+  mock_hydra_internal_transfer, mock_hydra_lovelace,
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
+  mock_operation_key, to_mvalue,
 }
 
 type HydraInternalTransferTestCase {
@@ -33,9 +34,9 @@ fn mock_hydra_internal_transfer_tx(
     is_intent_token_burnt,
   } = test_case
 
-  let transferal_amount = from_lovelace(100_000_000)
-  let from_balance_start = from_lovelace(1_000_000_000)
-  let to_balance_start = from_lovelace(1_000_000_000)
+  let transferal_amount = mock_hydra_lovelace(100_000_000)
+  let from_balance_start = mock_hydra_lovelace(1_000_000_000)
+  let to_balance_start = mock_hydra_lovelace(1_000_000_000)
   let from_balance_end =
     if is_from_account_balance_deducted {
       transferal_amount |> negate() |> merge(from_balance_start)
@@ -77,54 +78,30 @@ fn mock_hydra_internal_transfer_tx(
         True,
         mock_tx_hash(0),
         1,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        from_balance_start |> add(mock_hydra_account_balance_token, "", 1),
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account },
-          balance: from_balance_start |> to_mvalue(),
-        },
-      )
+    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
     |> tx_out(
         True,
         mock_hydra_account_balance_address,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        from_balance_end |> add(mock_hydra_account_balance_token, "", 1),
       )
-    |> tx_out_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account },
-          balance: from_balance_end |> to_mvalue(),
-        },
-      )
+    |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
     |> tx_in(
         True,
         mock_tx_hash(0),
         2,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        to_balance_start |> add(mock_hydra_account_balance_token, "", 1),
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account_2 },
-          balance: to_balance_start |> to_mvalue(),
-        },
-      )
+    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_2 })
     |> tx_out(
         True,
         mock_hydra_account_balance_address,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        to_balance_end |> add(mock_hydra_account_balance_token, "", 1),
       )
-    |> tx_out_inline_datum(
-        True,
-        HydraAccountBalanceDatum {
-          account: UserSpotAccount { account: mock_account_2 },
-          balance: to_balance_end |> to_mvalue(),
-        },
-      )
+    |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account_2 })
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
     |> script_withdrawal(True, mock_hydra_internal_transfer, 0)
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
