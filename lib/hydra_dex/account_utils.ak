@@ -48,15 +48,8 @@ pub fn from_hydra_balance_to_value(
   hydra_tokens_policy_id: PolicyId,
   token_map: TokenMap,
 ) -> Value {
-  let hydra_value_with_hydra_tokens =
-    hydra_value
-      |> tokens(hydra_tokens_policy_id)
-
-  trace @"hydra_value_with_hydra_tokens"
-  trace hydra_tokens_policy_id
-  trace hydra_value
-
-  hydra_value_with_hydra_tokens
+  hydra_value
+    |> tokens(hydra_tokens_policy_id)
     |> dict.foldr(
         zero,
         fn(token_hash, token_qty, account_value_acc) {

@@ -118,10 +118,6 @@ validator hydra_head_open(oracle_nft: PolicyId) {
         }
       }
 
-    trace @"minting check"
-    trace restricted_to(tx.mint, [hydra_tokens_policy_id])
-    trace to_mint_value
-
     let is_value_minted =
       restricted_to(tx.mint, [hydra_tokens_policy_id]) == to_mint_value
 

@@ -116,6 +116,11 @@ pub type HydraHeadOpen {
   token_map: TokenMap,
 }
 
+pub type HydraHeadClose {
+  proof: TreeOrProofs,
+  token_map: TokenMap,
+}
+
 // 3 - AppDepositRequest
 
 pub type AppDepositRequestDatum {
