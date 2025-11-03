@@ -1,12 +1,13 @@
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, from_asset_list, negate}
+use cardano/assets.{PolicyId, from_asset_list, merge, negate, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
   input_inline_datum, inputs_at_with_policy, key_signed, outputs_at_with_policy,
 }
 use hydra_dex/account_utils.{
-  dex_account_balance_balance_decrease, hydra_balance_increase,
+  dex_account_balance_balance_decrease, from_value_to_hydra_balance,
+  hydra_balance_increase,
 }
 use hydra_dex/types.{
   CancelWithdrawalIntent, DexOrderBookDatum, HydraUserIntentDatum,
@@ -37,6 +38,7 @@ validator hydra_cancel_withdrawal(oracle_nft: PolicyId) {
       hydra_user_intent_address,
       hydra_account_balance_token,
       hydra_account_balance_address,
+      hydra_tokens_policy_id,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -52,8 +54,13 @@ validator hydra_cancel_withdrawal(oracle_nft: PolicyId) {
       input_inline_datum(intent_input)
 
     //  - The input token is burnt
-    let is_intent_token_burnt =
-      assets.match(mint, negate(intent_input.output.value), ==)
+    let cancel_withdrawal_hydra_value =
+      from_asset_list(withdrawal_amount)
+        |> from_value_to_hydra_balance(hydra_tokens_policy_id)
+    let to_mint_or_burn_value =
+      without_lovelace(intent_input.output.value)
+        |> negate()
+        |> merge(cancel_withdrawal_hydra_value)
 
     //  - Exactly 1 input from `DexAccountBalance` with auth token
     //  - Exactly 1 output to `DexAccountBalance` with auth token minted with account balance merkle root updated
@@ -103,17 +110,18 @@ validator hydra_cancel_withdrawal(oracle_nft: PolicyId) {
           hydra_balance_increase(
             balance_input,
             balance_output,
-            from_asset_list(withdrawal_amount),
+            cancel_withdrawal_hydra_value,
           )
         _ -> False
       }
     let is_hydra_cancel_withdrawal_authorized =
       key_signed(extra_signatories, operation_key)
+    let is_mint_value_correct = assets.match(mint, to_mint_or_burn_value, ==)
     and {
       is_dex_account_balance_updated?,
       is_account_balance_updated?,
       is_hydra_cancel_withdrawal_authorized?,
-      is_intent_token_burnt?,
+      is_mint_value_correct?,
     }
   }
 

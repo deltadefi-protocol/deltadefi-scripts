@@ -3,9 +3,10 @@ use aiken/merkle_patricia_forestry.{Branch}
 use cardano/address.{Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge}
 use cardano/transaction.{Transaction}
+use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  CancelWithdrawalIntent, DexAccountBalanceDatum, HydraAccountBalanceDatum,
-  MPFUpdate, ProcessHydraCancelWithdrawal, UserSpotAccount,
+  CancelWithdrawalIntent, DexAccountBalanceDatum, MPFUpdate,
+  ProcessHydraCancelWithdrawal, UserSpotAccount,
 }
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -17,6 +18,7 @@ use tests/utils.{
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
   mock_hydra_account_balance_token, mock_hydra_cancel_withdrawal,
+  mock_hydra_lovelace, mock_hydra_token_policy_id,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, to_mvalue,
 }
@@ -28,6 +30,7 @@ type TestCase {
   is_merkle_tree_udpated: Bool,
   is_account_balance_updated: Bool,
   is_intent_token_burnt: Bool,
+  is_cancel_withdrawal_amount_minted: Bool,
 }
 
 fn mock_tx(test_case: TestCase) -> (Transaction, ProcessHydraCancelWithdrawal) {
@@ -38,6 +41,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, ProcessHydraCancelWithdrawal) {
     is_merkle_tree_udpated,
     is_account_balance_updated,
     is_intent_token_burnt,
+    is_cancel_withdrawal_amount_minted,
   } = test_case
 
   // MPF
@@ -63,10 +67,12 @@ fn mock_tx(test_case: TestCase) -> (Transaction, ProcessHydraCancelWithdrawal) {
       ],
     }
 
-  let hydra_account_balance_start = from_lovelace(10_000_000)
+  let hydra_account_balance_start = mock_hydra_lovelace(10_000_000)
   let hydra_account_balance_end =
     if is_account_balance_updated {
-      withdrawal_amount |> merge(hydra_account_balance_start)
+      withdrawal_amount
+        |> from_value_to_hydra_balance(mock_hydra_token_policy_id)
+        |> merge(hydra_account_balance_start)
     } else {
       hydra_account_balance_start
     }
@@ -121,31 +127,26 @@ fn mock_tx(test_case: TestCase) -> (Transaction, ProcessHydraCancelWithdrawal) {
           True,
           mock_tx_hash(0),
           1,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_start
+            |> add(mock_hydra_account_balance_token, "", 1),
           mock_hydra_account_balance_address,
         )
-      |> tx_in_inline_datum(
-          True,
-          HydraAccountBalanceDatum {
-            account: UserSpotAccount { account: mock_account },
-            balance: hydra_account_balance_start |> to_mvalue(),
-          },
-        )
+      |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
       |> tx_out(
           True,
           mock_hydra_account_balance_address,
-          from_asset(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_end
+            |> add(mock_hydra_account_balance_token, "", 1),
         )
-      |> tx_out_inline_datum(
-          True,
-          HydraAccountBalanceDatum {
-            account: UserSpotAccount { account: mock_account },
-            balance: hydra_account_balance_end
-              |> to_mvalue(),
-          },
-        )
+      |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
       |> script_withdrawal(True, mock_hydra_cancel_withdrawal, 0)
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
+      |> mint(
+          is_cancel_withdrawal_amount_minted,
+          500_000_000,
+          mock_hydra_token_policy_id,
+          "",
+        )
       |> required_signer_hash(is_operation_key_signed, mock_operation_key)
       // Failing cases
       |> tx_in(
@@ -182,6 +183,7 @@ test s1_whcw_success() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -203,6 +205,7 @@ test s1_whcw_failed_without_operation_key_signed() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -224,6 +227,7 @@ test s1_whcw_failed_with_multiple_dex_account_balance_input() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -245,6 +249,7 @@ test s1_whcw_failed_with_multiple_dex_account_balance_output() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -266,6 +271,7 @@ test s1_whcw_failed_without_merkle_root_updated() {
       is_merkle_tree_udpated: False,
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -287,6 +293,7 @@ test s1_whcw_failed_without_account_balance_updated() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: False,
       is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: True,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
@@ -308,6 +315,29 @@ test s1_whcw_failed_without_intent_token_burnt() {
       is_merkle_tree_udpated: True,
       is_account_balance_updated: True,
       is_intent_token_burnt: False,
+      is_cancel_withdrawal_amount_minted: True,
+    }
+
+  let (tx, redeemer) = mock_tx(test_case)
+
+  !hydra_cancel_withdrawal.hydra_cancel_withdrawal.withdraw(
+    mock_dex_order_book_token,
+    redeemer,
+    Script(""),
+    tx,
+  )
+}
+
+test s1_whcw_failed_without_cancel_withdrawal_amount_minted() {
+  let test_case =
+    TestCase {
+      is_operation_key_signed: True,
+      is_single_dex_account_balance_input: True,
+      is_single_dex_account_balance_output: True,
+      is_merkle_tree_udpated: True,
+      is_account_balance_updated: True,
+      is_intent_token_burnt: True,
+      is_cancel_withdrawal_amount_minted: False,
     }
 
   let (tx, redeemer) = mock_tx(test_case)
