@@ -207,7 +207,7 @@ pub type DexOrderBookDatum {
   dex_order_book_address: Address,
   hydra_user_intent_token: PolicyId,
   hydra_user_intent_address: Address,
-  hydra_account_balance_token: PolicyId,
+  // hydra_account_balance_token: PolicyId,
   hydra_account_balance_address: Address,
   hydra_order_book_token: PolicyId,
   hydra_order_book_address: Address,
