@@ -3,9 +3,9 @@ use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, Value, merge, quantity_of, restricted_to}
+use cardano/assets.{PolicyId, Value, merge, restricted_to}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
-use cocktail.{inputs_at_with, key_signed, outputs_at_with}
+use cocktail.{inputs_at_with, key_signed, outputs_at, outputs_at_with}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_delete,
@@ -24,7 +24,6 @@ validator hydra_head_open(oracle_nft: PolicyId) {
       dex_account_balance_token,
       dex_account_balance_address,
       hydra_account_balance_address,
-      hydra_account_balance_token,
       hydra_tokens_policy_id,
       operation_key,
       ..
@@ -57,12 +56,7 @@ validator hydra_head_open(oracle_nft: PolicyId) {
 
     // Obtain the `HydraAccountBalance` outputs with auth token and value
     let hydra_account_outputs =
-      outputs_at_with(
-        outputs,
-        hydra_account_balance_address,
-        hydra_account_balance_token,
-        "",
-      )
+      outputs_at(outputs, hydra_account_balance_address)
     // The way account balances are serialised into the tree is to have
     // the key as the serialised account, and the value is the serialised balance.
     let (output_merkle_record_list, to_mint_value): (
@@ -121,16 +115,10 @@ validator hydra_head_open(oracle_nft: PolicyId) {
     let is_value_minted =
       restricted_to(tx.mint, [hydra_tokens_policy_id]) == to_mint_value
 
-    let is_account_auth_tokens_minted =
-      quantity_of(tx.mint, hydra_account_balance_token, "") == list.length(
-        hydra_account_outputs,
-      )
-
     let is_operation_key_signed =
       key_signed(tx.extra_signatories, operation_key)
 
     and {
-      is_account_auth_tokens_minted?,
       is_value_minted?,
       is_operation_key_signed?,
       is_tree_updated?,
