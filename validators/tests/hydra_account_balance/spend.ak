@@ -1,154 +1,25 @@
-use cardano/assets.{from_asset, merge, zero}
+use cardano/assets.{from_asset, zero}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance_spend
-use hydra_dex/types.{HydraAccountBalanceRemoveEmptyBalance, UserSpotAccount}
+use hydra_dex/types.{HydraAccountBalanceSpamPreventionWithdraw, UserSpotAccount}
 use mocktail.{
-  complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
-  ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_in_inline_datum,
+  complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, tx_in,
 }
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_lovelace, mock_operation_key,
+  mock_hydra_lovelace, mock_operation_key,
 }
 
-// type SpamPreventionWithdrawTestCase {
-//   is_dex_oracle_inputed: Bool,
-//   is_no_auth_token_inputed: Bool,
-//   is_operation_key_signed: Bool,
-// }
-
-// fn mock_spam_prevention_withdrawal_tx(
-//   test_case: SpamPreventionWithdrawTestCase,
-// ) -> Transaction {
-//   let SpamPreventionWithdrawTestCase {
-//     is_dex_oracle_inputed,
-//     is_no_auth_token_inputed,
-//     is_operation_key_signed,
-//   } = test_case
-
-//   let input_value =
-//     if is_no_auth_token_inputed {
-//       from_asset(mock_policy_id(999), "", 1)
-//     } else {
-//       from_asset(mock_hydra_account_balance_token, "", 1)
-//     }
-
-//   mocktail_tx()
-//     |> ref_tx_in(
-//         is_dex_oracle_inputed,
-//         mock_tx_hash(0),
-//         0,
-//         from_asset(mock_dex_order_book_token, "", 1),
-//         mock_dex_order_book_address,
-//       )
-//     |> ref_tx_in_inline_datum(is_dex_oracle_inputed, mock_dex_order_book_datum)
-//     |> tx_in(
-//         True,
-//         mock_tx_hash(0),
-//         0,
-//         input_value,
-//         mock_script_address(999, None),
-//       )
-//     |> tx_out(True, mock_script_address(999, None), input_value)
-//     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
-//     |> complete()
-// }
-
-// test s8_spend_success_spam_prevention_withdraw() {
-//   let tx =
-//     mock_spam_prevention_withdrawal_tx(
-//       SpamPreventionWithdrawTestCase {
-//         is_dex_oracle_inputed: True,
-//         is_no_auth_token_inputed: True,
-//         is_operation_key_signed: True,
-//       },
-//     )
-
-//   hydra_account_balance_spend.hydra_account_balance.spend(
-//     mock_dex_order_book_token,
-//     None,
-//     HydraAccountBalanceSpamPreventionWithdraw,
-//     mock_utxo_ref(0, 0),
-//     tx,
-//   )
-// }
-
-// test s8_spend_fail_spam_prevention_withdraw_with_no_app_oracle_inputed() fail {
-//   let tx =
-//     mock_spam_prevention_withdrawal_tx(
-//       SpamPreventionWithdrawTestCase {
-//         is_dex_oracle_inputed: False,
-//         is_no_auth_token_inputed: True,
-//         is_operation_key_signed: True,
-//       },
-//     )
-
-//   !hydra_account_balance_spend.hydra_account_balance.spend(
-//     mock_dex_order_book_token,
-//     None,
-//     HydraAccountBalanceSpamPreventionWithdraw,
-//     mock_utxo_ref(0, 0),
-//     tx,
-//   )
-// }
-
-// test s8_spend_fail_spam_prevention_withdraw_with_auth_input() {
-//   let tx =
-//     mock_spam_prevention_withdrawal_tx(
-//       SpamPreventionWithdrawTestCase {
-//         is_dex_oracle_inputed: True,
-//         is_no_auth_token_inputed: False,
-//         is_operation_key_signed: True,
-//       },
-//     )
-
-//   !hydra_account_balance_spend.hydra_account_balance.spend(
-//     mock_dex_order_book_token,
-//     None,
-//     HydraAccountBalanceSpamPreventionWithdraw,
-//     mock_utxo_ref(0, 0),
-//     tx,
-//   )
-// }
-
-// test s8_spend_fail_spam_prevention_withdraw_with_no_op_key_sign() {
-//   let tx =
-//     mock_spam_prevention_withdrawal_tx(
-//       SpamPreventionWithdrawTestCase {
-//         is_dex_oracle_inputed: True,
-//         is_no_auth_token_inputed: True,
-//         is_operation_key_signed: False,
-//       },
-//     )
-
-//   !hydra_account_balance_spend.hydra_account_balance.spend(
-//     mock_dex_order_book_token,
-//     None,
-//     HydraAccountBalanceSpamPreventionWithdraw,
-//     mock_utxo_ref(0, 0),
-//     tx,
-//   )
-// }
-
 type RemoveEmptyBalanceTestCase {
-  is_only_account_balance_input: Bool,
   is_empty_balance: Bool,
-  is_auth_token_burnt: Bool,
   is_operation_key_signed: Bool,
 }
 
-fn mock_remove_empty_balance_tx(
-  test_case: RemoveEmptyBalanceTestCase,
-) -> Transaction {
-  let RemoveEmptyBalanceTestCase {
-    is_only_account_balance_input,
-    is_empty_balance,
-    is_auth_token_burnt,
-    is_operation_key_signed,
-  } = test_case
-
-  let account = UserSpotAccount { account: mock_account }
+fn mock_spam_prevention_tx(test_case: RemoveEmptyBalanceTestCase) -> Transaction {
+  let RemoveEmptyBalanceTestCase { is_empty_balance, is_operation_key_signed } =
+    test_case
 
   let balance =
     if is_empty_balance {
@@ -157,14 +28,11 @@ fn mock_remove_empty_balance_tx(
       mock_hydra_lovelace(1_000_000)
     }
 
-  let auth_value =
-    from_asset(mock_hydra_account_balance_token, "", 1) |> merge(balance)
-
   mocktail_tx()
     |> ref_tx_in(
         True,
         mock_tx_hash(0),
-        0,
+        1,
         from_asset(mock_dex_order_book_token, "", 1),
         mock_dex_order_book_address,
       )
@@ -172,31 +40,19 @@ fn mock_remove_empty_balance_tx(
     |> tx_in(
         True,
         mock_tx_hash(0),
-        1,
-        auth_value,
+        0,
+        balance,
         mock_hydra_account_balance_address,
       )
-    |> tx_in_inline_datum(True, account)
-    |> tx_in(
-        !is_only_account_balance_input,
-        mock_tx_hash(0),
-        1,
-        auth_value,
-        mock_hydra_account_balance_address,
-      )
-    |> tx_in_inline_datum(!is_only_account_balance_input, account)
-    |> mint(is_auth_token_burnt, -1, mock_hydra_account_balance_token, "")
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
 }
 
-test s8_spend_success_remove_empty_balance() {
+test s8_spend_success_spam_prevention() {
   let tx =
-    mock_remove_empty_balance_tx(
+    mock_spam_prevention_tx(
       RemoveEmptyBalanceTestCase {
-        is_only_account_balance_input: True,
         is_empty_balance: True,
-        is_auth_token_burnt: True,
         is_operation_key_signed: True,
       },
     )
@@ -204,39 +60,17 @@ test s8_spend_success_remove_empty_balance() {
   hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
-    HydraAccountBalanceRemoveEmptyBalance,
+    HydraAccountBalanceSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
 }
 
-test s8_spend_fail_remove_empty_balance_with_multiple_account_balance_input() fail {
+test s8_spend_success_spam_prevention_with_no_datum_only() {
   let tx =
-    mock_remove_empty_balance_tx(
+    mock_spam_prevention_tx(
       RemoveEmptyBalanceTestCase {
-        is_only_account_balance_input: False,
-        is_empty_balance: True,
-        is_auth_token_burnt: True,
-        is_operation_key_signed: True,
-      },
-    )
-
-  hydra_account_balance_spend.hydra_account_balance.spend(
-    mock_dex_order_book_token,
-    None,
-    HydraAccountBalanceRemoveEmptyBalance,
-    mock_utxo_ref(0, 0),
-    tx,
-  )
-}
-
-test s8_spend_fail_remove_empty_balance_with_non_empty_balance() fail {
-  let tx =
-    mock_remove_empty_balance_tx(
-      RemoveEmptyBalanceTestCase {
-        is_only_account_balance_input: True,
         is_empty_balance: False,
-        is_auth_token_burnt: True,
         is_operation_key_signed: True,
       },
     )
@@ -244,39 +78,56 @@ test s8_spend_fail_remove_empty_balance_with_non_empty_balance() fail {
   hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
-    HydraAccountBalanceRemoveEmptyBalance,
+    HydraAccountBalanceSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
 }
 
-test s8_spend_fail_remove_empty_balance_without_auth_token_burnt() fail {
+test s8_spend_success_spam_prevention_with_empty_balance_only() {
   let tx =
-    mock_remove_empty_balance_tx(
+    mock_spam_prevention_tx(
       RemoveEmptyBalanceTestCase {
-        is_only_account_balance_input: True,
         is_empty_balance: True,
-        is_auth_token_burnt: False,
         is_operation_key_signed: True,
       },
     )
 
+  let account = UserSpotAccount { account: mock_account }
   hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
-    None,
-    HydraAccountBalanceRemoveEmptyBalance,
+    Some(account),
+    HydraAccountBalanceSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
 }
 
-test s8_spend_fail_remove_empty_balance_without_operation_key_signed() {
+test s8_spend_fail_spam_prevention_with_non_empty_balance_and_with_datum() {
   let tx =
-    mock_remove_empty_balance_tx(
+    mock_spam_prevention_tx(
       RemoveEmptyBalanceTestCase {
-        is_only_account_balance_input: True,
+        is_empty_balance: False,
+        is_operation_key_signed: True,
+      },
+    )
+
+  let account = UserSpotAccount { account: mock_account }
+
+  !hydra_account_balance_spend.hydra_account_balance.spend(
+    mock_dex_order_book_token,
+    Some(account),
+    HydraAccountBalanceSpamPreventionWithdraw,
+    mock_utxo_ref(0, 0),
+    tx,
+  )
+}
+
+test s8_spend_fail_spam_prevention_without_operation_key_signed() {
+  let tx =
+    mock_spam_prevention_tx(
+      RemoveEmptyBalanceTestCase {
         is_empty_balance: True,
-        is_auth_token_burnt: True,
         is_operation_key_signed: False,
       },
     )
@@ -284,7 +135,7 @@ test s8_spend_fail_remove_empty_balance_without_operation_key_signed() {
   !hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
-    HydraAccountBalanceRemoveEmptyBalance,
+    HydraAccountBalanceSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
