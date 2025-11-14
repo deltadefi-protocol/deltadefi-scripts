@@ -276,9 +276,8 @@ pub type HydraAccountBalanceRedeemer {
   UpdateBalanceWithCancelWithdrawal
   UpdateBalanceWithTransfer
   HydraCombineUtxosAtClose
-  // HydraAccountBalanceSpamPreventionWithdraw
-  HydraAccountBalanceRemoveEmptyBalance
   HydraCombineUtxosAtOpen
+  HydraAccountBalanceSpamPreventionWithdraw
 }
 
 // 9 - HydraOrderBook

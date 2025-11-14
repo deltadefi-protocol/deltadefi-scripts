@@ -40,9 +40,9 @@
    - Obtain the `AccountOperationAuth - hydra_head_close` script hash from dex order book (also an oracle)
    - Check if `AccountOperationAuth - hydra_head_close` withdrawal script is run
 
-7. Remove Empty Account Balance
+7. Spam withdrawal prevention
 
    - Operation key is signed
-   - Obtain the only `HydraAccountBalance` input and its value
-   - Check balance against value by removing lovelace - is empty
-   - Check if the token with `HydraAccountBalance` is burnt
+   - Either one of below
+     - Empty balance - Check balance against value by removing lovelace - is empty
+     - There is no datum
