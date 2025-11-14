@@ -16,8 +16,7 @@ use tests/utils.{
   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_lovelace,
-  mock_hydra_token_policy_id, mock_hydra_usd_token_name,
+  mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd_token_name,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_hydra_withdrawal, mock_operation_key, mock_usd, to_mvalue,
 }
@@ -124,16 +123,14 @@ fn mock_hydra_withdrawal_tx(
           True,
           mock_tx_hash(0),
           1,
-          hydra_account_balance_start
-            |> add(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_start,
           mock_hydra_account_balance_address,
         )
       |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
       |> tx_out(
           True,
           mock_hydra_account_balance_address,
-          hydra_account_balance_end
-            |> add(mock_hydra_account_balance_token, "", 1),
+          hydra_account_balance_end,
         )
       |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
       |> script_withdrawal(True, mock_hydra_withdrawal, 0)

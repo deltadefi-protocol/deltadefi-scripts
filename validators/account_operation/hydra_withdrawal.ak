@@ -3,7 +3,8 @@ use cardano/assets.{PolicyId, from_asset_list, merge, negate, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  input_inline_datum, inputs_at_with_policy, key_signed, outputs_at_with_policy,
+  input_inline_datum, inputs_at, inputs_at_with_policy, key_signed, outputs_at,
+  outputs_at_with_policy,
 }
 use hydra_dex/account_utils.{
   dex_account_balance_balance_increase, from_value_to_hydra_balance,
@@ -36,7 +37,6 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
       dex_account_balance_address,
       hydra_user_intent_token,
       hydra_user_intent_address,
-      hydra_account_balance_token,
       hydra_account_balance_address,
       hydra_tokens_policy_id,
       ..
@@ -94,16 +94,8 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
     let is_account_balance_updated =
       when
         (
-          inputs_at_with_policy(
-            inputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
-          outputs_at_with_policy(
-            outputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
+          inputs_at(inputs, hydra_account_balance_address),
+          outputs_at(outputs, hydra_account_balance_address),
         )
       is {
         ([balance_input], [balance_output]) ->

@@ -1,6 +1,6 @@
 use account_operation/hydra_internal_transfer
 use cardano/address.{Script}
-use cardano/assets.{add, from_asset, merge, negate}
+use cardano/assets.{from_asset, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{TransferIntent, UserSpotAccount}
 use mocktail.{
@@ -11,10 +11,9 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_internal_transfer, mock_hydra_lovelace,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_operation_key, to_mvalue,
+  mock_hydra_account_balance_address, mock_hydra_internal_transfer,
+  mock_hydra_lovelace, mock_hydra_user_intent_address,
+  mock_hydra_user_intent_token, mock_operation_key, to_mvalue,
 }
 
 type HydraInternalTransferTestCase {
@@ -78,29 +77,21 @@ fn mock_hydra_internal_transfer_tx(
         True,
         mock_tx_hash(0),
         1,
-        from_balance_start |> add(mock_hydra_account_balance_token, "", 1),
+        from_balance_start,
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
-    |> tx_out(
-        True,
-        mock_hydra_account_balance_address,
-        from_balance_end |> add(mock_hydra_account_balance_token, "", 1),
-      )
+    |> tx_out(True, mock_hydra_account_balance_address, from_balance_end)
     |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
     |> tx_in(
         True,
         mock_tx_hash(0),
         2,
-        to_balance_start |> add(mock_hydra_account_balance_token, "", 1),
+        to_balance_start,
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_2 })
-    |> tx_out(
-        True,
-        mock_hydra_account_balance_address,
-        to_balance_end |> add(mock_hydra_account_balance_token, "", 1),
-      )
+    |> tx_out(True, mock_hydra_account_balance_address, to_balance_end)
     |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account_2 })
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
     |> script_withdrawal(True, mock_hydra_internal_transfer, 0)

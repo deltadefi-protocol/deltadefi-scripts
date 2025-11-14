@@ -8,8 +8,8 @@
 
 1. Validate split of merkle tree
 
-   - Obtain the `HydraAccountBalance` inputs with auth token and value
-   - Obtain the `HydraAccountBalance` output with auth token and value
+   - Obtain the `HydraAccountBalance` inputs with datum & value
+   - Obtain the `HydraAccountBalance` output with datum & value
    - For all the `HydraAccountBalance` inputs, check
      - Whether they come from same account
      - obtain the combined balance

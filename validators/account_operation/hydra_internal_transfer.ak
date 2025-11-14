@@ -3,7 +3,7 @@ use cardano/assets.{PolicyId, from_asset_list, negate, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  input_inline_datum, inputs_at_with_policy, key_signed, outputs_at_with_policy,
+  input_inline_datum, inputs_at, inputs_at_with_policy, key_signed, outputs_at,
 }
 use hydra_dex/account_utils.{
   get_account_input, get_account_output, hydra_balance_decrease,
@@ -27,7 +27,6 @@ validator hydra_internal_transfer(oracle_nft: PolicyId) {
       operation_key,
       hydra_user_intent_token,
       hydra_user_intent_address,
-      hydra_account_balance_token,
       hydra_account_balance_address,
       ..
     }: DexOrderBookDatum =
@@ -51,18 +50,8 @@ validator hydra_internal_transfer(oracle_nft: PolicyId) {
         ==,
       )
 
-    let account_inputs =
-      inputs_at_with_policy(
-        inputs,
-        hydra_account_balance_address,
-        hydra_account_balance_token,
-      )
-    let account_outputs =
-      outputs_at_with_policy(
-        outputs,
-        hydra_account_balance_address,
-        hydra_account_balance_token,
-      )
+    let account_inputs = inputs_at(inputs, hydra_account_balance_address)
+    let account_outputs = outputs_at(outputs, hydra_account_balance_address)
 
     //  - Deduct the account balance from `HydraAccountBalance` with for the `from` account.
     let is_from_account_balance_deducted =
@@ -117,7 +106,3 @@ validator hydra_internal_transfer(oracle_nft: PolicyId) {
     fail @"unsupported purpose"
   }
 }
-// test test_hydra_internal_transfer_withdrawal_policy() {
-//   let redeemer = ProcessHydraWithdrawal(MPFInsert([]))
-//   hydra_internal_transfer.withdraw("", redeemer, Script(#""), placeholder)
-// }

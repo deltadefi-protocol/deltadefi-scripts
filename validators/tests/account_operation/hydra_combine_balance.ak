@@ -1,25 +1,24 @@
 use account_operation/hydra_combine_balance
 use cardano/address.{Script}
-use cardano/assets.{add, from_asset, merge}
+use cardano/assets.{from_asset, merge}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{UserSpotAccount}
 use mocktail.{
-  complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
+  complete, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
   tx_out_inline_datum,
 }
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_combine_balance, mock_hydra_lovelace, mock_operation_key,
+  mock_hydra_account_balance_address, mock_hydra_combine_balance,
+  mock_hydra_lovelace, mock_operation_key,
 }
 
 type HydraCombineBalanceTestCase {
   is_operation_key_signed: Bool,
   is_same_account: Bool,
   is_balance_updated: Bool,
-  is_account_burnt: Bool,
 }
 
 fn mock_hydra_combine_balance_tx(
@@ -29,7 +28,6 @@ fn mock_hydra_combine_balance_tx(
     is_operation_key_signed,
     is_same_account,
     is_balance_updated,
-    is_account_burnt,
   } = test_case
 
   let balance_a = mock_hydra_lovelace(1_000_000_000)
@@ -59,7 +57,7 @@ fn mock_hydra_combine_balance_tx(
         True,
         mock_tx_hash(0),
         0,
-        balance_a |> add(mock_hydra_account_balance_token, "", 1),
+        balance_a,
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
@@ -67,17 +65,12 @@ fn mock_hydra_combine_balance_tx(
         True,
         mock_tx_hash(0),
         1,
-        balance_b |> add(mock_hydra_account_balance_token, "", 1),
+        balance_b,
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
-    |> tx_out(
-        True,
-        mock_hydra_account_balance_address,
-        combined_balance |> add(mock_hydra_account_balance_token, "", 1),
-      )
+    |> tx_out(True, mock_hydra_account_balance_address, combined_balance)
     |> tx_out_inline_datum(True, UserSpotAccount { account })
-    |> mint(is_account_burnt, -1, mock_hydra_account_balance_token, "")
     |> script_withdrawal(True, mock_hydra_combine_balance, 0)
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
@@ -89,7 +82,6 @@ test s1_whcb_success() {
       is_operation_key_signed: True,
       is_same_account: True,
       is_balance_updated: True,
-      is_account_burnt: True,
     }
 
   let tx = mock_hydra_combine_balance_tx(test_case)
@@ -108,7 +100,6 @@ test s1_whcb_failed_without_operation_key_signed() {
       is_operation_key_signed: False,
       is_same_account: True,
       is_balance_updated: True,
-      is_account_burnt: True,
     }
 
   let tx = mock_hydra_combine_balance_tx(test_case)
@@ -127,7 +118,6 @@ test s1_whcb_failed_with_different_account() {
       is_operation_key_signed: True,
       is_same_account: False,
       is_balance_updated: True,
-      is_account_burnt: True,
     }
 
   let tx = mock_hydra_combine_balance_tx(test_case)
@@ -146,26 +136,6 @@ test s1_whcb_failed_with_balance_not_combined() {
       is_operation_key_signed: True,
       is_same_account: True,
       is_balance_updated: False,
-      is_account_burnt: True,
-    }
-
-  let tx = mock_hydra_combine_balance_tx(test_case)
-
-  !hydra_combine_balance.hydra_combine_balance.withdraw(
-    mock_dex_order_book_token,
-    Void,
-    Script(""),
-    tx,
-  )
-}
-
-test s1_whcb_failed_with_account_not_burnt() {
-  let test_case =
-    HydraCombineBalanceTestCase {
-      is_operation_key_signed: True,
-      is_same_account: True,
-      is_balance_updated: True,
-      is_account_burnt: False,
     }
 
   let tx = mock_hydra_combine_balance_tx(test_case)
