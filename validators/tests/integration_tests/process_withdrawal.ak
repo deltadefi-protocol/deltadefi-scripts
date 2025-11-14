@@ -6,9 +6,9 @@ use dex_account_balance/spend as dex_account_balance
 use hydra_account_balance/spend as hydra_account_balance
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, HydraUserIntentDatum, HydraUserWithdrawal,
-  HydraWithdrawal, MPFUpdate, ProcessHydraWithdrawal,
-  UpdateBalanceWithWithdrawal, UserSpotAccount, WithdrawalIntent,
+  BurnIntent, DexAccountBalanceDatum, HydraUserIntentDatum, HydraWithdrawal,
+  MPFUpdate, ProcessHydraWithdrawal, UpdateBalanceWithWithdrawal,
+  UserSpotAccount, WithdrawalIntent,
 }
 use hydra_user_intent/mint as intent_mint
 use hydra_user_intent/spend as intent_spend
@@ -226,7 +226,7 @@ fn check_all_scripts(test_case: TestCase) {
   let check_intent_mint =
     intent_mint.hydra_user_intent.mint(
       mock_dex_order_book_token,
-      HydraUserWithdrawal,
+      BurnIntent,
       mock_hydra_user_intent_token,
       tx,
     )

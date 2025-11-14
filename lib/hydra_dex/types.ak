@@ -234,15 +234,10 @@ pub type DexOrderBookWithdrawalScripts {
 
 pub type HydraUserIntentRedeemer {
   MintPlaceOrderIntent { order: HydraOrderBookDatum }
-  HydraUserPlaceOrder
   MintCancelOrderIntent { account: UserAccount, order_id: ByteArray }
-  HydraUserCancelOrder
   MintWithdrawalIntent { account: UserAccount, amount: MValue }
-  HydraUserWithdrawal
   MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
-  HydraUserCancelWithdrawal
   MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
-  HydraUserTransfer
   BurnIntent
 }
 
