@@ -1,14 +1,14 @@
 use aiken/builtin.{blake2b_256}
 use aiken/cbor
-use aiken/collection/list.{length}
+use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use aiken/primitive/bytearray
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, Value, from_asset, merge, negate, restricted_to}
+use cardano/assets.{PolicyId, Value, merge, negate, restricted_to, zero}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
-use cocktail.{inputs_at_with, key_signed, outputs_at_with}
+use cocktail.{inputs_at, inputs_at_with, key_signed, outputs_at_with}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
@@ -34,26 +34,13 @@ validator hydra_head_close(oracle_nft: PolicyId) {
       dex_account_balance_token,
       dex_account_balance_address,
       hydra_account_balance_address,
-      hydra_account_balance_token,
       hydra_tokens_policy_id,
       operation_key,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
     let account_balance_inputs: List<Input> =
-      inputs_at_with(
-        inputs,
-        hydra_account_balance_address,
-        hydra_account_balance_token,
-        "",
-      )
-
-    let to_burn_assets =
-      from_asset(
-        hydra_account_balance_token,
-        "",
-        length(account_balance_inputs) * -1,
-      )
+      inputs_at(inputs, hydra_account_balance_address)
 
     let (input_merkle_record_list, to_burn_assets): (
       List<Pair<ByteArray, ByteArray>>,
@@ -61,7 +48,7 @@ validator hydra_head_close(oracle_nft: PolicyId) {
     ) =
       account_balance_inputs
         |> list.foldr(
-            ([], to_burn_assets),
+            ([], zero),
             fn(input: Input, acc) {
               expect InlineDatum(input_datum) = input.output.datum
               let balance =

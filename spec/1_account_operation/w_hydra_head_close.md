@@ -11,7 +11,6 @@
    - For every single account input from `HydraAccountBalance`
      - Convert into L1 Value and combine it into merkle tree
      - Consolidate the total `HydraToken` value
-   - All floating `HydraAccountBalance` auth tokens are burnt
    - All `HydraTokens` are burnt
    - Only one input from `DexAccountBalance`
    - Only one output to `DexAccountBalance` with updated merkle output

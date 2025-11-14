@@ -2,7 +2,7 @@ use account_operation/hydra_head_close
 use aiken/cbor
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Script}
-use cardano/assets.{add, from_asset, from_lovelace}
+use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
@@ -17,16 +17,15 @@ use tests/utils.{
   mock_account, mock_account_2, mock_account_3, mock_dex_account_balance_address,
   mock_dex_account_balance_token, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
-  mock_hydra_usd_token_name, mock_operation_key, mock_token_map, mock_usd,
+  mock_hydra_account_balance_address, mock_hydra_lovelace,
+  mock_hydra_token_policy_id, mock_hydra_usd, mock_hydra_usd_token_name,
+  mock_operation_key, mock_token_map, mock_usd,
 }
 
 type HydraCloseTestCase {
   is_tree_valid: Bool,
   is_inputs_correct: Bool,
   is_input_root_hash_correct: Bool,
-  is_all_hydra_account_balance_burnt: Bool,
   is_hydra_tokens_burnt: Bool,
   is_operation_key_signed: Bool,
 }
@@ -110,7 +109,6 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
     is_tree_valid,
     is_inputs_correct,
     is_input_root_hash_correct,
-    is_all_hydra_account_balance_burnt,
     is_hydra_tokens_burnt,
     is_operation_key_signed,
   } = test_case
@@ -144,17 +142,11 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
         True,
         mock_tx_hash(3),
         0,
-        mock_hydra_usd(10000) |> add(mock_hydra_account_balance_token, "", 1),
+        mock_hydra_usd(10000),
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_2 })
-    |> tx_in(
-        True,
-        mock_tx_hash(5),
-        0,
-        from_asset(mock_hydra_account_balance_token, "", 1),
-        mock_hydra_account_balance_address,
-      )
+    |> tx_in(True, mock_tx_hash(5), 0, zero, mock_hydra_account_balance_address)
     |> tx_in_inline_datum(
         is_inputs_correct,
         UserSpotAccount { account: mock_account },
@@ -163,7 +155,7 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
         True,
         mock_tx_hash(4),
         0,
-        mock_hydra_lovelace(100) |> add(mock_hydra_account_balance_token, "", 1),
+        mock_hydra_lovelace(100),
         mock_hydra_account_balance_address,
       )
     |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_3 })
@@ -184,12 +176,6 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
           account_balance_merkle_root: invalid_tree |> compute_tree_hash(),
         },
       )
-    |> mint(
-        is_all_hydra_account_balance_burnt,
-        -3,
-        mock_hydra_account_balance_token,
-        "",
-      )
     |> mint(is_hydra_tokens_burnt, -100, mock_hydra_token_policy_id, "")
     |> mint(
         is_hydra_tokens_burnt,
@@ -207,7 +193,6 @@ test s1_whhc_spend_success_hydra_head_close() {
       is_tree_valid: True,
       is_inputs_correct: True,
       is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: True,
       is_operation_key_signed: True,
     }
@@ -227,7 +212,6 @@ test s1_whhc_spend_fail_hydra_head_close_invalid_tree() fail {
       is_tree_valid: False,
       is_inputs_correct: True,
       is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: True,
       is_operation_key_signed: True,
     }
@@ -250,7 +234,6 @@ test s1_whhc_spend_fail_hydra_head_close_invalid_inputs() fail {
       is_tree_valid: True,
       is_inputs_correct: False,
       is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: True,
       is_operation_key_signed: True,
     }
@@ -270,7 +253,6 @@ test s1_whhc_spend_fail_hydra_head_close_invalid_input_root_hash() fail {
       is_tree_valid: True,
       is_inputs_correct: True,
       is_input_root_hash_correct: False,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: True,
       is_operation_key_signed: True,
     }
@@ -284,33 +266,12 @@ test s1_whhc_spend_fail_hydra_head_close_invalid_input_root_hash() fail {
   )
 }
 
-test s1_whhc_spend_fail_hydra_head_close_hydra_account_balance_not_burnt() {
-  let test_case =
-    HydraCloseTestCase {
-      is_tree_valid: True,
-      is_inputs_correct: True,
-      is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: False,
-      is_hydra_tokens_burnt: True,
-      is_operation_key_signed: True,
-    }
-
-  let tx = mock_hydra_close_tx(test_case)
-  !hydra_head_close.hydra_head_close.withdraw(
-    mock_dex_order_book_token,
-    HydraHeadClose { proof: FullTree { tree }, token_map: mock_token_map },
-    Script(""),
-    tx,
-  )
-}
-
 test s1_whhc_spend_fail_hydra_head_close_hydra_tokens_not_burnt() {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,
       is_inputs_correct: True,
       is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: False,
       is_operation_key_signed: True,
     }
@@ -330,7 +291,6 @@ test s1_whhc_spend_fail_hydra_head_close_no_operation_key_signed() {
       is_tree_valid: True,
       is_inputs_correct: True,
       is_input_root_hash_correct: True,
-      is_all_hydra_account_balance_burnt: True,
       is_hydra_tokens_burnt: True,
       is_operation_key_signed: False,
     }
