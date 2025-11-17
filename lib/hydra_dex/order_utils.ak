@@ -1,21 +1,28 @@
-use cardano/assets.{Value, from_asset}
+use cardano/assets.{PolicyId, Value, from_asset}
+use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{HydraOrderBookDatum}
 
 pub fn get_short_qty(order_size: Int, list_price_times_1bil: Int) -> Int {
   order_size * list_price_times_1bil / 1_000_000_000
 }
 
-pub fn get_min_order_value(order: HydraOrderBookDatum) -> Value {
+pub fn get_min_order_value(
+  order: HydraOrderBookDatum,
+  hydra_tokens_policy_id: PolicyId,
+) -> Value {
   if order.is_long {
     from_asset(
       order.short_token.1st,
       order.short_token.2nd,
       get_short_qty(order.order_size, order.list_price_times_1bil),
     )
+      |> from_value_to_hydra_balance(hydra_tokens_policy_id)
   } else {
     from_asset(order.long_token.1st, order.long_token.2nd, order.order_size)
+      |> from_value_to_hydra_balance(hydra_tokens_policy_id)
   }
 }
+
 // pub fn get_order_settlement_info(
 //   order: HydraOrderBookDatum,
 //   remaining_order_opt: Option<HydraOrderBookDatum>,
@@ -59,9 +66,9 @@ pub fn get_min_order_value(order: HydraOrderBookDatum) -> Value {
 //   get_order_settlement_info(order, None).2nd
 // }
 
-// pub fn get_fee(order_size: Int, fee_bp: Int) -> Int {
-//   order_size * fee_bp / 10000
-// }
+pub fn get_fee(order_size: Int, fee_bp: Int) -> Int {
+  order_size * fee_bp / 10000
+}
 // pub fn split_order_fee(payoff: Value, fee_bp: Int) -> (Value, Value) {
 //   let flattened_payoff = flatten(payoff)
 //   list.foldr(

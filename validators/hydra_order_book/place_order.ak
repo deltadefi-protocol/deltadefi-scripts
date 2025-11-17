@@ -36,6 +36,7 @@ validator place_order(oracle_nft: PolicyId) {
       hydra_user_intent_address,
       hydra_account_balance_address,
       hydra_order_book_address,
+      hydra_tokens_policy_id,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -89,7 +90,10 @@ validator place_order(oracle_nft: PolicyId) {
     //    - `is_long` == True -> at least short qty of short token
     //    - `is_long` == False -> at least `order_size` of long token
     let is_order_value_sufficient =
-      value_geq(order_output.value, get_min_order_value(order_datum))
+      value_geq(
+        order_output.value,
+        get_min_order_value(order_datum, hydra_tokens_policy_id),
+      )
 
     //  - The input token is burnt
     let is_intent_token_burnt =

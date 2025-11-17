@@ -13,8 +13,8 @@ use cardano/assets.{
 use cardano/transaction.{Input, Output}
 use cocktail.{input_inline_datum, one_of_keys_signed, output_inline_datum}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, HydraOrderBookDatum, MPFDelete,
-  MPFInsert, MPFProof, MPFUpdate, MValue, TokenMap, UserAccount,
+  DexAccountBalanceDatum, DexOrderBookDatum, MPFDelete, MPFInsert, MPFProof,
+  MPFUpdate, MValue, MerklizedOrderDatum, TokenMap, UserAccount,
   UserFundingAccount, UserMobileAccount, UserSpotAccount,
 }
 use hydra_dex/utils.{withdrawal_script_hashes}
@@ -344,7 +344,7 @@ pub fn get_account_output(
 pub fn dex_order_book_cancel_order(
   input: Input,
   output: Output,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   proof: MPFProof,
 ) -> Bool {
   expect input_datum: DexOrderBookDatum = input_inline_datum(input)
@@ -361,7 +361,7 @@ pub fn dex_order_book_cancel_order(
 pub fn order_merkle_cancel_order(
   old_root: ByteArray,
   new_root: ByteArray,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   proof: MPFProof,
 ) -> Bool {
   let old_trie = mpf.from_root(old_root)

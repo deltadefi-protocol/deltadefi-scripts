@@ -150,7 +150,7 @@ pub type EmergencyWithdrawalRequestRedeemer {
 
 pub type EmergencyCancelRedeemer {
   account: UserAccount,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   mpf_action: MPFProof,
 }
 
@@ -226,6 +226,18 @@ pub type DexOrderBookWithdrawalScripts {
   hydra_fill_order: ScriptHash,
   hydra_cancel_order: ScriptHash,
   hydra_release_extra_value: ScriptHash,
+}
+
+pub type MerklizedOrderDatum {
+  order_id: ByteArray,
+  long_token: (PolicyId, AssetName),
+  short_token: (PolicyId, AssetName),
+  is_long: Bool,
+  list_price_times_1bil: Int,
+  order_size: Int,
+  fee_amount_bp: Int,
+  account: UserAccount,
+  value: MValue,
 }
 
 // 7 - HydraUserIntent
