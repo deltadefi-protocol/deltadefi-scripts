@@ -229,14 +229,7 @@ pub type DexOrderBookWithdrawalScripts {
 }
 
 pub type MerklizedOrderDatum {
-  order_id: ByteArray,
-  long_token: (PolicyId, AssetName),
-  short_token: (PolicyId, AssetName),
-  is_long: Bool,
-  list_price_times_1bil: Int,
-  order_size: Int,
-  fee_amount_bp: Int,
-  account: UserAccount,
+  datum: HydraOrderBookDatum,
   value: MValue,
 }
 

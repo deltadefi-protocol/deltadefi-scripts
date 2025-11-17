@@ -116,7 +116,7 @@ validator emergency_order_cancel(oracle_nft: PolicyId) {
 
         // Check that the redeemer matches the withdrawal request        
         let is_redeemer_matches_withdrawal_request =
-          redeemer.account == cancel_account && redeemer.order.order_id == cancel_order_id
+          redeemer.account == cancel_account && redeemer.order.datum.order_id == cancel_order_id
         and {
           is_emergency_token_burnt,
           is_redeemer_matches_withdrawal_request,

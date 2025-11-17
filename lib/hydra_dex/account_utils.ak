@@ -368,7 +368,7 @@ pub fn order_merkle_cancel_order(
   let new_trie = mpf.from_root(new_root)
   when proof is {
     MPFDelete { proof } ->
-      mpf.delete(old_trie, order.order_id, cbor.serialise(order), proof) == new_trie
+      mpf.delete(old_trie, order.datum.order_id, cbor.serialise(order), proof) == new_trie
     _ -> False
   }
 }

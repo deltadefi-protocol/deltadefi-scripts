@@ -7,7 +7,7 @@ use cardano/transaction.{Transaction}
 use dex_order_book/emergency_cancel
 use hydra_dex/types.{
   DexOrderBookDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
-  MPFDelete, MerklizedOrderDatum, UserSpotAccount,
+  HydraOrderBookDatum, MPFDelete, MerklizedOrderDatum, UserSpotAccount,
 }
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -210,17 +210,19 @@ fn mock_process_withdrawal_tx(
     EmergencyCancelRedeemer {
       account: UserSpotAccount { account: mock_account },
       order: MerklizedOrderDatum {
-        order_id,
-        long_token: ("", ""),
-        short_token: (
-          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-          #"55534458",
-        ),
-        is_long: False,
-        list_price_times_1bil: 1_350_000_000,
-        order_size: 250_000_000,
-        fee_amount_bp: 10,
-        account: UserSpotAccount { account: mock_account },
+        datum: HydraOrderBookDatum {
+          order_id,
+          long_token: ("", ""),
+          short_token: (
+            #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+            #"55534458",
+          ),
+          is_long: False,
+          list_price_times_1bil: 1_350_000_000,
+          order_size: 250_000_000,
+          fee_amount_bp: 10,
+          account: UserSpotAccount { account: mock_account },
+        },
         value: from_lovelace(250_000_000) |> to_mvalue(),
       },
       mpf_action: proof,
