@@ -6,9 +6,10 @@ use cocktail.{
 use hydra_dex/account_utils.{trade_auth_by_account, withdrawal_auth_by_account}
 use hydra_dex/types.{
   BurnIntent, CancelOrderIntent, CancelWithdrawalIntent, DexOrderBookDatum,
-  HydraUserIntentDatum, HydraUserIntentRedeemer, MintCancelOrderIntent,
-  MintCancelWithdrawalIntent, MintPlaceOrderIntent, MintTransferIntent,
-  MintWithdrawalIntent, PlaceOrderIntent, TransferIntent, WithdrawalIntent,
+  HydraOrderBookDatum, HydraUserIntentDatum, HydraUserIntentRedeemer,
+  MintCancelOrderIntent, MintCancelWithdrawalIntent, MintPlaceOrderIntent,
+  MintTransferIntent, MintWithdrawalIntent, PlaceOrderIntent, TransferIntent,
+  WithdrawalIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -46,15 +47,16 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
                 output_inline_datum(only_output)
               let correct_output_datum =
                 PlaceOrderIntent {
-                  order_id: order.order_id,
-                  long_token: order.long_token,
-                  short_token: order.short_token,
-                  is_long: order.is_long,
-                  list_price_times_1bil: order.list_price_times_1bil,
-                  order_size: order.order_size,
-                  fee_amount_bp: order.fee_amount_bp,
-                  extra_value: order.extra_value,
-                  account: order.account,
+                  order: HydraOrderBookDatum {
+                    order_id: order.order_id,
+                    long_token: order.long_token,
+                    short_token: order.short_token,
+                    is_long: order.is_long,
+                    list_price_times_1bil: order.list_price_times_1bil,
+                    order_size: order.order_size,
+                    fee_amount_bp: order.fee_amount_bp,
+                    account: order.account,
+                  },
                 }
               only_output_datum == correct_output_datum
             }

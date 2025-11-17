@@ -5,7 +5,7 @@ use aiken/collection/pairs
 use aiken/crypto.{ScriptHash, VerificationKeyHash, blake2b_256}
 use aiken/merkle_patricia_forestry as mpf
 use aiken/primitive/bytearray
-use cardano/address.{Credential, Script, VerificationKey}
+use cardano/address.{Address, Credential, Script, VerificationKey}
 use cardano/assets.{
   AssetName, Lovelace, PolicyId, Value, from_asset_list, merge, negate, tokens,
   zero,
@@ -18,6 +18,36 @@ use hydra_dex/types.{
   UserFundingAccount, UserMobileAccount, UserSpotAccount,
 }
 use hydra_dex/utils.{withdrawal_script_hashes}
+
+// Filters
+
+pub fn create_account_inputs_filter(
+  account: UserAccount,
+  hydra_account_balance_address: Address,
+) {
+  fn(input: Input) {
+    if input.output.address == hydra_account_balance_address {
+      expect input_datum: UserAccount = input_inline_datum(input)
+      input_datum == account
+    } else {
+      False
+    }
+  }
+}
+
+pub fn create_account_outputs_filter(
+  account: UserAccount,
+  hydra_account_balance_address: Address,
+) {
+  fn(output: Output) {
+    if output.address == hydra_account_balance_address {
+      expect output_datum: UserAccount = output_inline_datum(output)
+      output_datum == account
+    } else {
+      False
+    }
+  }
+}
 
 //  Account Value related
 

@@ -207,9 +207,7 @@ pub type DexOrderBookDatum {
   dex_order_book_address: Address,
   hydra_user_intent_token: PolicyId,
   hydra_user_intent_address: Address,
-  // hydra_account_balance_token: PolicyId,
   hydra_account_balance_address: Address,
-  hydra_order_book_token: PolicyId,
   hydra_order_book_address: Address,
   withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
   hydra_tokens_policy_id: PolicyId,
@@ -243,17 +241,7 @@ pub type HydraUserIntentRedeemer {
 
 pub type HydraUserIntentDatum {
   // - Same as `HydraOrderBook`'s `LimitOrder` with an extra field of `order_id`
-  PlaceOrderIntent {
-    order_id: ByteArray,
-    long_token: (AssetName, PolicyId),
-    short_token: (AssetName, PolicyId),
-    is_long: Bool,
-    list_price_times_1bil: Int,
-    order_size: Int,
-    fee_amount_bp: Int,
-    extra_value: Int,
-    account: UserAccount,
-  }
+  PlaceOrderIntent { order: HydraOrderBookDatum }
   CancelOrderIntent { account: UserAccount, order_id: ByteArray }
   WithdrawalIntent { account: UserAccount, amount: MValue }
   CancelWithdrawalIntent { account: UserAccount, amount: MValue }
@@ -294,7 +282,6 @@ pub type HydraOrderBookDatum {
   list_price_times_1bil: Int,
   order_size: Int,
   fee_amount_bp: Int,
-  extra_value: Int,
   account: UserAccount,
 }
 

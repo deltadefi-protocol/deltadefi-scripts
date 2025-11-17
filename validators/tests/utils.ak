@@ -185,9 +185,7 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     dex_order_book_address: mock_dex_order_book_address,
     hydra_user_intent_token: mock_hydra_user_intent_token,
     hydra_user_intent_address: mock_hydra_user_intent_address,
-    // hydra_account_balance_token: mock_hydra_account_balance_token,
     hydra_account_balance_address: mock_hydra_account_balance_address,
-    hydra_order_book_token: mock_hydra_order_book_token,
     hydra_order_book_address: mock_hydra_order_book_address,
     withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
     hydra_tokens_policy_id: mock_hydra_token_policy_id,
@@ -290,7 +288,6 @@ pub fn mock_order(
   order_size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
-  extra_value: Int,
   account: Account,
 ) {
   HydraOrderBookDatum {
@@ -304,7 +301,6 @@ pub fn mock_order(
     list_price_times_1bil,
     order_size,
     fee_amount_bp,
-    extra_value,
     account: UserSpotAccount { account },
   }
 }
@@ -314,21 +310,21 @@ pub fn mock_order_intent(
   order_size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
-  extra_value: Int,
 ) {
   PlaceOrderIntent {
-    order_id: mock_order_id,
-    long_token: ("", ""),
-    short_token: (
-      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-      #"55534458",
-    ),
-    is_long,
-    list_price_times_1bil,
-    order_size,
-    fee_amount_bp,
-    extra_value,
-    account: UserSpotAccount { account: mock_account },
+    order: HydraOrderBookDatum {
+      order_id: mock_order_id,
+      long_token: ("", ""),
+      short_token: (
+        #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+        #"55534458",
+      ),
+      is_long,
+      list_price_times_1bil,
+      order_size,
+      fee_amount_bp,
+      account: UserSpotAccount { account: mock_account },
+    },
   }
 }
 
