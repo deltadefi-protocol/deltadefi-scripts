@@ -1,3 +1,5 @@
+// TODO: Update merkle test case
+
 use aiken/merkle_patricia_forestry.{Branch}
 use cardano/address.{Address, Script}
 use cardano/assets.{add, from_asset, from_lovelace}
@@ -5,7 +7,7 @@ use cardano/transaction.{Transaction}
 use dex_order_book/emergency_cancel
 use hydra_dex/types.{
   DexOrderBookDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
-  HydraOrderBookDatum, MPFDelete, UserSpotAccount,
+  MPFDelete, MerklizedOrderDatum, UserSpotAccount,
 }
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -17,7 +19,7 @@ use tests/utils.{
   mock_app_withdrawal, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_emergency_cancel_order_request_address,
   mock_emergency_cancel_order_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft,
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, to_mvalue,
 }
 
 type AppWithdrawalTestCase {
@@ -207,7 +209,7 @@ fn mock_process_withdrawal_tx(
     mock_tx,
     EmergencyCancelRedeemer {
       account: UserSpotAccount { account: mock_account },
-      order: HydraOrderBookDatum {
+      order: MerklizedOrderDatum {
         order_id,
         long_token: ("", ""),
         short_token: (
@@ -218,8 +220,8 @@ fn mock_process_withdrawal_tx(
         list_price_times_1bil: 1_350_000_000,
         order_size: 250_000_000,
         fee_amount_bp: 10,
-        extra_value: 0,
         account: UserSpotAccount { account: mock_account },
+        value: from_lovelace(250_000_000) |> to_mvalue(),
       },
       mpf_action: proof,
     },

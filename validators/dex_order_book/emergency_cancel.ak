@@ -1,7 +1,7 @@
 use aiken/collection/dict
 use aiken/interval.{is_entirely_after}
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, merge}
+use cardano/assets.{PolicyId, from_asset_list, merge}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
@@ -12,7 +12,6 @@ use cocktail/vodka_inputs.{input_inline_datum}
 use hydra_dex/account_utils.{
   dex_order_book_cancel_order, get_master_key, withdrawal_auth_by_account,
 }
-use hydra_dex/order_utils.{get_order_value}
 use hydra_dex/types.{
   AppOracleDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
 }
@@ -49,7 +48,7 @@ validator emergency_order_cancel(oracle_nft: PolicyId) {
     //  - Check the withdrawal amounut is correct sent to an address equal
     let value_from_vault = get_all_value_from(inputs, app_vault_address)
     let value_to_vault = get_all_value_to(outputs, app_vault_address)
-    let value_in_order = get_order_value(redeemer.order)
+    let value_in_order = from_asset_list(redeemer.order.value)
     let is_value_unlocked_from_vault_correct =
       value_to_vault
         |> merge(value_in_order)

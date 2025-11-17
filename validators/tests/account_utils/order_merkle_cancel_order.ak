@@ -1,12 +1,15 @@
+// TODO: Update merkle test case
+
 use aiken/merkle_patricia_forestry.{Branch}
+use cardano/assets.{from_lovelace}
 use hydra_dex/account_utils.{order_merkle_cancel_order}
-use hydra_dex/types.{HydraOrderBookDatum, MPFDelete, UserSpotAccount}
-use tests/utils.{mock_account}
+use hydra_dex/types.{MPFDelete, MerklizedOrderDatum, UserSpotAccount}
+use tests/utils.{mock_account, to_mvalue}
 
 test au_omco() {
   let order_id = #"032f3cc8274143358eb2bbf7b58acaf8"
   let order =
-    HydraOrderBookDatum {
+    MerklizedOrderDatum {
       order_id,
       long_token: ("", ""),
       short_token: (
@@ -17,8 +20,8 @@ test au_omco() {
       list_price_times_1bil: 1_350_000_000,
       order_size: 250_000_000,
       fee_amount_bp: 10,
-      extra_value: 0,
       account: UserSpotAccount { account: mock_account },
+      value: from_lovelace(250_000_000) |> to_mvalue(),
     }
   let old_root =
     #"4005bf6b8dcfba8d297cdddb5f4b1cfabe006a85315b0f870a668c29c163e46e"
