@@ -17,6 +17,7 @@ use hydra_dex/types.{
 use hydra_dex/utils.{get_dex_order_book_datum}
 use hydra_dex/vodka.{
   group_inputs_2, group_outputs_2, i_at_with_policy, inputs_value, o_at,
+  outputs_value,
 }
 
 validator place_order(oracle_nft: PolicyId) {
@@ -70,7 +71,6 @@ validator place_order(oracle_nft: PolicyId) {
     let (account_outputs, order_outputs, other_outputs) =
       group_outputs_2(outputs, ao_filter, oo_filter)
 
-    expect [account_output] = account_outputs
     expect [order_output] = order_outputs
 
     // - No other inputs and outputs
@@ -102,7 +102,7 @@ validator place_order(oracle_nft: PolicyId) {
     //  - Value parity: `AI` == `AO` + `OO`
     let input_value = account_inputs |> inputs_value |> without_lovelace
     let output_value =
-      account_output.value
+      outputs_value(account_outputs)
         |> merge(order_output.value)
         |> without_lovelace
     let is_value_parity_holds = match(input_value, output_value, ==)
