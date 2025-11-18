@@ -5,6 +5,7 @@ use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   Account, AppDepositRequestDatum, MValue, RBurn, RMint, UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_policy_id, mock_script_hash, mock_tx_hash, mocktail_tx,
   ref_tx_in, ref_tx_in_inline_datum, tx_out, tx_out_inline_datum,
@@ -12,8 +13,8 @@ use mocktail.{
 use tests/utils.{
   mock_app_deposit_request_address, mock_app_deposit_request_token,
   mock_input_oracle_datum, mock_oracle_address, mock_oracle_nft,
-  mock_withdrawal_script_hashes, to_mvalue,
-}
+  mock_withdrawal_script_hashes,
+} as test_utils
 
 type MintTestCase {
   is_app_oracle_inputed: Bool,

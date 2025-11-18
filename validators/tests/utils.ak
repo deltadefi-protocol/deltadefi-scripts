@@ -1,11 +1,10 @@
-use aiken/cbor
 use cardano/address.{Script, VerificationKey, from_script}
 use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, DexOrderBookWithdrawalScripts,
-  HydraInfo, HydraOrderBookDatum, MValue, PlaceOrderIntent, TokenMap,
-  UserAccount, UserSpotAccount, WithdrawalScriptHashes,
+  HydraInfo, HydraOrderBookDatum, PlaceOrderIntent, TokenMap, UserAccount,
+  UserSpotAccount, WithdrawalScriptHashes,
 }
 use mocktail.{
   mock_policy_id, mock_pub_key_hash, mock_script_hash,
@@ -190,13 +189,6 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
     hydra_tokens_policy_id: mock_hydra_token_policy_id,
   }
-
-pub fn to_mvalue(value: Value) -> MValue {
-  let data = cbor.serialise(value)
-  expect Some(mvalue_raw): Option<Data> = cbor.deserialise(data)
-  expect mvalue: MValue = mvalue_raw
-  mvalue
-}
 
 pub const mock_account_id = #"3450e8e7ff044148af0b0f151f490d99"
 

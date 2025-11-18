@@ -7,6 +7,7 @@ use hydra_dex/types.{
   DexAccountBalanceDatum, MPFUpdate, ProcessHydraWithdrawal, UserSpotAccount,
   WithdrawalIntent,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
@@ -18,8 +19,8 @@ use tests/utils.{
   mock_dex_order_book_token, mock_hydra_account_balance_address,
   mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd_token_name,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_hydra_withdrawal, mock_operation_key, mock_usd, to_mvalue,
-}
+  mock_hydra_withdrawal, mock_operation_key, mock_usd,
+} as test_utils
 
 type HydraWithdrawalTestCase {
   is_operation_key_signed: Bool,

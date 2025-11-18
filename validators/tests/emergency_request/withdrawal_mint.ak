@@ -2,6 +2,7 @@ use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use emergency_request/withdrawal_mint
 use hydra_dex/types.{EmergencyWithdrawalRequestDatum, RMint, UserSpotAccount}
+use hydra_dex/utils.{to_mvalue} as test_utils
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, tx_out, tx_out_inline_datum,
@@ -10,7 +11,7 @@ use tests/utils.{
   mock_account, mock_app_deposit_request_token,
   mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
-  mock_oracle_address, mock_oracle_nft, to_mvalue,
+  mock_oracle_address, mock_oracle_nft,
 }
 
 type MintTestCase {

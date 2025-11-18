@@ -9,6 +9,7 @@ use hydra_dex/types.{
   DexOrderBookDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
   HydraOrderBookDatum, MPFDelete, MerklizedOrderDatum, UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
@@ -19,8 +20,8 @@ use tests/utils.{
   mock_app_withdrawal, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_emergency_cancel_order_request_address,
   mock_emergency_cancel_order_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft, to_mvalue,
-}
+  mock_operation_key, mock_oracle_address, mock_oracle_nft,
+} as test_utils
 
 type AppWithdrawalTestCase {
   is_operation_key_signed: Bool,

@@ -3,6 +3,7 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{TransferIntent, UserSpotAccount}
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
@@ -13,8 +14,8 @@ use tests/utils.{
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_hydra_account_balance_address, mock_hydra_internal_transfer,
   mock_hydra_lovelace, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_operation_key, to_mvalue,
-}
+  mock_hydra_user_intent_token, mock_operation_key,
+} as test_utils
 
 type HydraInternalTransferTestCase {
   is_operation_key_signed: Bool,

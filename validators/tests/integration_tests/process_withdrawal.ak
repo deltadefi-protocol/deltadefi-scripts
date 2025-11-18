@@ -10,6 +10,7 @@ use hydra_dex/types.{
   MPFUpdate, ProcessHydraWithdrawal, UpdateBalanceWithWithdrawal,
   UserSpotAccount, WithdrawalIntent,
 }
+use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent/mint as intent_mint
 use hydra_user_intent/spend as intent_spend
 use mocktail.{
@@ -24,8 +25,8 @@ use tests/utils.{
   mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
   mock_hydra_usd_token_name, mock_hydra_user_intent_address,
   mock_hydra_user_intent_token, mock_hydra_withdrawal, mock_operation_key,
-  mock_oracle_nft, to_mvalue,
-}
+  mock_oracle_nft,
+} as test_utils
 
 type TestCase {
   is_operation_key_signed: Bool,

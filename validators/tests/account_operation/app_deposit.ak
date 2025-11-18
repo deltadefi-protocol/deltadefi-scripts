@@ -6,6 +6,7 @@ use hydra_dex/types.{
   AppDepositRequestDatum, DexAccountBalanceDatum, MPFUpdate, ProcessAppDeposit,
   UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
@@ -16,8 +17,8 @@ use tests/utils.{
   mock_app_deposit_request_token, mock_app_vault_address,
   mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_input_oracle_datum, mock_operation_key, mock_oracle_address,
-  mock_oracle_nft, to_mvalue,
-}
+  mock_oracle_nft,
+} as test_utils
 
 type ProcessDepositTestCase {
   is_operation_key_signed: Bool,

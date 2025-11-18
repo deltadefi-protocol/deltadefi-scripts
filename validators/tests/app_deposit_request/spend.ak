@@ -7,6 +7,7 @@ use hydra_dex/types.{
   AppDepositRequestTransferAccountBalance, EmergencyWithdrawalRequestDatum,
   UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, invalid_before, mint, mock_policy_id, mock_script_address,
   mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -18,8 +19,8 @@ use tests/utils.{
   mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
   mock_operation_key, mock_oracle_address, mock_oracle_nft,
-  mock_withdrawal_script_hashes, to_mvalue,
-}
+  mock_withdrawal_script_hashes,
+} as test_utils
 
 type TransferalTestCase {
   is_app_oracle_inputed: Bool,
