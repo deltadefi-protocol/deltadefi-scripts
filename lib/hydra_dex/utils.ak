@@ -1,3 +1,4 @@
+use aiken/cbor
 use aiken/collection/list.{difference, is_empty}
 use aiken/collection/pairs.{has_key}
 use aiken/crypto.{ScriptHash}
@@ -6,7 +7,7 @@ use cardano/assets.{
   AssetName, Lovelace, PolicyId, Value, flatten, merge, quantity_of, zero,
 }
 use cardano/transaction.{DatumHash, InlineDatum, Input, NoDatum, Output}
-use hydra_dex/types.{AppOracleDatum, DexOrderBookDatum}
+use hydra_dex/types.{AppOracleDatum, DexOrderBookDatum, MValue}
 
 pub fn get_app_oracle_datum(
   reference_inputs: List<Input>,
@@ -126,4 +127,11 @@ pub fn withdrawal_script_validated(
 ) -> Bool {
   withdrawals
     |> has_key(Script(withdrawal_script_hash))
+}
+
+pub fn to_mvalue(value: Value) -> MValue {
+  let data = cbor.serialise(value)
+  expect Some(mvalue_raw): Option<Data> = cbor.deserialise(data)
+  expect mvalue: MValue = mvalue_raw
+  mvalue
 }
