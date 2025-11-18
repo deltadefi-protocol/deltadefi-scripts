@@ -1,3 +1,5 @@
+// TODO: update merkle root
+
 use aiken/builtin.{blake2b_256}
 use aiken/cbor
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
@@ -24,13 +26,13 @@ type DexOrderBookCombineMerkleTestCase {
 }
 
 const order_1 =
-  mock_order("order_1", False, 250_000_000, 1_000_000_000, 10, 0, mock_account)
+  mock_order("order_1", False, 250_000_000, 1_000_000_000, 10, mock_account)
 
 const order_2 =
-  mock_order("order_2", True, 250_000_000, 1_000_000_000, 10, 0, mock_account_2)
+  mock_order("order_2", True, 250_000_000, 1_000_000_000, 10, mock_account_2)
 
 const order_3 =
-  mock_order("order_3", True, 250_000_000, 1_000_000_000, 10, 0, mock_account_3)
+  mock_order("order_3", True, 250_000_000, 1_000_000_000, 10, mock_account_3)
 
 const tree: Tree =
   TreeBranch {

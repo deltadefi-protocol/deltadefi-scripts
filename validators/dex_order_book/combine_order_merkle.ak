@@ -1,22 +1,22 @@
 use aiken/builtin.{blake2b_256}
 use aiken/cbor
-use aiken/collection/dict
 use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use aiken/primitive/bytearray
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, quantity_of, tokens}
+use cardano/assets.{PolicyId, quantity_of, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
-use cocktail.{outputs_with_policy}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
 }
 use hydra_dex/types.{
-  DexOrderBookDatum, FullTree, HydraOrderBookDatum, Proofs, TreeOrProofs,
+  DexOrderBookDatum, FullTree, HydraOrderBookDatum, MerklizedOrderDatum, Proofs,
+  TreeOrProofs,
 }
-use hydra_dex/utils.{get_dex_order_book_datum}
+use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
+use hydra_dex/vodka.{inputs_at}
 
 validator combine_order_merkle(oracle_nft: PolicyId) {
   withdraw(redeemer: TreeOrProofs, _credential: Credential, tx: Transaction) {
@@ -25,7 +25,6 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
       inputs |> get_dex_order_book_datum(oracle_nft)
     let DexOrderBookDatum {
       hydra_order_book_address,
-      hydra_order_book_token,
       dex_order_book_token,
       dex_order_book_address,
       ..
@@ -44,17 +43,7 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
     expect InlineDatum(input_datum) = dex_order_book_input.output.datum
     expect input_dex_order_book_datum: DexOrderBookDatum = input_datum
     let hydra_order_book_inputs: List<Input> =
-      inputs
-        |> list.filter(
-            fn(input: Input) {
-              input.output.address == hydra_order_book_address && dict.size(
-                tokens(input.output.value, hydra_order_book_token),
-              ) == 1
-            },
-          )
-
-    let hydra_order_book_burnt_check =
-      outputs_with_policy(outputs, hydra_order_book_token) == []
+      inputs_at(inputs, hydra_order_book_address)
 
     let serialised_inputs: List<Pair<ByteArray, ByteArray>> =
       hydra_order_book_inputs
@@ -62,7 +51,12 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
             fn(input: Input) {
               expect InlineDatum(input_datum) = input.output.datum
               expect order_book_datum: HydraOrderBookDatum = input_datum
-              Pair(order_book_datum.order_id, cbor.serialise(order_book_datum))
+              let merkle_datum =
+                MerklizedOrderDatum {
+                  datum: order_book_datum,
+                  value: input.output.value |> without_lovelace |> to_mvalue,
+                }
+              Pair(order_book_datum.order_id, cbor.serialise(merkle_datum))
             },
           )
 
@@ -93,7 +87,6 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
           (input_dex_order_book_datum.limit_orders_merkle_root == null_hash)?,
           (compute_tree_hash(tree) == output_dex_order_book_datum.limit_orders_merkle_root)?,
           (extract_key_values(tree) == sorted_serialised_inputs)?,
-          hydra_order_book_burnt_check?,
         }
       }
       Proofs { proofs } -> {
@@ -104,10 +97,7 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
         let computed_new_root: mpf.MerklePatriciaForestry =
           recursive_insert(old_root, serialised_inputs, proofs)
 
-        and {
-          mpf.root(new_root) == mpf.root(computed_new_root),
-          hydra_order_book_burnt_check?,
-        }
+        mpf.root(new_root) == mpf.root(computed_new_root)
       }
     }
   }

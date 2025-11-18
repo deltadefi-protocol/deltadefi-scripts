@@ -1,19 +1,20 @@
 use aiken/cbor
-use aiken/collection/dict
 use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, quantity_of, tokens}
+use cardano/assets.{PolicyId, quantity_of, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Output, Transaction}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_delete,
 }
 use hydra_dex/types.{
-  DexOrderBookDatum, FullTree, HydraOrderBookDatum, Proofs, TreeOrProofs,
+  DexOrderBookDatum, FullTree, HydraOrderBookDatum, MerklizedOrderDatum, Proofs,
+  TreeOrProofs,
 }
-use hydra_dex/utils.{get_dex_order_book_datum}
+use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
+use hydra_dex/vodka.{outputs_at}
 
 validator split_order_merkle(oracle_nft: PolicyId) {
   withdraw(redeemer: TreeOrProofs, _credential: Credential, tx: Transaction) {
@@ -24,21 +25,13 @@ validator split_order_merkle(oracle_nft: PolicyId) {
       inputs |> get_dex_order_book_datum(oracle_nft)
     let DexOrderBookDatum {
       hydra_order_book_address,
-      hydra_order_book_token,
       dex_order_book_token,
       dex_order_book_address,
       limit_orders_merkle_root,
       ..
     } = input_order_book_datum
-    let filtered_outputs =
-      outputs
-        |> list.filter(
-            fn(output: Output) {
-              output.address == hydra_order_book_address && dict.size(
-                tokens(output.value, hydra_order_book_token),
-              ) == 1
-            },
-          )
+    let filtered_outputs = outputs_at(outputs, hydra_order_book_address)
+
     // The way orders are placed into the tree is a little bit different to
     // how they are done in account balance merkle tree. The key is `order_id`
     // and the value is the entire `HydraOrderBookDatum` datum serialised.
@@ -48,9 +41,14 @@ validator split_order_merkle(oracle_nft: PolicyId) {
             fn(output: Output) {
               expect InlineDatum(output_datum) = output.datum
               expect hydra_order_book_datum: HydraOrderBookDatum = output_datum
+              let merkle_datum =
+                MerklizedOrderDatum {
+                  datum: hydra_order_book_datum,
+                  value: output.value |> without_lovelace |> to_mvalue,
+                }
               Pair(
                 hydra_order_book_datum.order_id,
-                cbor.serialise(hydra_order_book_datum),
+                cbor.serialise(merkle_datum),
               )
             },
           )
