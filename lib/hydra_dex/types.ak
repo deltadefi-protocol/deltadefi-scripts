@@ -232,7 +232,7 @@ pub type MerklizedOrderDatum {
 
 pub type HydraUserIntentRedeemer {
   MintPlaceOrderIntent { order: HydraOrderBookDatum }
-  MintCancelOrderIntent { account: UserAccount, order_id: ByteArray }
+  MintCancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
   MintWithdrawalIntent { account: UserAccount, amount: MValue }
   MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
   MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
@@ -242,7 +242,7 @@ pub type HydraUserIntentRedeemer {
 pub type HydraUserIntentDatum {
   // - Same as `HydraOrderBook`'s `LimitOrder` with an extra field of `order_id`
   PlaceOrderIntent { order: HydraOrderBookDatum }
-  CancelOrderIntent { account: UserAccount, order_id: ByteArray }
+  CancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
   WithdrawalIntent { account: UserAccount, amount: MValue }
   CancelWithdrawalIntent { account: UserAccount, amount: MValue }
   TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }

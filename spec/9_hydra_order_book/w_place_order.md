@@ -24,6 +24,6 @@
    - `OO` has at least value
      - `is_long` == True -> at least short qty of short token
      - `is_long` == False -> at least `order_size` of long token
-   - The input token is burnt
+   - The input intent token is burnt
    - Value parity: `AI` == `AO` + `OO` (to clear: is the check needed?)
    - Signed by `operating_key`

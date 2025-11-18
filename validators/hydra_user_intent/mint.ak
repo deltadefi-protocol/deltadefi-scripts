@@ -67,7 +67,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           trade_auth_by_account(order.account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
-      MintCancelOrderIntent { account, order_id } -> {
+      MintCancelOrderIntent { account, order_ids } -> {
         let token_check = only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
           when
@@ -80,7 +80,8 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             [only_output] -> {
               expect only_output_datum: HydraUserIntentDatum =
                 output_inline_datum(only_output)
-              let correct_output_datum = CancelOrderIntent { account, order_id }
+              let correct_output_datum =
+                CancelOrderIntent { account, order_ids }
               only_output_datum == correct_output_datum
             }
             _ -> False
