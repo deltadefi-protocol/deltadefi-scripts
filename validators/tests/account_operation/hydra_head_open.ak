@@ -6,8 +6,8 @@ use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
-  Account, DexAccountBalanceDatum, FullTree, HydraHeadOpen, Tree, TreeBranch,
-  TreeLeaf, UserSpotAccount,
+  Account, DexAccountBalanceDatum, FullTree, Tree, TreeBranch, TreeLeaf,
+  TreeOrProofsWithTokenMap, UserSpotAccount,
 }
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -192,7 +192,10 @@ test s1_whho_spend_success_hydra_open() {
   let tx = mock_hydra_open_tx(test_case)
   hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    HydraHeadOpen { proof: FullTree { tree }, token_map: mock_token_map },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -210,7 +213,10 @@ test s1_whho_spend_fail_hydra_open_tree_invalid() {
   let tx = mock_hydra_open_tx(test_case)
   !hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    HydraHeadOpen { proof: FullTree { tree }, token_map: mock_token_map },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -228,7 +234,10 @@ test s1_whho_spend_fail_hydra_open_output_root_hash_invalid() {
   let tx = mock_hydra_open_tx(test_case)
   !hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    HydraHeadOpen { proof: FullTree { tree }, token_map: mock_token_map },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -246,7 +255,10 @@ test s1_whho_spend_fail_without_hydra_value_minted() {
   let tx = mock_hydra_open_tx(test_case)
   !hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    HydraHeadOpen { proof: FullTree { tree }, token_map: mock_token_map },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -264,7 +276,10 @@ test s1_whho_spend_fail_without_operation_key_signed() {
   let tx = mock_hydra_open_tx(test_case)
   !hydra_head_open.hydra_head_open.withdraw(
     mock_dex_order_book_token,
-    HydraHeadOpen { proof: FullTree { tree }, token_map: mock_token_map },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )

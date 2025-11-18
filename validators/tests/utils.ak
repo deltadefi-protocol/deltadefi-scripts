@@ -160,8 +160,6 @@ pub const mock_hydra_user_intent_address =
 pub const mock_hydra_account_balance_address =
   from_script("hydra_account_balance_address")
 
-pub const mock_hydra_order_book_token = mock_policy_id(7)
-
 pub const mock_hydra_order_book_address =
   from_script("hydra_order_book_address")
 

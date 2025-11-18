@@ -25,6 +25,11 @@ pub type TreeOrProofs {
 pub type TokenMap =
   Pairs<ByteArray, (PolicyId, AssetName)>
 
+pub type TreeOrProofsWithTokenMap {
+  proof: TreeOrProofs,
+  token_map: TokenMap,
+}
+
 // Mint Redeemer
 
 pub type MintPolarity {
@@ -109,16 +114,6 @@ pub type ProcessHydraWithdrawal {
 
 pub type ProcessHydraCancelWithdrawal {
   mpf_action: MPFProof,
-}
-
-pub type HydraHeadOpen {
-  proof: TreeOrProofs,
-  token_map: TokenMap,
-}
-
-pub type HydraHeadClose {
-  proof: TreeOrProofs,
-  token_map: TokenMap,
 }
 
 // 3 - AppDepositRequest

@@ -14,14 +14,18 @@ use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
 }
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, FullTree, HydraHeadClose, Proofs,
-  UserAccount,
+  DexAccountBalanceDatum, DexOrderBookDatum, FullTree, Proofs,
+  TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_head_close(oracle_nft: PolicyId) {
-  withdraw(redeemer: HydraHeadClose, _credential: Credential, tx: Transaction) {
-    let HydraHeadClose { proof: redeemer_proof, token_map } = redeemer
+  withdraw(
+    redeemer: TreeOrProofsWithTokenMap,
+    _credential: Credential,
+    tx: Transaction,
+  ) {
+    let TreeOrProofsWithTokenMap { proof: redeemer_proof, token_map } = redeemer
     let Transaction {
       inputs,
       reference_inputs,

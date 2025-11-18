@@ -8,18 +8,24 @@ use cardano/address.{Credential}
 use cardano/assets.{PolicyId, quantity_of, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
+use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
 }
 use hydra_dex/types.{
   DexOrderBookDatum, FullTree, HydraOrderBookDatum, MerklizedOrderDatum, Proofs,
-  TreeOrProofs,
+  TreeOrProofsWithTokenMap,
 }
 use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
 use hydra_dex/vodka.{inputs_at}
 
 validator combine_order_merkle(oracle_nft: PolicyId) {
-  withdraw(redeemer: TreeOrProofs, _credential: Credential, tx: Transaction) {
+  withdraw(
+    redeemer: TreeOrProofsWithTokenMap,
+    _credential: Credential,
+    tx: Transaction,
+  ) {
+    let TreeOrProofsWithTokenMap { proof: redeemer_proof, token_map } = redeemer
     let Transaction { inputs, outputs, .. } = tx
     let input_dex_order_book_datum: DexOrderBookDatum =
       inputs |> get_dex_order_book_datum(oracle_nft)
@@ -27,6 +33,7 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
       hydra_order_book_address,
       dex_order_book_token,
       dex_order_book_address,
+      hydra_tokens_policy_id,
       ..
     } = input_dex_order_book_datum
     expect [dex_order_book_input] =
@@ -54,7 +61,13 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
               let merkle_datum =
                 MerklizedOrderDatum {
                   datum: order_book_datum,
-                  value: input.output.value |> without_lovelace |> to_mvalue,
+                  value: input.output.value
+                    |> without_lovelace
+                    |> from_hydra_balance_to_value(
+                        hydra_tokens_policy_id,
+                        token_map,
+                      )
+                    |> to_mvalue,
                 }
               Pair(order_book_datum.order_id, cbor.serialise(merkle_datum))
             },
@@ -74,7 +87,7 @@ validator combine_order_merkle(oracle_nft: PolicyId) {
     expect InlineDatum(output_datum) = dex_order_book_output.datum
     expect output_dex_order_book_datum: DexOrderBookDatum = output_datum
 
-    when redeemer is {
+    when redeemer_proof is {
       FullTree { tree } -> {
         let sorted_serialised_inputs: List<Pair<ByteArray, ByteArray>> =
           serialised_inputs

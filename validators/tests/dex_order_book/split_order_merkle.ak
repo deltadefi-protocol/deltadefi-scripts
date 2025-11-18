@@ -8,15 +8,18 @@ use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use dex_order_book/split_order_merkle
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
-use hydra_dex/types.{DexOrderBookDatum, FullTree, Tree, TreeBranch, TreeLeaf}
+use hydra_dex/types.{
+  DexOrderBookDatum, FullTree, Tree, TreeBranch, TreeLeaf,
+  TreeOrProofsWithTokenMap,
+}
 use mocktail.{
   complete, mock_tx_hash, mocktail_tx, tx_in, tx_in_inline_datum, tx_out,
   tx_out_inline_datum,
 }
 use tests/utils.{
   mock_account, mock_account_2, mock_account_3, mock_dex_order_book_address,
-  mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_order_book_address, mock_hydra_order_book_token, mock_order,
+  mock_dex_order_book_datum, mock_dex_order_book_token, mock_hydra_lovelace,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_order, mock_token_map,
 }
 
 type DexOrderBookSplitOrderMerkleTestCase {
@@ -137,16 +140,12 @@ fn mock_dex_order_book_split_order_merkle_tx(
           limit_orders_merkle_root: invalid_tree |> compute_tree_hash(),
         },
       )
-    |> tx_out(
-        True,
-        mock_hydra_order_book_address,
-        from_asset(mock_hydra_order_book_token, "order_2", 1),
-      )
+    |> tx_out(True, mock_hydra_order_book_address, mock_hydra_usd(250_000_000))
     |> tx_out_inline_datum(True, order_2)
     |> tx_out(
         is_outputs_correct,
         mock_hydra_order_book_address,
-        from_asset(mock_hydra_order_book_token, "order_1", 1),
+        mock_hydra_lovelace(250_000_000),
       )
     |> tx_out_inline_datum(True, order_1)
     |> complete()
@@ -162,7 +161,10 @@ test s6_spend_success_split_order_merkle() {
   let tx = mock_dex_order_book_split_order_merkle_tx(test_case)
   split_order_merkle.split_order_merkle.withdraw(
     mock_dex_order_book_token,
-    FullTree { tree },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -178,7 +180,10 @@ test s6_spend_fail_split_order_merkle_tree_invalid() fail {
   let tx = mock_dex_order_book_split_order_merkle_tx(test_case)
   split_order_merkle.split_order_merkle.withdraw(
     mock_dex_order_book_token,
-    FullTree { tree },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -194,7 +199,10 @@ test s6_spend_fail_split_order_merkle_outputs_invalid() fail {
   let tx = mock_dex_order_book_split_order_merkle_tx(test_case)
   split_order_merkle.split_order_merkle.withdraw(
     mock_dex_order_book_token,
-    FullTree { tree },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
@@ -210,7 +218,10 @@ test s6_spend_fail_split_order_merkle_output_root_hash_invalid() fail {
   let tx = mock_dex_order_book_split_order_merkle_tx(test_case)
   split_order_merkle.split_order_merkle.withdraw(
     mock_dex_order_book_token,
-    FullTree { tree },
+    TreeOrProofsWithTokenMap {
+      proof: FullTree { tree },
+      token_map: mock_token_map,
+    },
     Script(""),
     tx,
   )
