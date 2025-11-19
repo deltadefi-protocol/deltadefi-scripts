@@ -2,19 +2,19 @@ use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance_spend
 use hydra_dex/types.{
-  HydraCombineUtxosAtClose, UpdateBalanceWithCancelOrder,
-  UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithFillOrder,
-  UpdateBalanceWithPlaceOrder, UpdateBalanceWithWithdrawal,
+  CancelOrder, FillOrder, HydraCombineUtxosAtClose, PlaceOrder,
+  UpdateBalanceWithCancelOrder, UpdateBalanceWithCancelWithdrawal,
+  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder,
+  UpdateBalanceWithWithdrawal, UserSpotAccount,
 }
 use mocktail.{
   complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
-  ref_tx_in_inline_datum, script_withdrawal,
+  ref_tx_in_inline_datum, script_withdrawal, withdrawal_redeemer_value,
 }
 use tests/utils.{
-  mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_cancel_order,
-  mock_hydra_cancel_withdrawal, mock_hydra_fill_order, mock_hydra_head_close,
-  mock_hydra_place_order, mock_hydra_withdrawal,
+  mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
+  mock_dex_order_book_token, mock_hydra_cancel_withdrawal, mock_hydra_head_close,
+  mock_hydra_order_book, mock_hydra_withdrawal,
 }
 
 type TestCase {
@@ -51,20 +51,19 @@ fn mock_tx(test_case: TestCase) -> Transaction {
         mock_dex_order_book_datum,
       )
     |> script_withdrawal(
+        is_place_order_script_attached || is_fill_order_script_attached || is_cancel_order_script_attached,
+        mock_hydra_order_book,
+        0,
+      )
+    |> withdrawal_redeemer_value(
         is_place_order_script_attached,
-        mock_hydra_place_order,
-        0,
+        PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
       )
-    |> script_withdrawal(
+    |> withdrawal_redeemer_value(
         is_fill_order_script_attached,
-        mock_hydra_fill_order,
-        0,
+        FillOrder { filler_order_id: "" },
       )
-    |> script_withdrawal(
-        is_cancel_order_script_attached,
-        mock_hydra_cancel_order,
-        0,
-      )
+    |> withdrawal_redeemer_value(is_cancel_order_script_attached, CancelOrder)
     |> script_withdrawal(
         is_withdrawal_script_attached,
         mock_hydra_withdrawal,
@@ -83,7 +82,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s8_spend_w_success_update_balance_with_place_order_intent() {
+test s8_w_spend_success_update_balance_with_place_order_intent() {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -107,7 +106,7 @@ test s8_spend_w_success_update_balance_with_place_order_intent() {
   )
 }
 
-test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -131,7 +130,7 @@ test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_dex_oracle_i
   )
 }
 
-test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_auth_attached() {
+test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_auth_attached() fail {
   let redeemer = UpdateBalanceWithPlaceOrder
   let tx =
     mock_tx(
@@ -146,7 +145,7 @@ test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_auth_attache
       },
     )
 
-  !hydra_account_balance_spend.hydra_account_balance.spend(
+  hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
     redeemer,
@@ -155,7 +154,7 @@ test s8_spend_w_fail_update_balance_with_place_order_intent_with_no_auth_attache
   )
 }
 
-test s8_spend_w_success_update_balance_with_fill_order() {
+test s8_w_spend_success_update_balance_with_fill_order() {
   let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
@@ -179,7 +178,7 @@ test s8_spend_w_success_update_balance_with_fill_order() {
   )
 }
 
-test s8_spend_w_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
@@ -203,7 +202,7 @@ test s8_spend_w_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed()
   )
 }
 
-test s8_spend_w_fail_update_balance_with_fill_order_with_no_auth_attached() {
+test s8_w_spend_fail_update_balance_with_fill_order_with_no_auth_attached() fail {
   let redeemer = UpdateBalanceWithFillOrder
   let tx =
     mock_tx(
@@ -218,7 +217,7 @@ test s8_spend_w_fail_update_balance_with_fill_order_with_no_auth_attached() {
       },
     )
 
-  !hydra_account_balance_spend.hydra_account_balance.spend(
+  hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
     redeemer,
@@ -227,7 +226,7 @@ test s8_spend_w_fail_update_balance_with_fill_order_with_no_auth_attached() {
   )
 }
 
-test s8_spend_w_success_update_balance_with_cancel_order() {
+test s8_w_spend_success_update_balance_with_cancel_order() {
   let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
@@ -251,7 +250,7 @@ test s8_spend_w_success_update_balance_with_cancel_order() {
   )
 }
 
-test s8_spend_w_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
@@ -275,7 +274,7 @@ test s8_spend_w_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed
   )
 }
 
-test s8_spend_w_fail_update_balance_with_cancel_order_with_no_auth_attached() {
+test s8_w_spend_fail_update_balance_with_cancel_order_with_no_auth_attached() fail {
   let redeemer = UpdateBalanceWithCancelOrder
   let tx =
     mock_tx(
@@ -290,7 +289,7 @@ test s8_spend_w_fail_update_balance_with_cancel_order_with_no_auth_attached() {
       },
     )
 
-  !hydra_account_balance_spend.hydra_account_balance.spend(
+  hydra_account_balance_spend.hydra_account_balance.spend(
     mock_dex_order_book_token,
     None,
     redeemer,
@@ -299,7 +298,7 @@ test s8_spend_w_fail_update_balance_with_cancel_order_with_no_auth_attached() {
   )
 }
 
-test s8_spend_w_success_update_balance_with_withdrawal_intent() {
+test s8_w_spend_success_update_balance_with_withdrawal_intent() {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -323,7 +322,7 @@ test s8_spend_w_success_update_balance_with_withdrawal_intent() {
   )
 }
 
-test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -347,7 +346,7 @@ test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_in
   )
 }
 
-test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_auth_attached() {
+test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_auth_attached() {
   let redeemer = UpdateBalanceWithWithdrawal
   let tx =
     mock_tx(
@@ -371,7 +370,7 @@ test s8_spend_w_fail_update_balance_with_withdrawal_intent_with_no_auth_attached
   )
 }
 
-test s8_spend_w_success_update_balance_with_cancel_withdrawal_intent() {
+test s8_w_spend_success_update_balance_with_cancel_withdrawal_intent() {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
@@ -395,7 +394,7 @@ test s8_spend_w_success_update_balance_with_cancel_withdrawal_intent() {
   )
 }
 
-test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
@@ -419,7 +418,7 @@ test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_or
   )
 }
 
-test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_attached() {
+test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_attached() {
   let redeemer = UpdateBalanceWithCancelWithdrawal
   let tx =
     mock_tx(
@@ -443,7 +442,7 @@ test s8_spend_w_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_a
   )
 }
 
-test s8_spend_w_success_combine_utxos_at_close() {
+test s8_w_spend_success_combine_utxos_at_close() {
   let redeemer = HydraCombineUtxosAtClose
   let tx =
     mock_tx(
@@ -467,7 +466,7 @@ test s8_spend_w_success_combine_utxos_at_close() {
   )
 }
 
-test s8_spend_w_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
+test s8_w_spend_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
   let redeemer = HydraCombineUtxosAtClose
   let tx =
     mock_tx(
@@ -491,7 +490,7 @@ test s8_spend_w_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s8_spend_w_fail_combine_utxos_at_close_with_no_auth_attached() {
+test s8_w_spend_fail_combine_utxos_at_close_with_no_auth_attached() {
   let redeemer = HydraCombineUtxosAtClose
   let tx =
     mock_tx(

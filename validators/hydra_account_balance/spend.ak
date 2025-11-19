@@ -95,13 +95,6 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
         let is_operation_key_signed =
           key_signed(extra_signatories, operation_key)
 
-        trace @"gm"
-        trace True == or {
-          is_no_value?,
-          is_no_datum?,
-        }
-        trace True
-
         and {
           or {
             is_no_value?,
