@@ -11,10 +11,9 @@ use mocktail.{
   tx_out,
 }
 use tests/utils.{
-  mock_combine_order_merkle, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_emergency_cancel_order,
-  mock_input_oracle_datum, mock_oracle_address, mock_oracle_nft,
-  mock_split_order_merkle,
+  mock_dex_order_book_datum, mock_dex_order_book_token,
+  mock_emergency_cancel_order, mock_hydra_order_book, mock_input_oracle_datum,
+  mock_oracle_address, mock_oracle_nft,
 }
 
 type TestCase {
@@ -54,12 +53,12 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> tx_out(True, mock_script_address(999, None), input_value)
     |> script_withdrawal(
         is_split_order_merkle_script_attached,
-        mock_split_order_merkle,
+        mock_hydra_order_book,
         0,
       )
     |> script_withdrawal(
         is_combine_order_merkle_script_attached,
-        mock_combine_order_merkle,
+        mock_hydra_order_book,
         0,
       )
     |> script_withdrawal(
