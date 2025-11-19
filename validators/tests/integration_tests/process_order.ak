@@ -208,7 +208,7 @@ fn check_all_scripts(test_case: TestCase) {
   check_withdraw? && check_intent_spend? && check_intent_mint? && check_hydra_balance?
 }
 
-test it_hpro_success() {
+test it_hpo_success() {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -222,7 +222,7 @@ test it_hpro_success() {
   check_all_scripts(test_case)
 }
 
-test it_hpro_fail_with_multiple_intent_input() fail {
+test it_hpo_fail_with_multiple_intent_input() fail {
   let test_case =
     TestCase {
       is_single_intent_input: False,
@@ -236,7 +236,7 @@ test it_hpro_fail_with_multiple_intent_input() fail {
   check_all_scripts(test_case)
 }
 
-test it_hpro_fail_with_multiple_order_output() fail {
+test it_hpo_fail_with_multiple_order_output() fail {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -250,7 +250,7 @@ test it_hpro_fail_with_multiple_order_output() fail {
   check_all_scripts(test_case)
 }
 
-test it_hpro_fail_without_intent_token_burnt() {
+test it_hpo_fail_without_intent_token_burnt() {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -264,7 +264,7 @@ test it_hpro_fail_without_intent_token_burnt() {
   !check_all_scripts(test_case)
 }
 
-test it_hpro_fail_with_incorrect_datum() {
+test it_hpo_fail_with_incorrect_datum() {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -278,7 +278,7 @@ test it_hpro_fail_with_incorrect_datum() {
   !check_all_scripts(test_case)
 }
 
-test it_hpro_fail_without_balance_updated() {
+test it_hpo_fail_without_balance_updated() {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -292,7 +292,7 @@ test it_hpro_fail_without_balance_updated() {
   !check_all_scripts(test_case)
 }
 
-test it_hpro_fail_without_operation_key_signed() {
+test it_hpo_fail_without_operation_key_signed() {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -306,7 +306,7 @@ test it_hpro_fail_without_operation_key_signed() {
   !check_all_scripts(test_case)
 }
 
-test it_hpro_fail_without_withdrawal_script() fail {
+test it_hpo_fail_without_withdrawal_script() fail {
   let test_case =
     TestCase {
       is_single_intent_input: True,

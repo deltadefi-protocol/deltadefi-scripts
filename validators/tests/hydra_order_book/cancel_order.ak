@@ -1,20 +1,19 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{CancelOrderIntent, UserSpotAccount}
-use hydra_order_book/cancel_order
+use hydra_dex/types.{CancelOrder, CancelOrderIntent, UserSpotAccount}
+use hydra_order_book/core as ob
 use mocktail.{
-  complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
-  required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_in_inline_datum,
+  tx_out, tx_out_inline_datum,
 }
-use mocktail/virgin_address.{mock_pub_key_address}
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_balance_address, mock_hydra_lovelace,
-  mock_hydra_order_book_address, mock_hydra_place_order, mock_hydra_usd,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_operation_key, mock_order,
+  mock_hydra_account_balance_address, mock_hydra_lovelace, mock_hydra_order_book,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_hydra_user_intent_address,
+  mock_hydra_user_intent_token, mock_operation_key, mock_order,
 } as test_utils
 
 type TestCase {
@@ -182,10 +181,10 @@ test s9_wco_success() {
         is_operation_key_signed: True,
       },
     )
-  cancel_order.cancel_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -204,15 +203,15 @@ test s9_wco_fail_with_multiple_intent_input() fail {
         is_operation_key_signed: True,
       },
     )
-  cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
 
-test s9_wco_fail_with_radnom_input() {
+test s9_wco_fail_with_random_input() {
   let tx =
     mock_tx(
       TestCase {
@@ -226,10 +225,10 @@ test s9_wco_fail_with_radnom_input() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -248,10 +247,10 @@ test s9_wco_fail_with_random_output() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -270,10 +269,10 @@ test s9_wco_fail_without_intent_token_burnt() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -292,10 +291,10 @@ test s9_wco_fail_with_mixed_accounts() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -314,10 +313,10 @@ test s9_wco_fail_without_all_cancels_approved() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -336,10 +335,10 @@ test s9_wco_fail_without_balance_updated() {
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -358,10 +357,10 @@ test s9_wco_fail_without_operation_key_signed() {
         is_operation_key_signed: False,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
