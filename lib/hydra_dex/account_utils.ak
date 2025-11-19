@@ -59,6 +59,15 @@ pub fn hash_token(policy_id: PolicyId, asset_name: AssetName) -> AssetName {
   }
 }
 
+test hashing_tokens() {
+  let hash =
+    hash_token(
+      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+      #"55534458",
+    )
+  hash == #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960"
+}
+
 pub fn from_value_to_hydra_balance(
   account_value: Value,
   hydra_tokens_policy_id: PolicyId,

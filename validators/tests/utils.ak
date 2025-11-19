@@ -59,7 +59,7 @@ pub const mock_withdrawal_script_hashes: WithdrawalScriptHashes =
     emergency_cancel_order: mock_emergency_cancel_order,
   }
 
-pub const mock_hydra_token_policy_id = mock_script_hash(800)
+pub const mock_hydra_token_policy_id = mock_script_hash(1000)
 
 pub const mock_hydra_initial_hash = mock_script_hash(999)
 
@@ -120,18 +120,6 @@ pub const mock_hydra_cancel_withdrawal = mock_script_hash(5)
 
 pub const mock_hydra_internal_transfer = mock_script_hash(6)
 
-pub const mock_combine_order_merkle = mock_script_hash(7)
-
-pub const mock_split_order_merkle = mock_script_hash(8)
-
-pub const mock_hydra_place_order = mock_script_hash(9)
-
-pub const mock_hydra_fill_order = mock_script_hash(10)
-
-pub const mock_hydra_cancel_order = mock_script_hash(11)
-
-pub const mock_hydra_release_extra_value = mock_script_hash(12)
-
 pub const mock_hydra_combine_balance = mock_script_hash(13)
 
 pub const mock_dex_order_book_withdrawal_scripts: DexOrderBookWithdrawalScripts =
@@ -142,11 +130,6 @@ pub const mock_dex_order_book_withdrawal_scripts: DexOrderBookWithdrawalScripts 
     hydra_cancel_withdrawal: mock_hydra_cancel_withdrawal,
     hydra_internal_transfer: mock_hydra_internal_transfer,
     hydra_combine_balance: mock_hydra_combine_balance,
-    combine_order_merkle: mock_combine_order_merkle,
-    split_order_merkle: mock_split_order_merkle,
-    hydra_place_order: mock_hydra_place_order,
-    hydra_fill_order: mock_hydra_fill_order,
-    hydra_cancel_order: mock_hydra_cancel_order,
   }
 
 pub const mock_hydra_user_intent_token = mock_policy_id(5)
@@ -154,19 +137,20 @@ pub const mock_hydra_user_intent_token = mock_policy_id(5)
 pub const mock_hydra_user_intent_address =
   from_script("hydra_user_intent_address")
 
-// pub const mock_hydra_account_balance_token = mock_policy_id(6)
+pub const mock_hydra_account_balance = mock_script_hash(800)
 
 pub const mock_hydra_account_balance_address =
   from_script("hydra_account_balance_address")
 
-pub const mock_hydra_order_book_address =
-  from_script("hydra_order_book_address")
+pub const mock_hydra_order_book = mock_script_hash(900)
+
+pub const mock_hydra_order_book_address = from_script(mock_hydra_order_book)
 
 pub const mock_fee_account =
   Account {
     account_id: "fee_account_id",
-    operation_key: mock_verfication_key_credential(999),
-    master_key: mock_verfication_key_credential(1000),
+    operation_key: mock_verfication_key_credential(9999),
+    master_key: mock_verfication_key_credential(10000),
   }
 
 pub const mock_dex_order_book_datum: DexOrderBookDatum =
@@ -182,7 +166,7 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     hydra_user_intent_token: mock_hydra_user_intent_token,
     hydra_user_intent_address: mock_hydra_user_intent_address,
     hydra_account_balance_address: mock_hydra_account_balance_address,
-    hydra_order_book_address: mock_hydra_order_book_address,
+    hydra_order_book_script_hash: mock_hydra_order_book,
     withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
     hydra_tokens_policy_id: mock_hydra_token_policy_id,
   }
@@ -351,12 +335,3 @@ pub const mock_token_map: TokenMap =
       (#"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b", #"55534458"),
     ),
   ]
-
-test hashing_tokens() {
-  let hash =
-    hash_token(
-      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-      #"55534458",
-    )
-  hash == #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960"
-}

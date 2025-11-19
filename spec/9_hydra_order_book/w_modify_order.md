@@ -1,27 +1,30 @@
-# Specification - HydraOrderBook - PlaceOrder
+# Specification - HydraOrderBook - Modify Order
 
 ## Redeemer
 
-- PlaceOrder { red_account: UserAccount }
+- ModifyOrder { red_account: UserAccount }
 
 ## Logic
 
+- Redeemers contain withdrawal script validation with same `modify_order` redeemer
 - Ref input with `dex_oracle_nft`
 - Categorize inputs into
-  - `AI` - Account Inputs with `red_account` at intent
   - `II` - Intent Input
+  - `AI` - Account Inputs
+  - `OI` - Order Input
   - Other inputs
 - Categorize outputs into
-  - `AO` - Account Output with `red_account` at intent
-  - `OO` - Order Output with `red_account` at intent
+  - `AO` - Account Output with `account` at intent
+  - `OO` - Order Output with `account` at intent
   - Other outputs
 - No other inputs and outputs
-- `II` with `PlaceOrderIntent` datum
+- `II` with `ModifyOrderIntent` datum
 - `II` with `red_account` as account
 - `OO` with exactly datum `II`
+- `OI` & `OO` has same `order_id`
 - `OO` has at least value
   - `is_long` == True -> at least short qty of short token
   - `is_long` == False -> at least `order_size` of long token
 - The input intent token is burnt
-- Value parity: `AI` == `AO` + `OO` (to clear: is the check needed?)
+- Value parity: `AI` + `OI` == `AO` + `OO` (to clear: is the check needed?)
 - Signed by `operating_key`

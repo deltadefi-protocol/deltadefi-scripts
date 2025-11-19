@@ -1,13 +1,13 @@
 use aiken/collection/dict.{is_empty}
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{Input, OutputReference, Transaction, find_input}
-use cocktail.{key_signed, withdrawal_script_validated}
+use cocktail.{key_signed, withdrawal_redeemer, withdrawal_script_validated}
 use hydra_dex/hydra_commit_utils.{validate_hydra_commit}
 use hydra_dex/types.{
-  AppOracleDatum, DexOrderBookCombineMerkleTree, DexOrderBookDatum,
-  DexOrderBookEmergencyCancelOrder, DexOrderBookHydraCommit,
+  AppOracleDatum, CombineOrderMerkle, DexOrderBookCombineMerkleTree,
+  DexOrderBookDatum, DexOrderBookEmergencyCancelOrder, DexOrderBookHydraCommit,
   DexOrderBookRedeemer, DexOrderBookSpamPreventionWithdraw,
-  DexOrderBookSplitMerkleTree,
+  DexOrderBookSplitMerkleTree, HydraOrderBookRedeemer, SplitOrderMerkle,
 }
 use hydra_dex/utils.{get_app_oracle_datum}
 
@@ -30,17 +30,23 @@ validator dex_order_book(oracle_nft: PolicyId, dex_order_book_token: PolicyId) {
     when redeemer is {
       DexOrderBookSplitMerkleTree -> {
         expect Some(datum) = datum_opt
-        withdrawal_script_validated(
-          withdrawals,
-          datum.withdrawal_script_hashes.split_order_merkle,
-        )
+        expect Some(w_redeemer) =
+          withdrawal_redeemer(redeemers, datum.hydra_order_book_script_hash)
+        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
+        when w_redeemer is {
+          SplitOrderMerkle { .. } -> True
+          _ -> False
+        }
       }
       DexOrderBookCombineMerkleTree -> {
         expect Some(datum) = datum_opt
-        withdrawal_script_validated(
-          withdrawals,
-          datum.withdrawal_script_hashes.combine_order_merkle,
-        )
+        expect Some(w_redeemer) =
+          withdrawal_redeemer(redeemers, datum.hydra_order_book_script_hash)
+        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
+        when w_redeemer is {
+          CombineOrderMerkle { .. } -> True
+          _ -> False
+        }
       }
       DexOrderBookHydraCommit ->
         validate_hydra_commit(

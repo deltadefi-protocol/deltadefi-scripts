@@ -31,11 +31,11 @@ pub fn get_app_oracle_datum(
 }
 
 pub fn get_dex_order_book_datum(
-  reference_inputs: List<Input>,
+  inputs: List<Input>,
   dex_order_book_token: PolicyId,
 ) -> DexOrderBookDatum {
   expect Some(dex_order_book_ref_input) =
-    reference_inputs
+    inputs
       |> list.find(
           fn(ref_input: Input) {
             quantity_of(ref_input.output.value, dex_order_book_token, "") == 1

@@ -1,14 +1,14 @@
 use aiken/option.{is_none}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{key_signed, withdrawal_script_validated}
+use cocktail.{key_signed, withdrawal_redeemer, withdrawal_script_validated}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraAccountBalanceRedeemer,
+  CancelOrder, DexOrderBookDatum, FillOrder, HydraAccountBalanceRedeemer,
   HydraAccountBalanceSpamPreventionWithdraw, HydraCombineUtxosAtClose,
-  HydraCombineUtxosAtOpen, UpdateBalanceWithCancelOrder,
-  UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithFillOrder,
-  UpdateBalanceWithPlaceOrder, UpdateBalanceWithTransfer,
-  UpdateBalanceWithWithdrawal, UserAccount,
+  HydraCombineUtxosAtOpen, HydraOrderBookRedeemer, PlaceOrder,
+  UpdateBalanceWithCancelOrder, UpdateBalanceWithCancelWithdrawal,
+  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder,
+  UpdateBalanceWithTransfer, UpdateBalanceWithWithdrawal, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -22,30 +22,48 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
     let Transaction {
       reference_inputs,
       withdrawals,
+      redeemers,
       inputs,
       extra_signatories,
       ..
     } = self
 
-    let DexOrderBookDatum { operation_key, withdrawal_script_hashes, .. }: DexOrderBookDatum =
+    let DexOrderBookDatum {
+      operation_key,
+      hydra_order_book_script_hash,
+      withdrawal_script_hashes,
+      ..
+    }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
-      UpdateBalanceWithPlaceOrder ->
-        withdrawal_script_validated(
-          withdrawals,
-          withdrawal_script_hashes.hydra_place_order,
-        )
-      UpdateBalanceWithFillOrder ->
-        withdrawal_script_validated(
-          withdrawals,
-          withdrawal_script_hashes.hydra_fill_order,
-        )
-      UpdateBalanceWithCancelOrder ->
-        withdrawal_script_validated(
-          withdrawals,
-          withdrawal_script_hashes.hydra_cancel_order,
-        )
+      UpdateBalanceWithPlaceOrder -> {
+        expect Some(w_redeemer) =
+          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
+        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
+        when w_redeemer is {
+          PlaceOrder { .. } -> True
+          _ -> False
+        }
+      }
+      UpdateBalanceWithFillOrder -> {
+        expect Some(w_redeemer) =
+          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
+        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
+        when w_redeemer is {
+          FillOrder { .. } -> True
+          _ -> False
+        }
+      }
+      UpdateBalanceWithCancelOrder -> {
+        expect Some(w_redeemer) =
+          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
+        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
+        when w_redeemer is {
+          CancelOrder { .. } -> True
+          _ -> False
+        }
+      }
       UpdateBalanceWithWithdrawal ->
         withdrawal_script_validated(
           withdrawals,

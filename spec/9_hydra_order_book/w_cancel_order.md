@@ -1,8 +1,8 @@
 # Specification - HydraOrderBook - CancelOrder
 
-## Parameter
+## Redeemer
 
-- `dex_oracle_nft`: The policy id of the token attached with `DexOrderBook`
+- CancelOrder
 
 ## User Action
 

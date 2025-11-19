@@ -203,7 +203,7 @@ pub type DexOrderBookDatum {
   hydra_user_intent_token: PolicyId,
   hydra_user_intent_address: Address,
   hydra_account_balance_address: Address,
-  hydra_order_book_address: Address,
+  hydra_order_book_script_hash: ByteArray,
   withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
   hydra_tokens_policy_id: PolicyId,
 }
@@ -215,11 +215,6 @@ pub type DexOrderBookWithdrawalScripts {
   hydra_cancel_withdrawal: ScriptHash,
   hydra_internal_transfer: ScriptHash,
   hydra_combine_balance: ScriptHash,
-  combine_order_merkle: ScriptHash,
-  split_order_merkle: ScriptHash,
-  hydra_place_order: ScriptHash,
-  hydra_fill_order: ScriptHash,
-  hydra_cancel_order: ScriptHash,
 }
 
 pub type MerklizedOrderDatum {
@@ -265,12 +260,12 @@ pub type HydraAccountBalanceRedeemer {
 // 9 - HydraOrderBook
 
 pub type HydraOrderBookRedeemer {
-  PlaceOrder
+  PlaceOrder { red_account: UserAccount }
   CancelOrder
-  FillOrder
-  ModifyOrder
-  CombineOrderMerkle
-  SplitOrderMerkle
+  FillOrder { filler_order_id: ByteArray }
+  ModifyOrder { red_account: UserAccount }
+  CombineOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
+  SplitOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
 }
 
 pub type HydraOrderBookDatum {
@@ -286,10 +281,6 @@ pub type HydraOrderBookDatum {
 
 pub type MValue =
   Pairs<PolicyId, Pairs<AssetName, Int>>
-
-pub type FillOrderRedeemer {
-  filler_order_id: ByteArray,
-}
 
 // 10 - HydraTokens
 pub type HydraTokensRedeemer {

@@ -6,12 +6,12 @@ use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Script}
 use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
-use dex_order_book/combine_order_merkle
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
-  DexOrderBookDatum, FullTree, Tree, TreeBranch, TreeLeaf,
+  CombineOrderMerkle, DexOrderBookDatum, FullTree, Tree, TreeBranch, TreeLeaf,
   TreeOrProofsWithTokenMap,
 }
+use hydra_order_book/core as ob
 use mocktail.{
   complete, mock_tx_hash, mocktail_tx, tx_in, tx_in_inline_datum, tx_out,
   tx_out_inline_datum,
@@ -159,7 +159,7 @@ fn mock_combine_order_merkle_tx(
     |> complete()
 }
 
-test s6_spend_success_combine_order_merkle() {
+test s9_w_com_success_combine_order_merkle() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -168,18 +168,20 @@ test s6_spend_success_combine_order_merkle() {
     }
 
   let tx = mock_combine_order_merkle_tx(test_case)
-  combine_order_merkle.combine_order_merkle.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    TreeOrProofsWithTokenMap {
-      proof: FullTree { tree },
-      token_map: mock_token_map,
+    CombineOrderMerkle {
+      tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+        proof: FullTree { tree },
+        token_map: mock_token_map,
+      },
     },
     Script(""),
     tx,
   )
 }
 
-test s6_spend_fail_combine_order_merkle_invalid_tree() fail {
+test s9_w_com_fail_combine_order_merkle_invalid_tree() fail {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: False,
@@ -188,18 +190,20 @@ test s6_spend_fail_combine_order_merkle_invalid_tree() fail {
     }
 
   let tx = mock_combine_order_merkle_tx(test_case)
-  combine_order_merkle.combine_order_merkle.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    TreeOrProofsWithTokenMap {
-      proof: FullTree { tree },
-      token_map: mock_token_map,
+    CombineOrderMerkle {
+      tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+        proof: FullTree { tree },
+        token_map: mock_token_map,
+      },
     },
     Script(""),
     tx,
   )
 }
 
-test s6_spend_fail_combine_order_merkle_invalid_inputs() fail {
+test s9_w_com_fail_combine_order_merkle_invalid_inputs() fail {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -208,18 +212,20 @@ test s6_spend_fail_combine_order_merkle_invalid_inputs() fail {
     }
 
   let tx = mock_combine_order_merkle_tx(test_case)
-  combine_order_merkle.combine_order_merkle.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    TreeOrProofsWithTokenMap {
-      proof: FullTree { tree },
-      token_map: mock_token_map,
+    CombineOrderMerkle {
+      tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+        proof: FullTree { tree },
+        token_map: mock_token_map,
+      },
     },
     Script(""),
     tx,
   )
 }
 
-test s6_spend_fail_combine_order_merkle_invalid_input_root_hash() fail {
+test s9_w_com_fail_combine_order_merkle_invalid_input_root_hash() fail {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -228,11 +234,13 @@ test s6_spend_fail_combine_order_merkle_invalid_input_root_hash() fail {
     }
 
   let tx = mock_combine_order_merkle_tx(test_case)
-  combine_order_merkle.combine_order_merkle.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    TreeOrProofsWithTokenMap {
-      proof: FullTree { tree },
-      token_map: mock_token_map,
+    CombineOrderMerkle {
+      tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+        proof: FullTree { tree },
+        token_map: mock_token_map,
+      },
     },
     Script(""),
     tx,
