@@ -1,12 +1,12 @@
 use cardano/assets.{PolicyId}
 use cardano/script_context.{ScriptContext}
 use cardano/transaction.{Transaction}
-use cocktail.{inputs_with_policy}
+use cocktail.{inputs_with_policy, withdrawal_script_validated}
 use hydra_dex/types.{
   BurnAtHydraClose, BurnAtWithdrawal, DexOrderBookDatum,
   DexOrderBookWithdrawalScripts, HydraTokensRedeemer, MintAtHydraOpen,
 }
-use hydra_dex/utils.{get_dex_order_book_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_tokens(oracle_nft: PolicyId) {
   mint(redeemer: HydraTokensRedeemer, _policy_id: PolicyId, tx: Transaction) {

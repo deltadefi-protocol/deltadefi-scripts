@@ -220,7 +220,6 @@ pub type DexOrderBookWithdrawalScripts {
   hydra_place_order: ScriptHash,
   hydra_fill_order: ScriptHash,
   hydra_cancel_order: ScriptHash,
-  hydra_release_extra_value: ScriptHash,
 }
 
 pub type MerklizedOrderDatum {
@@ -233,6 +232,7 @@ pub type MerklizedOrderDatum {
 pub type HydraUserIntentRedeemer {
   MintPlaceOrderIntent { order: HydraOrderBookDatum }
   MintCancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
+  MintModifyOrderIntent { new_order: HydraOrderBookDatum }
   MintWithdrawalIntent { account: UserAccount, amount: MValue }
   MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
   MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
@@ -240,9 +240,9 @@ pub type HydraUserIntentRedeemer {
 }
 
 pub type HydraUserIntentDatum {
-  // - Same as `HydraOrderBook`'s `LimitOrder` with an extra field of `order_id`
   PlaceOrderIntent { order: HydraOrderBookDatum }
   CancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
+  ModifyOrderIntent { new_order: HydraOrderBookDatum }
   WithdrawalIntent { account: UserAccount, amount: MValue }
   CancelWithdrawalIntent { account: UserAccount, amount: MValue }
   TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
@@ -254,7 +254,6 @@ pub type HydraAccountBalanceRedeemer {
   UpdateBalanceWithPlaceOrder
   UpdateBalanceWithFillOrder
   UpdateBalanceWithCancelOrder
-  UpdateBalanceWithReleaseExtraValue
   UpdateBalanceWithWithdrawal
   UpdateBalanceWithCancelWithdrawal
   UpdateBalanceWithTransfer
@@ -269,7 +268,7 @@ pub type HydraOrderBookRedeemer {
   PlaceOrder
   CancelOrder
   FillOrder
-  ReleaseExtraValue
+  ModifyOrder
   CombineOrderMerkle
   SplitOrderMerkle
 }

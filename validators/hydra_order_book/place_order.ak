@@ -3,7 +3,9 @@ use cardano/assets.{PolicyId, match, merge, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  input_inline_datum, key_signed, output_inline_datum, policy_only_minted_token,
+  group_inputs_2, group_outputs_2, i_at_with_policy, input_inline_datum,
+  inputs_value, key_signed, o_at, output_inline_datum, outputs_value,
+  policy_only_minted_token,
 }
 use cocktail/vodka_value.{value_geq}
 use hydra_dex/account_utils.{
@@ -15,10 +17,6 @@ use hydra_dex/types.{
   UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
-use hydra_dex/vodka.{
-  group_inputs_2, group_outputs_2, i_at_with_policy, inputs_value, o_at,
-  outputs_value,
-}
 
 validator place_order(oracle_nft: PolicyId) {
   withdraw(red_account: UserAccount, _credential: Credential, tx: Transaction) {

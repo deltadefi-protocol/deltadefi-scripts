@@ -3,17 +3,16 @@ use cardano/address.{Credential}
 use cardano/assets.{PolicyId, match, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
-use cocktail.{input_inline_datum, key_signed, policy_only_minted_token}
+use cocktail.{
+  group_inputs_2, group_outputs, i_at, i_at_with_policy, input_inline_datum,
+  inputs_value, key_signed, outputs_value, policy_only_minted_token,
+}
 use hydra_dex/account_utils.{create_account_outputs_filter}
 use hydra_dex/types.{
   CancelOrderIntent, DexOrderBookDatum, HydraOrderBookDatum,
   HydraUserIntentDatum,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
-use hydra_dex/vodka.{
-  group_inputs_2, group_outputs, i_at, i_at_with_policy, inputs_value,
-  outputs_value,
-}
 
 validator cancel_order(oracle_nft: PolicyId) {
   withdraw(_redeemer: Data, _credential: Credential, tx: Transaction) {

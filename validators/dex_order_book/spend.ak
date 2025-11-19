@@ -1,7 +1,7 @@
 use aiken/collection/dict.{is_empty}
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{Input, OutputReference, Transaction, find_input}
-use cocktail.{key_signed}
+use cocktail.{key_signed, withdrawal_script_validated}
 use hydra_dex/hydra_commit_utils.{validate_hydra_commit}
 use hydra_dex/types.{
   AppOracleDatum, DexOrderBookCombineMerkleTree, DexOrderBookDatum,
@@ -9,7 +9,7 @@ use hydra_dex/types.{
   DexOrderBookRedeemer, DexOrderBookSpamPreventionWithdraw,
   DexOrderBookSplitMerkleTree,
 }
-use hydra_dex/utils.{get_app_oracle_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_app_oracle_datum}
 
 validator dex_order_book(oracle_nft: PolicyId, dex_order_book_token: PolicyId) {
   spend(

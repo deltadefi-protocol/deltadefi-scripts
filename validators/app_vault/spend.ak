@@ -1,7 +1,8 @@
 use cardano/assets.{PolicyId}
 use cardano/transaction.{OutputReference, Transaction}
+use cocktail.{withdrawal_script_validated}
 use hydra_dex/types.{AppOracleDatum}
-use hydra_dex/utils.{get_app_oracle_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_app_oracle_datum}
 
 validator app_vault(oracle_nft: PolicyId) {
   spend(_, _redeemer: Data, _input: OutputReference, tx: Transaction) {

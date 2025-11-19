@@ -2,7 +2,10 @@ use aiken/collection/dict.{is_empty}
 use aiken/interval.{is_entirely_after}
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{input_inline_datum, inputs_at_with_policy, key_signed}
+use cocktail.{
+  input_inline_datum, inputs_at_with_policy, key_signed,
+  withdrawal_script_validated,
+}
 use hydra_dex/account_utils.{withdrawal_auth_by_account}
 use hydra_dex/types.{
   AppDepositRequestDatum, AppDepositRequestEmergencyWithdrawal,
@@ -10,7 +13,7 @@ use hydra_dex/types.{
   AppDepositRequestTransferAccountBalance, AppOracleDatum,
   EmergencyWithdrawalRequestDatum,
 }
-use hydra_dex/utils.{get_app_oracle_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_app_oracle_datum}
 
 validator app_deposit_request(oracle_nft: PolicyId) {
   spend(

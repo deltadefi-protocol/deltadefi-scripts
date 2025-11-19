@@ -52,7 +52,7 @@ pub fn create_account_outputs_filter(
 //  Account Value related
 
 pub fn hash_token(policy_id: PolicyId, asset_name: AssetName) -> AssetName {
-  if asset_name == "" && asset_name == "" {
+  if policy_id == "" && asset_name == "" {
     ""
   } else {
     blake2b_256(policy_id |> bytearray.concat(asset_name))

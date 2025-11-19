@@ -147,7 +147,6 @@ pub const mock_dex_order_book_withdrawal_scripts: DexOrderBookWithdrawalScripts 
     hydra_place_order: mock_hydra_place_order,
     hydra_fill_order: mock_hydra_fill_order,
     hydra_cancel_order: mock_hydra_cancel_order,
-    hydra_release_extra_value: mock_hydra_release_extra_value,
   }
 
 pub const mock_hydra_user_intent_token = mock_policy_id(5)

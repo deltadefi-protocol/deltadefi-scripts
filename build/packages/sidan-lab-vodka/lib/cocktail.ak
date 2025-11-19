@@ -16,7 +16,9 @@
 //// - `Redeemers` - [Documentation](./cocktail/vodka_redeemers.html)
 
 use cocktail/vodka_address
+use cocktail/vodka_certificate
 use cocktail/vodka_converter
+use cocktail/vodka_crypto
 use cocktail/vodka_extra_signatories
 use cocktail/vodka_inputs
 use cocktail/vodka_mints
@@ -24,6 +26,7 @@ use cocktail/vodka_outputs
 use cocktail/vodka_redeemers
 use cocktail/vodka_validity_range
 use cocktail/vodka_value
+use cocktail/vodka_withdrawals
 
 // Address
 
@@ -73,19 +76,40 @@ pub const only_input_datum_with = vodka_inputs.only_input_datum_with
 pub const inputs_at = vodka_inputs.inputs_at
 
 /// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const i_at = vodka_inputs.i_at
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
 pub const inputs_with = vodka_inputs.inputs_with
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const i_with = vodka_inputs.i_with
 
 /// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
 pub const inputs_with_policy = vodka_inputs.inputs_with_policy
 
 /// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const i_with_policy = vodka_inputs.i_with_policy
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
 pub const inputs_at_with = vodka_inputs.inputs_at_with
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const i_at_with = vodka_inputs.i_at_with
 
 /// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
 pub const inputs_at_with_policy = vodka_inputs.inputs_at_with_policy
 
 /// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const i_at_with_policy = vodka_inputs.i_at_with_policy
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
 pub const inputs_token_quantity = vodka_inputs.inputs_token_quantity
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const group_inputs = vodka_inputs.group_inputs
+
+/// Documentation please refer to [`vodka_inputs`](./cocktail/vodka_inputs.html)
+pub const group_inputs_2 = vodka_inputs.group_inputs_2
 
 // Mints
 
@@ -110,16 +134,37 @@ pub const output_inline_datum = vodka_outputs.output_inline_datum
 pub const outputs_at = vodka_outputs.outputs_at
 
 /// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const o_at = vodka_outputs.o_at
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
 pub const outputs_with = vodka_outputs.outputs_with
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const o_with = vodka_outputs.o_with
 
 /// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
 pub const outputs_with_policy = vodka_outputs.outputs_with_policy
 
 /// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const o_with_policy = vodka_outputs.o_with_policy
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
 pub const outputs_at_with = vodka_outputs.outputs_at_with
 
 /// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const o_at_with = vodka_outputs.o_at_with
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
 pub const outputs_at_with_policy = vodka_outputs.outputs_at_with_policy
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const o_at_with_policy = vodka_outputs.o_at_with_policy
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const group_outputs = vodka_outputs.group_outputs
+
+/// Documentation please refer to [`vodka_outputs`](./cocktail/vodka_outputs.html)
+pub const group_outputs_2 = vodka_outputs.group_outputs_2
 
 // Redeemers
 
@@ -159,3 +204,49 @@ pub const value_policy_info = vodka_value.value_policy_info
 
 /// Documentation please refer to [`vodka_value`](./cocktail/vodka_value.html)
 pub const value_tokens = vodka_value.value_tokens
+
+/// Documentation please refer to [`vodka_value`](./cocktail/vodka_value.html)
+pub const inputs_value = vodka_value.inputs_value
+
+/// Documentation please refer to [`vodka_value`](./cocktail/vodka_value.html)
+pub const outputs_value = vodka_value.outputs_value
+
+// Certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const register_stake_certificate =
+  vodka_certificate.register_stake_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const unregister_stake_certificate =
+  vodka_certificate.unregister_stake_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const register_drep_certificate =
+  vodka_certificate.register_drep_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const unregister_drep_certificate =
+  vodka_certificate.unregister_drep_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const delegate_stake_certificate =
+  vodka_certificate.delegate_stake_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const delegate_vote_certificate =
+  vodka_certificate.delegate_vote_certificate
+
+/// Documentation please refer to [`vodka_certificate`](./cocktail/vodka_certificate.html)
+pub const delegate_stake_and_vote_certificate =
+  vodka_certificate.delegate_stake_and_vote_certificate
+
+/// Documentation please refer to [`vodka_withdrawals`](./cocktail/vodka_withdrawals.html)
+pub const withdrawal_script_validated =
+  vodka_withdrawals.withdrawal_script_validated
+
+/// Documentation please refer to [`vodka_crypto`](./cocktail/vodka_crypto.html)
+pub const verify_signatures = vodka_crypto.verify_signatures
+
+/// Documentation please refer to [`vodka_crypto`](./cocktail/vodka_crypto.html)
+pub const verify_pub_keys = vodka_crypto.verify_pub_keys

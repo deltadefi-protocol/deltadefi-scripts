@@ -1,16 +1,16 @@
 use aiken/option.{is_none}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{key_signed}
+use cocktail.{key_signed, withdrawal_script_validated}
 use hydra_dex/types.{
   DexOrderBookDatum, HydraAccountBalanceRedeemer,
   HydraAccountBalanceSpamPreventionWithdraw, HydraCombineUtxosAtClose,
   HydraCombineUtxosAtOpen, UpdateBalanceWithCancelOrder,
   UpdateBalanceWithCancelWithdrawal, UpdateBalanceWithFillOrder,
-  UpdateBalanceWithPlaceOrder, UpdateBalanceWithReleaseExtraValue,
-  UpdateBalanceWithTransfer, UpdateBalanceWithWithdrawal, UserAccount,
+  UpdateBalanceWithPlaceOrder, UpdateBalanceWithTransfer,
+  UpdateBalanceWithWithdrawal, UserAccount,
 }
-use hydra_dex/utils.{get_dex_order_book_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_account_balance(dex_oracle_nft: PolicyId) {
   spend(
@@ -45,11 +45,6 @@ validator hydra_account_balance(dex_oracle_nft: PolicyId) {
         withdrawal_script_validated(
           withdrawals,
           withdrawal_script_hashes.hydra_cancel_order,
-        )
-      UpdateBalanceWithReleaseExtraValue ->
-        withdrawal_script_validated(
-          withdrawals,
-          withdrawal_script_hashes.hydra_release_extra_value,
         )
       UpdateBalanceWithWithdrawal ->
         withdrawal_script_validated(

@@ -1,6 +1,5 @@
 use aiken/cbor
 use aiken/collection/list.{difference, is_empty}
-use aiken/collection/pairs.{has_key}
 use aiken/crypto.{ScriptHash}
 use cardano/address.{Address, Credential, Script}
 use cardano/assets.{
@@ -119,14 +118,6 @@ pub fn withdrawal_script_hashes(
           }
         },
       )
-}
-
-pub fn withdrawal_script_validated(
-  withdrawals: Pairs<Credential, Lovelace>,
-  withdrawal_script_hash: ScriptHash,
-) -> Bool {
-  withdrawals
-    |> has_key(Script(withdrawal_script_hash))
 }
 
 pub fn to_mvalue(value: Value) -> MValue {

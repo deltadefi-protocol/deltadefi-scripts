@@ -3,8 +3,8 @@ use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{Output, OutputReference, Transaction, find_input}
-use cocktail.{key_signed}
-use cocktail/vodka_inputs.{input_inline_datum, inputs_at_with_policy}
+use cocktail.{input_inline_datum, inputs_at_with_policy, key_signed}
+use cocktail/vodka_withdrawals.{withdrawal_script_validated}
 use hydra_dex/hydra_commit_utils.{validate_hydra_commit}
 use hydra_dex/types.{
   AppDeposit, AppOracleDatum, AppWithdrawal, DexAccountBalanceCombineMerkleTree,
@@ -14,9 +14,7 @@ use hydra_dex/types.{
   DexAccountBalanceTransferAccountBalance, DexOrderBookDatum,
   HydraCancelWithdrawal, HydraIncrementalDecommit, HydraWithdrawal,
 }
-use hydra_dex/utils.{
-  get_app_oracle_datum, get_dex_order_book_datum, withdrawal_script_validated,
-}
+use hydra_dex/utils.{get_app_oracle_datum, get_dex_order_book_datum}
 
 validator dex_account_balance(
   oracle_nft: PolicyId,

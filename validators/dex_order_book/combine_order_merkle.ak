@@ -8,6 +8,7 @@ use cardano/address.{Credential}
 use cardano/assets.{PolicyId, quantity_of, without_lovelace}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
+use cocktail.{inputs_at}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
@@ -17,7 +18,6 @@ use hydra_dex/types.{
   TreeOrProofsWithTokenMap,
 }
 use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
-use hydra_dex/vodka.{inputs_at}
 
 validator combine_order_merkle(oracle_nft: PolicyId) {
   withdraw(

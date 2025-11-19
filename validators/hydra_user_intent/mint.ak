@@ -7,9 +7,9 @@ use hydra_dex/account_utils.{trade_auth_by_account, withdrawal_auth_by_account}
 use hydra_dex/types.{
   BurnIntent, CancelOrderIntent, CancelWithdrawalIntent, DexOrderBookDatum,
   HydraOrderBookDatum, HydraUserIntentDatum, HydraUserIntentRedeemer,
-  MintCancelOrderIntent, MintCancelWithdrawalIntent, MintPlaceOrderIntent,
-  MintTransferIntent, MintWithdrawalIntent, PlaceOrderIntent, TransferIntent,
-  WithdrawalIntent,
+  MintCancelOrderIntent, MintCancelWithdrawalIntent, MintModifyOrderIntent,
+  MintPlaceOrderIntent, MintTransferIntent, MintWithdrawalIntent,
+  ModifyOrderIntent, PlaceOrderIntent, TransferIntent, WithdrawalIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -45,19 +45,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             [only_output] -> {
               expect only_output_datum: HydraUserIntentDatum =
                 output_inline_datum(only_output)
-              let correct_output_datum =
-                PlaceOrderIntent {
-                  order: HydraOrderBookDatum {
-                    order_id: order.order_id,
-                    long_token: order.long_token,
-                    short_token: order.short_token,
-                    is_long: order.is_long,
-                    list_price_times_1bil: order.list_price_times_1bil,
-                    order_size: order.order_size,
-                    fee_amount_bp: order.fee_amount_bp,
-                    account: order.account,
-                  },
-                }
+              let correct_output_datum = PlaceOrderIntent { order }
               only_output_datum == correct_output_datum
             }
             _ -> False
@@ -88,6 +76,32 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           }
         let is_account_auth =
           trade_auth_by_account(account, withdrawals, extra_signatories)
+        token_check? && only_output_check? && is_account_auth?
+      }
+      MintModifyOrderIntent { new_order } -> {
+        let token_check = only_minted_token(mint, policy_id, "", 1)
+        let only_output_check =
+          when
+            outputs_at_with_policy(
+              outputs,
+              dex_order_book_input_datum.hydra_user_intent_address,
+              dex_order_book_input_datum.hydra_user_intent_token,
+            )
+          is {
+            [only_output] -> {
+              expect only_output_datum: HydraUserIntentDatum =
+                output_inline_datum(only_output)
+              let correct_output_datum = ModifyOrderIntent { new_order }
+              only_output_datum == correct_output_datum
+            }
+            _ -> False
+          }
+        let is_account_auth =
+          trade_auth_by_account(
+            new_order.account,
+            withdrawals,
+            extra_signatories,
+          )
         token_check? && only_output_check? && is_account_auth?
       }
       MintWithdrawalIntent { account, amount } -> {
