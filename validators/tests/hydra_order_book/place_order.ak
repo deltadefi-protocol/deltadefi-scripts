@@ -1,8 +1,8 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{UserSpotAccount}
-use hydra_order_book/place_order
+use hydra_dex/types.{PlaceOrder, UserSpotAccount}
+use hydra_order_book/core as ob
 use mocktail.{
   complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_in_inline_datum,
@@ -11,7 +11,7 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_lovelace, mock_hydra_order_book_address, mock_hydra_place_order,
+  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_order_book_address,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, mock_order, mock_order_id, mock_order_intent,
 } as test_utils
@@ -189,10 +189,10 @@ test s9_wpo_success() {
         no_account_output_case: False,
       },
     )
-  place_order.place_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -212,10 +212,10 @@ test s9_wpo_success_no_account_output_case() {
         no_account_output_case: True,
       },
     )
-  place_order.place_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -235,10 +235,10 @@ test s9_wpo_fail_with_multiple_intent_input() fail {
         no_account_output_case: False,
       },
     )
-  place_order.place_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -258,10 +258,10 @@ test s9_wpo_fail_with_multiple_order_output() fail {
         no_account_output_case: False,
       },
     )
-  place_order.place_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -281,10 +281,10 @@ test s9_wpo_fail_with_random_input() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -304,10 +304,10 @@ test s9_wpo_fail_with_random_output() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -327,10 +327,10 @@ test s9_wpo_fail_without_intent_token_burnt() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -350,10 +350,10 @@ test s9_wpo_fail_with_incorrect_datum() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -373,10 +373,10 @@ test s9_wpo_fail_without_balance_updated() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -396,10 +396,10 @@ test s9_wpo_fail_without_operation_key_signed() {
         no_account_output_case: False,
       },
     )
-  !place_order.place_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    UserSpotAccount { account: mock_account },
-    Script(mock_hydra_place_order),
+    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    Script(mock_hydra_order_book),
     tx,
   )
 }

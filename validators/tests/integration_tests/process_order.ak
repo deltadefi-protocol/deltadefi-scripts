@@ -3,20 +3,21 @@ use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance
 use hydra_dex/types.{
-  BurnIntent, HydraUserIntentDatum, UpdateBalanceWithPlaceOrder, UserSpotAccount,
+  BurnIntent, HydraUserIntentDatum, PlaceOrder, UpdateBalanceWithPlaceOrder,
+  UserSpotAccount,
 }
-use hydra_order_book/place_order
+use hydra_order_book/core as ob
 use hydra_user_intent/mint as intent_mint
 use hydra_user_intent/spend as intent_spend
 use mocktail.{
   complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
-  tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  tx_in_inline_datum, tx_out, tx_out_inline_datum, withdrawal_redeemer_value,
 }
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_lovelace, mock_hydra_order_book_address, mock_hydra_place_order,
+  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_order_book_address,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, mock_order, mock_order_id, mock_order_intent,
 }
@@ -143,8 +144,12 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
       |> required_signer_hash(is_operation_key_signed, mock_operation_key)
       |> script_withdrawal(
           is_withdrawal_script_attached,
-          mock_hydra_place_order,
+          mock_hydra_order_book,
           0,
+        )
+      |> withdrawal_redeemer_value(
+          is_withdrawal_script_attached,
+          PlaceOrder { red_account: account },
         )
       // failing cases
       |> tx_in(
@@ -170,10 +175,10 @@ fn check_all_scripts(test_case: TestCase) {
   let account = UserSpotAccount { account: mock_account }
 
   let check_withdraw =
-    place_order.place_order.withdraw(
+    ob.hydra_order_book.withdraw(
       mock_dex_order_book_token,
-      account,
-      Script(mock_hydra_place_order),
+      PlaceOrder { red_account: account },
+      Script(mock_hydra_order_book),
       tx,
     )
   let check_intent_spend =
@@ -301,7 +306,7 @@ test it_hpro_fail_without_operation_key_signed() {
   !check_all_scripts(test_case)
 }
 
-test it_hpro_fail_without_withdrawal_script() {
+test it_hpro_fail_without_withdrawal_script() fail {
   let test_case =
     TestCase {
       is_single_intent_input: True,
@@ -312,5 +317,5 @@ test it_hpro_fail_without_withdrawal_script() {
       is_operation_key_signed: True,
       is_withdrawal_script_attached: False,
     }
-  !check_all_scripts(test_case)
+  check_all_scripts(test_case)
 }
