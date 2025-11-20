@@ -19,7 +19,7 @@
   - Other outputs
 - No other inputs and outputs
 - `II` with `ModifyOrderIntent` datum
-- `II` with `red_account` as account
+- `II` with `account` as account
 - `OO` with exactly datum `II`
 - `OI` & `OO` has same `order_id`
 - `OO` has at least value

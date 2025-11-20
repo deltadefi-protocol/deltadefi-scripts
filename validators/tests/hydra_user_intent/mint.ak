@@ -32,7 +32,6 @@ fn create_mock_limit_order() -> HydraOrderBookDatum {
     list_price_times_1bil: 999,
     order_size: 999,
     fee_amount_bp: 999,
-    extra_value: 999,
     account: UserSpotAccount { account: mock_account },
   }
 }
@@ -43,29 +42,30 @@ fn create_mock_mint_place_order_intent() -> HydraUserIntentRedeemer {
 
 fn create_mock_place_order_intent() -> HydraUserIntentDatum {
   PlaceOrderIntent {
-    order_id: mock_order_id,
-    long_token: (mock_account_id, mock_hydra_user_intent_token),
-    short_token: (mock_account_id, mock_hydra_user_intent_token),
-    is_long: True,
-    list_price_times_1bil: 999,
-    order_size: 999,
-    fee_amount_bp: 999,
-    extra_value: 999,
-    account: UserSpotAccount { account: mock_account },
+    order: HydraOrderBookDatum {
+      order_id: mock_order_id,
+      long_token: (mock_account_id, mock_hydra_user_intent_token),
+      short_token: (mock_account_id, mock_hydra_user_intent_token),
+      is_long: True,
+      list_price_times_1bil: 999,
+      order_size: 999,
+      fee_amount_bp: 999,
+      account: UserSpotAccount { account: mock_account },
+    },
   }
 }
 
 fn create_mock_mint_cancel_order_intent() -> HydraUserIntentRedeemer {
   MintCancelOrderIntent {
     account: UserSpotAccount { account: mock_account },
-    order_id: mock_order_id,
+    order_ids: [mock_order_id],
   }
 }
 
 fn create_mock_cancel_order_intent() -> HydraUserIntentDatum {
   CancelOrderIntent {
     account: UserSpotAccount { account: mock_account },
-    order_id: mock_order_id,
+    order_ids: [mock_order_id],
   }
 }
 

@@ -3,8 +3,8 @@ use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, DexOrderBookWithdrawalScripts,
-  HydraInfo, HydraOrderBookDatum, PlaceOrderIntent, TokenMap, UserAccount,
-  UserSpotAccount, WithdrawalScriptHashes,
+  HydraInfo, HydraOrderBookDatum, ModifyOrderIntent, PlaceOrderIntent, TokenMap,
+  UserAccount, UserSpotAccount, WithdrawalScriptHashes,
 }
 use mocktail.{
   mock_policy_id, mock_pub_key_hash, mock_script_hash,
@@ -255,6 +255,8 @@ pub const mock_script_account_2 =
 
 pub const mock_order_id = "order_id"
 
+pub const mock_order_id_2 = "order_id_2"
+
 pub fn mock_order(
   order_id: ByteArray,
   is_long: Bool,
@@ -297,6 +299,30 @@ pub fn mock_order_intent(
       order_size,
       fee_amount_bp,
       account: UserSpotAccount { account: mock_account },
+    },
+  }
+}
+
+pub fn mock_modify_order_intent(
+  is_long: Bool,
+  order_size: Int,
+  list_price_times_1bil: Int,
+  fee_amount_bp: Int,
+  account: Account,
+) {
+  ModifyOrderIntent {
+    new_order: HydraOrderBookDatum {
+      order_id: mock_order_id,
+      long_token: ("", ""),
+      short_token: (
+        #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+        #"55534458",
+      ),
+      is_long,
+      list_price_times_1bil,
+      order_size,
+      fee_amount_bp,
+      account: UserSpotAccount { account },
     },
   }
 }
