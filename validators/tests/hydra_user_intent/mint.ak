@@ -9,6 +9,7 @@ use hydra_dex/types.{
   MintWithdrawalIntent, PlaceOrderIntent, TransferIntent, UserAccount,
   UserSpotAccount, WithdrawalIntent,
 }
+use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent/mint as hydra_user_intent_mint
 use mocktail.{
   MocktailTx, complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -18,8 +19,8 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_account_2, mock_account_id, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_order_book_address,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-}
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token, mock_usd,
+} as test_utils
 
 const mock_order_id = "mock_order_id"
 
@@ -29,7 +30,7 @@ fn create_mock_limit_order() -> HydraOrderBookDatum {
     long_token: (mock_account_id, mock_hydra_user_intent_token),
     short_token: (mock_account_id, mock_hydra_user_intent_token),
     is_long: True,
-    list_price_times_1bil: 999,
+    list_price_times_1bil: 1_000_000_000,
     order_size: 999,
     fee_amount_bp: 999,
     account: UserSpotAccount { account: mock_account },
@@ -37,7 +38,10 @@ fn create_mock_limit_order() -> HydraOrderBookDatum {
 }
 
 fn create_mock_mint_place_order_intent() -> HydraUserIntentRedeemer {
-  MintPlaceOrderIntent { order: create_mock_limit_order() }
+  MintPlaceOrderIntent {
+    order: create_mock_limit_order(),
+    authorized_account_value: mock_usd(999_000_000) |> to_mvalue(),
+  }
 }
 
 fn create_mock_place_order_intent() -> HydraUserIntentDatum {
@@ -47,11 +51,13 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
       long_token: (mock_account_id, mock_hydra_user_intent_token),
       short_token: (mock_account_id, mock_hydra_user_intent_token),
       is_long: True,
-      list_price_times_1bil: 999,
+      list_price_times_1bil: 1_000_000_000,
       order_size: 999,
       fee_amount_bp: 999,
       account: UserSpotAccount { account: mock_account },
     },
+    authorized_account_value: mock_usd(999_000_000)
+      |> to_mvalue(),
   }
 }
 

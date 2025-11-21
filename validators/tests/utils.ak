@@ -6,6 +6,7 @@ use hydra_dex/types.{
   HydraInfo, HydraOrderBookDatum, ModifyOrderIntent, PlaceOrderIntent, TokenMap,
   UserAccount, UserSpotAccount, WithdrawalScriptHashes,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   mock_policy_id, mock_pub_key_hash, mock_script_hash,
   mock_verfication_key_credential,
@@ -285,6 +286,7 @@ pub fn mock_order_intent(
   order_size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
+  authorized_account_value: Value,
 ) {
   PlaceOrderIntent {
     order: HydraOrderBookDatum {
@@ -300,6 +302,7 @@ pub fn mock_order_intent(
       fee_amount_bp,
       account: UserSpotAccount { account: mock_account },
     },
+    authorized_account_value: authorized_account_value |> to_mvalue(),
   }
 }
 
@@ -309,6 +312,7 @@ pub fn mock_modify_order_intent(
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   account: Account,
+  authorized_account_value: Value,
 ) {
   ModifyOrderIntent {
     new_order: HydraOrderBookDatum {
@@ -324,6 +328,7 @@ pub fn mock_modify_order_intent(
       fee_amount_bp,
       account: UserSpotAccount { account },
     },
+    authorized_account_value: authorized_account_value |> to_mvalue(),
   }
 }
 

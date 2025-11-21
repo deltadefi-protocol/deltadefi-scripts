@@ -32,7 +32,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
-      MintPlaceOrderIntent { order } -> {
+      MintPlaceOrderIntent { order, authorized_account_value } -> {
         let token_check = only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
           when
@@ -45,7 +45,8 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             [only_output] -> {
               expect only_output_datum: HydraUserIntentDatum =
                 output_inline_datum(only_output)
-              let correct_output_datum = PlaceOrderIntent { order }
+              let correct_output_datum =
+                PlaceOrderIntent { order, authorized_account_value }
               only_output_datum == correct_output_datum
             }
             _ -> False
@@ -78,7 +79,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           trade_auth_by_account(account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
-      MintModifyOrderIntent { new_order } -> {
+      MintModifyOrderIntent { new_order, authorized_account_value } -> {
         let token_check = only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
           when
@@ -91,7 +92,8 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             [only_output] -> {
               expect only_output_datum: HydraUserIntentDatum =
                 output_inline_datum(only_output)
-              let correct_output_datum = ModifyOrderIntent { new_order }
+              let correct_output_datum =
+                ModifyOrderIntent { new_order, authorized_account_value }
               only_output_datum == correct_output_datum
             }
             _ -> False
