@@ -2,11 +2,10 @@
 
 ## Redeemer
 
-- ModifyOrder { red_account: UserAccount }
+- ModifyOrder { red_account: UserAccount, authorized_account_value: MValue }
 
 ## Logic
 
-- Redeemers contain withdrawal script validation with same `modify_order` redeemer
 - Ref input with `dex_oracle_nft`
 - Categorize inputs into
   - `II` - Intent Input
@@ -26,5 +25,6 @@
   - `is_long` == True -> at least short qty of short token
   - `is_long` == False -> at least `order_size` of long token
 - The input intent token is burnt
+- The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
 - Value parity: `AI` + `OI` == `AO` + `OO` (to clear: is the check needed?)
 - Signed by `operating_key`

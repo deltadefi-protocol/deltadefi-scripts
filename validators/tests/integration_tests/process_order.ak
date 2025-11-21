@@ -1,5 +1,5 @@
 use cardano/address.{Script}
-use cardano/assets.{from_asset}
+use cardano/assets.{from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_account_balance/spend as hydra_account_balance
 use hydra_dex/types.{
@@ -51,7 +51,13 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
   let fee_amount_bp = 10
 
   let intent_datum =
-    mock_order_intent(is_long, order_size, list_price_times_1bil, fee_amount_bp)
+    mock_order_intent(
+      is_long,
+      order_size,
+      list_price_times_1bil,
+      fee_amount_bp,
+      from_lovelace(order_size),
+    )
   let order_datum =
     if is_datum_correct {
       mock_order(

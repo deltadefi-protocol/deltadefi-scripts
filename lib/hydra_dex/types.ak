@@ -225,9 +225,15 @@ pub type MerklizedOrderDatum {
 // 7 - HydraUserIntent
 
 pub type HydraUserIntentRedeemer {
-  MintPlaceOrderIntent { order: HydraOrderBookDatum }
+  MintPlaceOrderIntent {
+    order: HydraOrderBookDatum,
+    authorized_account_value: MValue,
+  }
   MintCancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
-  MintModifyOrderIntent { new_order: HydraOrderBookDatum }
+  MintModifyOrderIntent {
+    new_order: HydraOrderBookDatum,
+    authorized_account_value: MValue,
+  }
   MintWithdrawalIntent { account: UserAccount, amount: MValue }
   MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
   MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
@@ -235,9 +241,15 @@ pub type HydraUserIntentRedeemer {
 }
 
 pub type HydraUserIntentDatum {
-  PlaceOrderIntent { order: HydraOrderBookDatum }
+  PlaceOrderIntent {
+    order: HydraOrderBookDatum,
+    authorized_account_value: MValue,
+  }
   CancelOrderIntent { account: UserAccount, order_ids: List<ByteArray> }
-  ModifyOrderIntent { new_order: HydraOrderBookDatum }
+  ModifyOrderIntent {
+    new_order: HydraOrderBookDatum,
+    authorized_account_value: MValue,
+  }
   WithdrawalIntent { account: UserAccount, amount: MValue }
   CancelWithdrawalIntent { account: UserAccount, amount: MValue }
   TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
@@ -274,6 +286,7 @@ pub type HydraOrderBookDatum {
   short_token: (PolicyId, AssetName),
   is_long: Bool,
   list_price_times_1bil: Int,
+  // if is_long: `order_size` in short_token, else `order_size` in long_token
   order_size: Int,
   fee_amount_bp: Int,
   account: UserAccount,

@@ -1,5 +1,5 @@
 use cardano/address.{Script}
-use cardano/assets.{from_asset, zero}
+use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{HydraOrderBookDatum, ModifyOrder, UserSpotAccount}
 use hydra_order_book/core as ob
@@ -77,6 +77,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       } else {
         mock_account_2
       },
+      from_lovelace(250_000_000),
     )
   let old_order_datum =
     mock_order(

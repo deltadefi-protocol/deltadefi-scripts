@@ -1,5 +1,7 @@
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, match, merge, without_lovelace}
+use cardano/assets.{
+  PolicyId, from_asset_list, match, merge, negate, without_lovelace,
+}
 use cardano/transaction.{Transaction}
 use cocktail.{
   group_inputs_2, group_outputs_2, i_at_with_policy, input_inline_datum,
@@ -8,6 +10,7 @@ use cocktail.{
 }
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
+  from_value_to_hydra_balance,
 }
 use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
@@ -66,7 +69,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   let no_other_outputs = other_outputs == []
 
   // - `II` with `ModifyOrderIntent` datum
-  expect ModifyOrderIntent { new_order: intent_order }: HydraUserIntentDatum =
+  expect ModifyOrderIntent { new_order: intent_order, authorized_account_value }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
 
   // - `II` with `account` as account
@@ -95,6 +98,18 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   let is_intent_token_burnt =
     policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
 
+  // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
+  let deducted_account_value =
+    inputs_value(account_inputs)
+      |> merge(negate(outputs_value(account_outputs)))
+  let is_deduction_within_authorized_limit =
+    value_geq(
+      authorized_account_value
+        |> from_asset_list()
+        |> from_value_to_hydra_balance(hydra_tokens_policy_id),
+      deducted_account_value,
+    )
+
   // - Value parity: `AI` + `OI` == `AO` + `OO` (to clear: is the check needed?)
   let input_value =
     inputs_value(account_inputs)
@@ -117,6 +132,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
     is_order_id_matching?,
     is_order_value_sufficient?,
     is_intent_token_burnt?,
+    is_deduction_within_authorized_limit?,
     is_value_parity_holds?,
     is_modify_order_authorized?,
   }
