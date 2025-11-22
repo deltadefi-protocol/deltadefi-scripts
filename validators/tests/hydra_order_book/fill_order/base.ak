@@ -1,11 +1,9 @@
 use aiken/collection/list
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace, merge, negate, zero}
+use cardano/assets.{Value, from_asset, from_lovelace, merge, negate, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/order_utils.{get_order_settlement_info}
-use hydra_dex/types.{
-  FillOrderRedeemer, HydraAccountBalanceDatum, HydraOrderBookDatum,
-}
+use hydra_dex/order_utils.{get_min_order_value}
+use hydra_dex/types.{Order, UserAccount}
 use hydra_order_book/fill_order
 use mocktail.{
   MocktailTx, complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -16,109 +14,62 @@ use tests/utils.{
   mock_account, mock_account_2, mock_account_3, mock_account_4,
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_fee_account,
-  mock_hydra_account_balance_address, mock_hydra_account_balance_token,
-  mock_hydra_balance, mock_hydra_fill_order, mock_hydra_order_book_address,
-  mock_hydra_order_book_token, mock_operation_key, mock_order,
-  mock_script_account, mock_usd,
+  mock_hydra_account_balance_address, mock_hydra_lovelace,
+  mock_hydra_order_book_address, mock_hydra_token_policy_id, mock_hydra_usd,
+  mock_operation_key, mock_order, mock_script_account, mock_usd,
 }
 
 type TestCase {
-  input_orders: List<HydraOrderBookDatum>,
-  output_order: Option<HydraOrderBookDatum>,
-  input_balances: List<HydraAccountBalanceDatum>,
-  output_balances: List<HydraAccountBalanceDatum>,
+  input_orders: Pairs<Order, Value>,
+  output_order: Option<Pair<Order, Value>>,
+  output_balances: Pairs<UserAccount, Value>,
   burnt_order_ids: List<ByteArray>,
   is_operation_key_signed: Bool,
 }
 
+fn mk_base_order(order: Order) -> Pair<Order, Value> {
+  Pair(order, get_min_order_value(order, mock_hydra_token_policy_id))
+}
+
 fn add_order_inputs(
   mock_tx: MocktailTx,
-  input_orders: List<HydraOrderBookDatum>,
+  input_orders: Pairs<Order, Value>,
 ) -> MocktailTx {
   list.foldr(
     input_orders,
     mock_tx,
-    fn(input_order, tx) {
+    fn(Pair(order, value), tx) {
       tx
-        |> tx_in(
-            True,
-            mock_tx_hash(0),
-            0,
-            from_asset(mock_hydra_order_book_token, input_order.order_id, 1),
-            mock_hydra_order_book_address,
-          )
-        |> tx_in_inline_datum(True, input_order)
+        |> tx_in(True, mock_tx_hash(0), 0, value, mock_hydra_order_book_address)
+        |> tx_in_inline_datum(True, order)
     },
   )
 }
 
 fn add_order_output(
   mock_tx: MocktailTx,
-  output_order: Option<HydraOrderBookDatum>,
+  output_order: Option<Pair<Order, Value>>,
 ) -> MocktailTx {
   when output_order is {
-    Some(order) ->
+    Some(Pair(order, value)) ->
       mock_tx
-        |> tx_out(
-            True,
-            mock_hydra_order_book_address,
-            from_asset(mock_hydra_order_book_token, order.order_id, 1),
-          )
+        |> tx_out(True, mock_hydra_order_book_address, value)
         |> tx_out_inline_datum(True, order)
     None -> mock_tx
   }
 }
 
-fn add_input_balances(
-  mock_tx: MocktailTx,
-  input_balances: List<HydraAccountBalanceDatum>,
-) -> MocktailTx {
-  list.foldr(
-    input_balances,
-    mock_tx,
-    fn(input_balance, tx) {
-      tx
-        |> tx_in(
-            True,
-            mock_tx_hash(0),
-            0,
-            from_asset(mock_hydra_account_balance_token, "", 1),
-            mock_hydra_account_balance_address,
-          )
-        |> tx_in_inline_datum(True, input_balance)
-    },
-  )
-}
-
 fn add_output_balances(
   mock_tx: MocktailTx,
-  output_balances: List<HydraAccountBalanceDatum>,
+  output_balances: Pairs<UserAccount, Value>,
 ) -> MocktailTx {
   list.foldr(
     output_balances,
     mock_tx,
-    fn(input_balance, tx) {
+    fn(Pair(account, value), tx) {
       tx
-        |> tx_out(
-            True,
-            mock_hydra_account_balance_address,
-            from_asset(mock_hydra_account_balance_token, "", 1),
-          )
-        |> tx_out_inline_datum(True, input_balance)
-    },
-  )
-}
-
-fn add_burnt_tokens(
-  mock_tx: MocktailTx,
-  burnt_order_ids: List<ByteArray>,
-) -> MocktailTx {
-  list.foldr(
-    burnt_order_ids,
-    mock_tx,
-    fn(order_id, tx) {
-      tx
-        |> mint(True, -1, mock_hydra_order_book_token, order_id)
+        |> tx_out(True, mock_hydra_account_balance_address, value)
+        |> tx_out_inline_datum(True, account)
     },
   )
 }
@@ -127,7 +78,6 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let TestCase {
     input_orders,
     output_order,
-    input_balances,
     output_balances,
     burnt_order_ids,
     is_operation_key_signed,
@@ -136,9 +86,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   mocktail_tx()
     |> add_order_inputs(input_orders)
     |> add_order_output(output_order)
-    |> add_input_balances(input_balances)
     |> add_output_balances(output_balances)
-    |> add_burnt_tokens(burnt_order_ids)
     |> ref_tx_in(
         True,
         mock_tx_hash(0),
@@ -153,67 +101,28 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
 fn base_case() {
   let order_1 =
-    mock_order(
-      "order_1",
-      False,
-      250_000_000,
-      1_000_000_000,
-      10,
-      0,
-      mock_account,
-    )
+    mock_order("order_1", False, 250_000_000, 1_000_000_000, 10, mock_account)
   let order_2 =
-    mock_order(
-      "order_2",
-      True,
-      250_000_000,
-      1_000_000_000,
-      10,
-      0,
-      mock_account_2,
-    )
-
-  let input_balances =
-    [
-      mock_hydra_balance(
-        mock_account,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000)),
-      ),
-      mock_hydra_balance(
-        mock_account_2,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000)),
-      ),
-      mock_hydra_balance(mock_fee_account, zero),
-    ]
+    mock_order("order_2", True, 250_000_000, 1_000_000_000, 10, mock_account_2)
 
   let output_balances =
     [
-      mock_hydra_balance(
-        mock_account,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000 + 249_750_000)),
-      ),
-      mock_hydra_balance(
-        mock_account_2,
-        from_lovelace(3995000000 + 249_750_000) |> merge(mock_usd(999500000000)),
-      ),
-      mock_hydra_balance(
-        mock_fee_account,
-        mock_usd(250_000) |> merge(from_lovelace(250_000)),
-      ),
+      Pair(mock_account, mock_hydra_usd(249_750_000)),
+      Pair(mock_account_2, mock_hydra_lovelace(249_750_000)),
+      Pair(mock_fee_account, mock_usd(250_000) |> merge(from_lovelace(250_000))),
     ]
 
-  (order_1, order_2, input_balances, output_balances)
+  (order_1, order_2, output_balances)
 }
 
 test s9_wfo_1() {
-  let (order_1, order_2, input_balances, output_balances) = base_case()
+  let (order_1, order_2, output_balances) = base_case()
 
   let tx =
     mock_tx(
       TestCase {
         input_orders: [order_1, order_2],
         output_order: None,
-        input_balances,
         output_balances,
         burnt_order_ids: ["order_1", "order_2"],
         is_operation_key_signed: True,
@@ -380,17 +289,23 @@ test s9_wfo_2_fill_multipe_sell_orders() {
 
   let output_balances =
     [
-      mock_hydra_balance(
+      Pair(
         mock_account,
-        from_lovelace(299_700_000) |> merge(mock_usd(30_000_000)),
+        mock_hydra_lovelace(299_700_000) |> merge(mock_usd(30_000_000)),
       ),
-      mock_hydra_balance(mock_account_2, mock_usd(99_900_000)),
-      mock_hydra_balance(mock_account_3, mock_usd(109_890_000)),
-      mock_hydra_balance(mock_account_4, mock_usd(119_880_000)),
-      mock_hydra_balance(
-        mock_fee_account,
-        mock_usd(330_000) |> merge(from_lovelace(300_000)),
+      Pair(
+        mock_account_2,
+        mock_hydra_balance(mock_account_2, mock_usd(99_900_000)),
       ),
+      Pair(
+        mock_account_3,
+        mock_hydra_balance(mock_account_3, mock_usd(109_890_000)),
+      ),
+      Pair(
+        mock_account_4,
+        mock_hydra_balance(mock_account_4, mock_usd(119_880_000)),
+      ),
+      Pair(mock_fee_account, mock_usd(330_000) |> merge(from_lovelace(300_000))),
     ]
 
   let tx =

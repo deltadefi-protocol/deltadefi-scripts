@@ -27,7 +27,7 @@ pub fn fill_order(
     fee_account,
     hydra_order_book_script_hash,
     hydra_account_balance_address,
-    hydra_tokens_policy_id,
+    hydra_token_policy_id,
     ..
   }: DexOrderBookDatum =
     reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -100,9 +100,9 @@ pub fn fill_order(
               //   - Get `order_value (OV)`, `min_order_value (MOV)`, `min_payoff_value (MPV)`
               let order_value = order_input.output.value
               let min_order_value =
-                get_min_order_value(order, hydra_tokens_policy_id)
+                get_min_order_value(order, hydra_token_policy_id)
               let min_payoff_value =
-                get_min_payoff_value(order, hydra_tokens_policy_id)
+                get_min_payoff_value(order, hydra_token_policy_id)
               //   - Calculate the `excess_order_value (EOV)` (`OV` - `MOV`)
               // - If the order is partially filled, with `filled_qty` = `start_qty` - `end_qty`, calculate:
               //   - `Final OV` = `OV` - output `OV`
@@ -114,7 +114,7 @@ pub fn fill_order(
                 get_unfilled_order(order, new_order_opt)
                   |> get_partial_filled_order_info(
                       order,
-                      hydra_tokens_policy_id,
+                      hydra_token_policy_id,
                       order_value,
                       min_order_value,
                       min_payoff_value,
@@ -155,7 +155,7 @@ pub fn fill_order(
 
         //   - Use exactly the makers’ `Final MOV` as payoff
         let order_value = filler_order_input.output.value
-        let min_order_value = get_min_order_value(order, hydra_tokens_policy_id)
+        let min_order_value = get_min_order_value(order, hydra_token_policy_id)
         let filler_payoff_value = total_min_order_value
 
         //   - Handle unfilled order value
@@ -164,7 +164,7 @@ pub fn fill_order(
           get_unfilled_order(order, new_order_opt)
             |> get_partial_filled_order_info(
                 order,
-                hydra_tokens_policy_id,
+                hydra_token_policy_id,
                 order_value,
                 min_order_value,
                 filler_payoff_value,
@@ -229,7 +229,7 @@ pub fn fill_order(
         (
           value_geq(
             new_order_value,
-            get_min_order_value(new_order, hydra_tokens_policy_id),
+            get_min_order_value(new_order, hydra_token_policy_id),
           ),
           new_order_value,
         )
@@ -279,7 +279,7 @@ fn get_unfilled_order(
 fn get_partial_filled_order_info(
   unfilled_order: Option<(Order, Value)>,
   order: Order,
-  hydra_tokens_policy_id: ByteArray,
+  hydra_token_policy_id: ByteArray,
   order_value: Value,
   min_order_value: Value,
   min_payoff_value: Value,
@@ -291,12 +291,12 @@ fn get_partial_filled_order_info(
       let fmov =
         get_min_order_value(
           Order { ..order, size: filled_qty },
-          hydra_tokens_policy_id,
+          hydra_token_policy_id,
         )
       let fmpv =
         get_min_payoff_value(
           Order { ..order, size: filled_qty },
-          hydra_tokens_policy_id,
+          hydra_token_policy_id,
         )
       (fov, fmov, fmpv)
     }

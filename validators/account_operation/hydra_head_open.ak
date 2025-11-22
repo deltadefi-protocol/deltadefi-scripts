@@ -28,7 +28,7 @@ validator hydra_head_open(oracle_nft: PolicyId) {
       dex_account_balance_token,
       dex_account_balance_address,
       hydra_account_balance_address,
-      hydra_tokens_policy_id,
+      hydra_token_policy_id,
       operation_key,
       ..
     }: DexOrderBookDatum =
@@ -75,7 +75,7 @@ validator hydra_head_open(oracle_nft: PolicyId) {
               let balance =
                 from_hydra_balance_to_value(
                   output.value,
-                  hydra_tokens_policy_id,
+                  hydra_token_policy_id,
                   token_map,
                 )
               expect account: UserAccount = output_datum
@@ -85,9 +85,7 @@ validator hydra_head_open(oracle_nft: PolicyId) {
                       Pair(cbor.serialise(account), cbor.serialise(balance)),
                     ),
                 acc.2nd
-                  |> merge(
-                      restricted_to(output.value, [hydra_tokens_policy_id]),
-                    ),
+                  |> merge(restricted_to(output.value, [hydra_token_policy_id])),
               )
             },
           )
@@ -117,7 +115,7 @@ validator hydra_head_open(oracle_nft: PolicyId) {
       }
 
     let is_value_minted =
-      restricted_to(tx.mint, [hydra_tokens_policy_id]) == to_mint_value
+      restricted_to(tx.mint, [hydra_token_policy_id]) == to_mint_value
 
     let is_operation_key_signed =
       key_signed(tx.extra_signatories, operation_key)

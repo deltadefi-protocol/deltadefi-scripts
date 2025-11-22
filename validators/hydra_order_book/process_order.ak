@@ -33,7 +33,7 @@ pub fn process_order(
     hydra_user_intent_address,
     hydra_account_balance_address,
     hydra_order_book_script_hash,
-    hydra_tokens_policy_id,
+    hydra_token_policy_id,
     ..
   }: DexOrderBookDatum = oracle
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
@@ -88,7 +88,7 @@ pub fn process_order(
   let is_order_value_sufficient =
     value_geq(
       order_output.value,
-      get_min_order_value(order_datum, hydra_tokens_policy_id),
+      get_min_order_value(order_datum, hydra_token_policy_id),
     )
 
   //  - The input token is burnt
@@ -103,7 +103,7 @@ pub fn process_order(
     value_geq(
       authorized_account_value
         |> from_asset_list()
-        |> from_value_to_hydra_balance(hydra_tokens_policy_id),
+        |> from_value_to_hydra_balance(hydra_token_policy_id),
       deducted_account_value,
     )
 

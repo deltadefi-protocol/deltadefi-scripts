@@ -74,7 +74,7 @@ pub type AppOracleDatum {
   emergency_withdrawal_request_token: PolicyId,
   emergency_withdrawal_request_address: Address,
   all_withdrawal_script_hashes: WithdrawalScriptHashes,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
   hydra_info: HydraInfo,
 }
 
@@ -205,7 +205,7 @@ pub type DexOrderBookDatum {
   hydra_account_balance_address: Address,
   hydra_order_book_script_hash: ByteArray,
   withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
 }
 
 pub type DexOrderBookWithdrawalScripts {

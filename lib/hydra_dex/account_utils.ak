@@ -70,25 +70,25 @@ test hashing_tokens() {
 
 pub fn from_value_to_hydra_balance(
   account_value: Value,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
 ) -> Value {
   account_value
     |> assets.reduce(
         zero,
         fn(policy_id, asset_name, qty, acc) {
           let token_hash = hash_token(policy_id, asset_name)
-          acc |> assets.add(hydra_tokens_policy_id, token_hash, qty)
+          acc |> assets.add(hydra_token_policy_id, token_hash, qty)
         },
       )
 }
 
 pub fn from_hydra_balance_to_value(
   hydra_value: Value,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
   token_map: TokenMap,
 ) -> Value {
   hydra_value
-    |> tokens(hydra_tokens_policy_id)
+    |> tokens(hydra_token_policy_id)
     |> dict.foldr(
         zero,
         fn(token_hash, token_qty, account_value_acc) {

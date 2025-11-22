@@ -1675,7 +1675,7 @@
               "$ref": "#/definitions/hydra_dex~1types~1WithdrawalScriptHashes"
             },
             {
-              "title": "hydra_tokens_policy_id",
+              "title": "hydra_token_policy_id",
               "$ref": "#/definitions/cardano~1assets~1PolicyId"
             },
             {
@@ -1871,7 +1871,7 @@
               "$ref": "#/definitions/hydra_dex~1types~1DexOrderBookWithdrawalScripts"
             },
             {
-              "title": "hydra_tokens_policy_id",
+              "title": "hydra_token_policy_id",
               "$ref": "#/definitions/cardano~1assets~1PolicyId"
             }
           ]

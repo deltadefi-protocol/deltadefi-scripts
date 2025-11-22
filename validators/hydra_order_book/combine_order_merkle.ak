@@ -29,7 +29,7 @@ pub fn combine_order_merkle(
   let DexOrderBookDatum {
     dex_order_book_token,
     dex_order_book_address,
-    hydra_tokens_policy_id,
+    hydra_token_policy_id,
     hydra_order_book_script_hash,
     ..
   } = oracle
@@ -64,7 +64,7 @@ pub fn combine_order_merkle(
                 value: input.output.value
                   |> without_lovelace
                   |> from_hydra_balance_to_value(
-                      hydra_tokens_policy_id,
+                      hydra_token_policy_id,
                       token_map,
                     )
                   |> to_mvalue,

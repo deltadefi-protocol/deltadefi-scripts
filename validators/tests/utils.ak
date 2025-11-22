@@ -93,7 +93,7 @@ pub const mock_input_oracle_datum: AppOracleDatum =
     emergency_withdrawal_request_token: mock_emergency_withdrawal_request_token,
     emergency_withdrawal_request_address: mock_emergency_withdrawal_request_address,
     all_withdrawal_script_hashes: mock_withdrawal_script_hashes,
-    hydra_tokens_policy_id: mock_hydra_token_policy_id,
+    hydra_token_policy_id: mock_hydra_token_policy_id,
     hydra_info: HydraInfo {
       hydra_initial_hash: mock_hydra_initial_hash,
       hydra_signers: mock_hydra_signers,
@@ -169,7 +169,7 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     hydra_account_balance_address: mock_hydra_account_balance_address,
     hydra_order_book_script_hash: mock_hydra_order_book,
     withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
-    hydra_tokens_policy_id: mock_hydra_token_policy_id,
+    hydra_token_policy_id: mock_hydra_token_policy_id,
   }
 
 pub const mock_account_id = #"3450e8e7ff044148af0b0f151f490d99"

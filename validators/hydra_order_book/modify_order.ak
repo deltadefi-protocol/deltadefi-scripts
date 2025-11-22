@@ -34,7 +34,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
     hydra_user_intent_address,
     hydra_account_balance_address,
     hydra_order_book_script_hash,
-    hydra_tokens_policy_id,
+    hydra_token_policy_id,
     ..
   } = reference_inputs |> get_dex_order_book_datum(oracle_nft)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
@@ -89,7 +89,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   let is_order_value_sufficient =
     value_geq(
       order_output.value,
-      get_min_order_value(new_order_datum, hydra_tokens_policy_id),
+      get_min_order_value(new_order_datum, hydra_token_policy_id),
     )
 
   // - The input intent token is burnt
@@ -104,7 +104,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
     value_geq(
       authorized_account_value
         |> from_asset_list()
-        |> from_value_to_hydra_balance(hydra_tokens_policy_id),
+        |> from_value_to_hydra_balance(hydra_token_policy_id),
       deducted_account_value,
     )
 

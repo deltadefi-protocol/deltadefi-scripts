@@ -17,7 +17,7 @@ validator hydra_combine_balance(oracle_nft: PolicyId) {
     let DexOrderBookDatum {
       operation_key,
       hydra_account_balance_address,
-      hydra_tokens_policy_id,
+      hydra_token_policy_id,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -36,7 +36,7 @@ validator hydra_combine_balance(oracle_nft: PolicyId) {
           let is_same_account =
             input_account == output_account && is_same_account_acc
           let input_balance =
-            input.output.value |> restricted_to([hydra_tokens_policy_id])
+            input.output.value |> restricted_to([hydra_token_policy_id])
           let combined_balance_new = merge(balance_acc, input_balance)
           (is_same_account, combined_balance_new)
         },

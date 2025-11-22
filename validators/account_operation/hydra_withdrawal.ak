@@ -38,7 +38,7 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
       hydra_user_intent_token,
       hydra_user_intent_address,
       hydra_account_balance_address,
-      hydra_tokens_policy_id,
+      hydra_token_policy_id,
       ..
     }: DexOrderBookDatum =
       reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -56,7 +56,7 @@ validator hydra_withdrawal(oracle_nft: PolicyId) {
     //  - The input token is burnt
     let hydra_balance_decrease_value =
       from_asset_list(withdrawal_amount)
-        |> from_value_to_hydra_balance(hydra_tokens_policy_id)
+        |> from_value_to_hydra_balance(hydra_token_policy_id)
     let to_burn_value =
       without_lovelace(intent_input.output.value)
         |> merge(hydra_balance_decrease_value)

@@ -38,7 +38,7 @@ validator hydra_head_close(oracle_nft: PolicyId) {
       dex_account_balance_token,
       dex_account_balance_address,
       hydra_account_balance_address,
-      hydra_tokens_policy_id,
+      hydra_token_policy_id,
       operation_key,
       ..
     }: DexOrderBookDatum =
@@ -58,7 +58,7 @@ validator hydra_head_close(oracle_nft: PolicyId) {
               let balance =
                 from_hydra_balance_to_value(
                   input.output.value,
-                  hydra_tokens_policy_id,
+                  hydra_token_policy_id,
                   token_map,
                 )
               expect account: UserAccount = input_datum
@@ -72,7 +72,7 @@ validator hydra_head_close(oracle_nft: PolicyId) {
                       negate(
                         restricted_to(
                           input.output.value,
-                          [hydra_tokens_policy_id],
+                          [hydra_token_policy_id],
                         ),
                       ),
                     ),

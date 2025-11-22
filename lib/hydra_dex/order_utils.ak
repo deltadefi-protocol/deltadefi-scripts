@@ -17,7 +17,7 @@ pub fn get_payoff_qty(
 
 pub fn get_min_order_value(
   order: Order,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
 ) -> Value {
   let (policy, name) =
     if order.is_long {
@@ -26,12 +26,12 @@ pub fn get_min_order_value(
       order.long_token
     }
   from_asset(policy, name, order.size)
-    |> from_value_to_hydra_balance(hydra_tokens_policy_id)
+    |> from_value_to_hydra_balance(hydra_token_policy_id)
 }
 
 pub fn get_min_payoff_value(
   order: Order,
-  hydra_tokens_policy_id: PolicyId,
+  hydra_token_policy_id: PolicyId,
 ) -> Value {
   let (policy, name) =
     if order.is_long {
@@ -44,7 +44,7 @@ pub fn get_min_payoff_value(
     name,
     get_payoff_qty(order.size, order.list_price_times_1bil, order.is_long),
   )
-    |> from_value_to_hydra_balance(hydra_tokens_policy_id)
+    |> from_value_to_hydra_balance(hydra_token_policy_id)
 }
 
 pub fn get_fee(transacted_value: Int, fee_bp: Int) -> Int {
