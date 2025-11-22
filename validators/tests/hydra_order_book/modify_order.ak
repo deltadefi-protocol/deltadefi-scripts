@@ -1,7 +1,7 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{HydraOrderBookDatum, ModifyOrder, UserSpotAccount}
+use hydra_dex/types.{ModifyOrder, Order, UserSpotAccount}
 use hydra_order_book/core as ob
 use mocktail.{
   complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -49,8 +49,8 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let account = UserSpotAccount { account: mock_account }
 
   let is_long = False
-  let old_order_size = 500_000_000
-  let new_order_size =
+  let old_size = 500_000_000
+  let new_size =
     if modify_add_value_to_order_case {
       750_000_000
     } else {
@@ -69,7 +69,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let intent_datum =
     mock_modify_order_intent(
       is_long,
-      new_order_size,
+      new_size,
       list_price_times_1bil,
       fee_amount_bp,
       if is_intent_account_correct {
@@ -83,7 +83,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     mock_order(
       mock_order_id,
       is_long,
-      old_order_size,
+      old_size,
       list_price_times_1bil,
       fee_amount_bp,
       mock_account,
@@ -92,7 +92,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     mock_order(
       mock_order_id,
       is_long,
-      new_order_size,
+      new_size,
       list_price_times_1bil,
       fee_amount_bp,
       mock_account,
@@ -102,14 +102,14 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     if is_intent_order_correct {
       new_order_datum
     } else {
-      HydraOrderBookDatum { ..new_order_datum, order_size: 123_456_789 }
+      Order { ..new_order_datum, size: 123_456_789 }
     }
 
   let new_order_datum =
     if is_order_id_matching {
       new_order_datum
     } else {
-      HydraOrderBookDatum { ..new_order_datum, order_id: mock_order_id_2 }
+      Order { ..new_order_datum, order_id: mock_order_id_2 }
     }
 
   mocktail_tx()
@@ -155,7 +155,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
         True,
         mock_tx_hash(1),
         3,
-        mock_hydra_lovelace(old_order_size),
+        mock_hydra_lovelace(old_size),
         mock_hydra_order_book_address,
       )
     |> tx_in_inline_datum(True, old_order_datum)
@@ -168,7 +168,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> tx_out(
         True,
         mock_hydra_order_book_address,
-        mock_hydra_lovelace(new_order_size),
+        mock_hydra_lovelace(new_size),
       )
     |> tx_out_inline_datum(True, new_order_datum)
     // - The input token is burnt

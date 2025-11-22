@@ -3,8 +3,8 @@ use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, DexOrderBookWithdrawalScripts,
-  HydraInfo, HydraOrderBookDatum, ModifyOrderIntent, PlaceOrderIntent, TokenMap,
-  UserAccount, UserSpotAccount, WithdrawalScriptHashes,
+  HydraInfo, ModifyOrderIntent, Order, PlaceOrderIntent, TokenMap, UserAccount,
+  UserSpotAccount, WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -261,12 +261,12 @@ pub const mock_order_id_2 = "order_id_2"
 pub fn mock_order(
   order_id: ByteArray,
   is_long: Bool,
-  order_size: Int,
+  size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   account: Account,
 ) {
-  HydraOrderBookDatum {
+  Order {
     order_id,
     long_token: ("", ""),
     short_token: (
@@ -275,7 +275,7 @@ pub fn mock_order(
     ),
     is_long,
     list_price_times_1bil,
-    order_size,
+    size,
     fee_amount_bp,
     account: UserSpotAccount { account },
   }
@@ -283,13 +283,13 @@ pub fn mock_order(
 
 pub fn mock_order_intent(
   is_long: Bool,
-  order_size: Int,
+  size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   authorized_account_value: Value,
 ) {
   PlaceOrderIntent {
-    order: HydraOrderBookDatum {
+    order: Order {
       order_id: mock_order_id,
       long_token: ("", ""),
       short_token: (
@@ -298,7 +298,7 @@ pub fn mock_order_intent(
       ),
       is_long,
       list_price_times_1bil,
-      order_size,
+      size,
       fee_amount_bp,
       account: UserSpotAccount { account: mock_account },
     },
@@ -308,14 +308,14 @@ pub fn mock_order_intent(
 
 pub fn mock_modify_order_intent(
   is_long: Bool,
-  order_size: Int,
+  size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   account: Account,
   authorized_account_value: Value,
 ) {
   ModifyOrderIntent {
-    new_order: HydraOrderBookDatum {
+    new_order: Order {
       order_id: mock_order_id,
       long_token: ("", ""),
       short_token: (
@@ -324,7 +324,7 @@ pub fn mock_modify_order_intent(
       ),
       is_long,
       list_price_times_1bil,
-      order_size,
+      size,
       fee_amount_bp,
       account: UserSpotAccount { account },
     },

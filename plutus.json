@@ -981,7 +981,7 @@
       "datum": {
         "title": "_datum_opt",
         "schema": {
-          "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+          "$ref": "#/definitions/hydra_dex~1types~1Order"
         }
       },
       "redeemer": {
@@ -2146,11 +2146,11 @@
         }
       ]
     },
-    "hydra_dex/types/HydraOrderBookDatum": {
-      "title": "HydraOrderBookDatum",
+    "hydra_dex/types/Order": {
+      "title": "Order",
       "anyOf": [
         {
-          "title": "HydraOrderBookDatum",
+          "title": "Order",
           "dataType": "constructor",
           "index": 0,
           "fields": [
@@ -2175,7 +2175,7 @@
               "$ref": "#/definitions/Int"
             },
             {
-              "title": "order_size",
+              "title": "size",
               "$ref": "#/definitions/Int"
             },
             {
@@ -2289,7 +2289,7 @@
           "fields": [
             {
               "title": "order",
-              "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+              "$ref": "#/definitions/hydra_dex~1types~1Order"
             }
           ]
         },
@@ -2315,7 +2315,7 @@
           "fields": [
             {
               "title": "new_order",
-              "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+              "$ref": "#/definitions/hydra_dex~1types~1Order"
             }
           ]
         },
@@ -2380,7 +2380,7 @@
           "fields": [
             {
               "title": "order",
-              "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+              "$ref": "#/definitions/hydra_dex~1types~1Order"
             }
           ]
         },
@@ -2406,7 +2406,7 @@
           "fields": [
             {
               "title": "new_order",
-              "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+              "$ref": "#/definitions/hydra_dex~1types~1Order"
             }
           ]
         },
@@ -2533,7 +2533,7 @@
           "fields": [
             {
               "title": "datum",
-              "$ref": "#/definitions/hydra_dex~1types~1HydraOrderBookDatum"
+              "$ref": "#/definitions/hydra_dex~1types~1Order"
             },
             {
               "title": "value",

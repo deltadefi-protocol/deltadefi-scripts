@@ -3,11 +3,11 @@ use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_trade_keys, get_withdrawal_keys}
 use hydra_dex/types.{
-  CancelOrderIntent, CancelWithdrawalIntent, HydraOrderBookDatum,
-  HydraUserIntentDatum, HydraUserIntentRedeemer, MintCancelOrderIntent,
-  MintCancelWithdrawalIntent, MintPlaceOrderIntent, MintTransferIntent,
-  MintWithdrawalIntent, PlaceOrderIntent, TransferIntent, UserAccount,
-  UserSpotAccount, WithdrawalIntent,
+  CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
+  HydraUserIntentRedeemer, MintCancelOrderIntent, MintCancelWithdrawalIntent,
+  MintPlaceOrderIntent, MintTransferIntent, MintWithdrawalIntent, Order,
+  PlaceOrderIntent, TransferIntent, UserAccount, UserSpotAccount,
+  WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent/mint as hydra_user_intent_mint
@@ -24,14 +24,14 @@ use tests/utils.{
 
 const mock_order_id = "mock_order_id"
 
-fn create_mock_limit_order() -> HydraOrderBookDatum {
-  HydraOrderBookDatum {
+fn create_mock_limit_order() -> Order {
+  Order {
     order_id: mock_order_id,
     long_token: (mock_account_id, mock_hydra_user_intent_token),
     short_token: (mock_account_id, mock_hydra_user_intent_token),
     is_long: True,
     list_price_times_1bil: 1_000_000_000,
-    order_size: 999,
+    size: 999,
     fee_amount_bp: 999,
     account: UserSpotAccount { account: mock_account },
   }
@@ -46,13 +46,13 @@ fn create_mock_mint_place_order_intent() -> HydraUserIntentRedeemer {
 
 fn create_mock_place_order_intent() -> HydraUserIntentDatum {
   PlaceOrderIntent {
-    order: HydraOrderBookDatum {
+    order: Order {
       order_id: mock_order_id,
       long_token: (mock_account_id, mock_hydra_user_intent_token),
       short_token: (mock_account_id, mock_hydra_user_intent_token),
       is_long: True,
       list_price_times_1bil: 1_000_000_000,
-      order_size: 999,
+      size: 999,
       fee_amount_bp: 999,
       account: UserSpotAccount { account: mock_account },
     },

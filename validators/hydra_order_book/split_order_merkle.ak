@@ -11,8 +11,8 @@ use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_delete,
 }
 use hydra_dex/types.{
-  DexOrderBookDatum, FullTree, HydraOrderBookDatum, MerklizedOrderDatum, Proofs,
-  TokenMap, TreeOrProofs,
+  DexOrderBookDatum, FullTree, MerklizedOrderDatum, Order, Proofs, TokenMap,
+  TreeOrProofs,
 }
 use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
 
@@ -37,13 +37,13 @@ pub fn split_order_merkle(
 
   // The way orders are placed into the tree is a little bit different to
   // how they are done in account balance merkle tree. The key is `order_id`
-  // and the value is the entire `HydraOrderBookDatum` datum serialised.
+  // and the value is the entire `Order` datum serialised.
   let output_serialised_datum_list: List<Pair<ByteArray, ByteArray>> =
     filtered_outputs
       |> list.map(
           fn(output: Output) {
             expect InlineDatum(output_datum) = output.datum
-            expect hydra_order_book_datum: HydraOrderBookDatum = output_datum
+            expect hydra_order_book_datum: Order = output_datum
             let merkle_datum =
               MerklizedOrderDatum {
                 datum: hydra_order_book_datum,

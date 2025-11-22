@@ -3,9 +3,7 @@
 use aiken/merkle_patricia_forestry.{Branch}
 use cardano/assets.{from_lovelace}
 use hydra_dex/account_utils.{order_merkle_cancel_order}
-use hydra_dex/types.{
-  HydraOrderBookDatum, MPFDelete, MerklizedOrderDatum, UserSpotAccount,
-}
+use hydra_dex/types.{MPFDelete, MerklizedOrderDatum, Order, UserSpotAccount}
 use hydra_dex/utils.{to_mvalue}
 use tests/utils.{mock_account} as test_utils
 
@@ -13,7 +11,7 @@ test au_omco() {
   let order_id = #"032f3cc8274143358eb2bbf7b58acaf8"
   let order =
     MerklizedOrderDatum {
-      datum: HydraOrderBookDatum {
+      datum: Order {
         order_id,
         long_token: ("", ""),
         short_token: (
@@ -22,7 +20,7 @@ test au_omco() {
         ),
         is_long: False,
         list_price_times_1bil: 1_350_000_000,
-        order_size: 250_000_000,
+        size: 250_000_000,
         fee_amount_bp: 10,
         account: UserSpotAccount { account: mock_account },
       },

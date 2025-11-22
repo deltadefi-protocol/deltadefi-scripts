@@ -6,10 +6,10 @@ use cocktail.{
 use hydra_dex/account_utils.{trade_auth_by_account, withdrawal_auth_by_account}
 use hydra_dex/types.{
   BurnIntent, CancelOrderIntent, CancelWithdrawalIntent, DexOrderBookDatum,
-  HydraOrderBookDatum, HydraUserIntentDatum, HydraUserIntentRedeemer,
-  MintCancelOrderIntent, MintCancelWithdrawalIntent, MintModifyOrderIntent,
-  MintPlaceOrderIntent, MintTransferIntent, MintWithdrawalIntent,
-  ModifyOrderIntent, PlaceOrderIntent, TransferIntent, WithdrawalIntent,
+  HydraUserIntentDatum, HydraUserIntentRedeemer, MintCancelOrderIntent,
+  MintCancelWithdrawalIntent, MintModifyOrderIntent, MintPlaceOrderIntent,
+  MintTransferIntent, MintWithdrawalIntent, ModifyOrderIntent, Order,
+  PlaceOrderIntent, TransferIntent, WithdrawalIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 

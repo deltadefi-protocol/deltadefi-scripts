@@ -44,7 +44,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let account = UserSpotAccount { account: mock_account }
 
   let is_long = False
-  let order_size =
+  let size =
     if no_account_output_case {
       500_000_000
     } else {
@@ -56,17 +56,17 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let intent_datum =
     mock_order_intent(
       is_long,
-      order_size,
+      size,
       list_price_times_1bil,
       fee_amount_bp,
-      from_lovelace(order_size),
+      from_lovelace(size),
     )
   let order_datum =
     if is_datum_correct {
       mock_order(
         mock_order_id,
         is_long,
-        order_size,
+        size,
         list_price_times_1bil,
         fee_amount_bp,
         mock_account,
@@ -144,11 +144,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
         output_balance,
       )
     |> tx_out_inline_datum(!no_account_output_case, account)
-    |> tx_out(
-        True,
-        mock_hydra_order_book_address,
-        mock_hydra_lovelace(order_size),
-      )
+    |> tx_out(True, mock_hydra_order_book_address, mock_hydra_lovelace(size))
     |> tx_out_inline_datum(True, order_datum)
     // - The input token is burnt
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")

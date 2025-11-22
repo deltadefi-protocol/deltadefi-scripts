@@ -14,8 +14,7 @@ use hydra_dex/account_utils.{
 }
 use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraOrderBookDatum, HydraUserIntentDatum,
-  ModifyOrderIntent, UserAccount,
+  DexOrderBookDatum, HydraUserIntentDatum, ModifyOrderIntent, Order, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -76,18 +75,17 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   let is_intent_account_correct = intent_order.account == account
 
   // - `OO` with exactly datum `II`
-  expect new_order_datum: HydraOrderBookDatum =
-    output_inline_datum(order_output)
+  expect new_order_datum: Order = output_inline_datum(order_output)
   let is_intent_order_correct = new_order_datum == intent_order
 
   // - `OI` & `OO` has same `order_id`
-  expect old_order_datum: HydraOrderBookDatum = input_inline_datum(order_input)
+  expect old_order_datum: Order = input_inline_datum(order_input)
   let is_order_id_matching =
     old_order_datum.order_id == new_order_datum.order_id
 
   // - `OO` has at least value
   //   - `is_long` == True -> at least short qty of short token
-  //   - `is_long` == False -> at least `order_size` of long token
+  //   - `is_long` == False -> at least `size` of long token
   let is_order_value_sufficient =
     value_geq(
       order_output.value,

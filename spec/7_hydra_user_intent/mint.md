@@ -6,7 +6,7 @@
 
 ## User Action
 
-1. User Intent - Redeemer `MintPlaceOrderIntent { order: HydraOrderBookDatum }`
+1. User Intent - Redeemer `MintPlaceOrderIntent { order: Order }`
 
    - Exactly 1 token minted
    - Token name equals empty byte array
@@ -20,7 +20,7 @@
    - Auth by account (either sign by any `trade_key` or `withdrawal_key`, or pass any script validation of `trade_key` or `withdrawal_key`)
    - Output to `HydraUserIntent` address with correct datum
 
-3. User Intent - Redeemer `MintModifyOrderIntent { new_order: HydraOrderBookDatum }`
+3. User Intent - Redeemer `MintModifyOrderIntent { new_order: Order }`
 
    - Exactly 1 token minted
    - Token name equals empty byte array

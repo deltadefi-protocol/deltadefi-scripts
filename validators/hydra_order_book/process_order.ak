@@ -15,8 +15,7 @@ use hydra_dex/account_utils.{
 }
 use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraOrderBookDatum, HydraUserIntentDatum, PlaceOrderIntent,
-  UserAccount,
+  DexOrderBookDatum, HydraUserIntentDatum, Order, PlaceOrderIntent, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -75,7 +74,7 @@ pub fn process_order(
   let no_other_outputs = other_outputs == []
 
   // - `II` with `PlaceOrderIntent` datum
-  expect order_datum: HydraOrderBookDatum = output_inline_datum(order_output)
+  expect order_datum: Order = output_inline_datum(order_output)
 
   // - `II` with `red_account` as account
   let is_intent_account_correct = intent_order.account == account
@@ -85,7 +84,7 @@ pub fn process_order(
 
   //  - `OO` has at least value
   //    - `is_long` == True -> at least short qty of short token
-  //    - `is_long` == False -> at least `order_size` of long token
+  //    - `is_long` == False -> at least `size` of long token
   let is_order_value_sufficient =
     value_geq(
       order_output.value,

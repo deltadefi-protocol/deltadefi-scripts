@@ -13,7 +13,7 @@
 - `short_token`: The short token unit
 - `is_long`: Long or short
 - `list_price_times_1bil`: Price \* 1,000,000,000
-- `order_size`: The amount of long token trading
+- `size`: The amount of long token trading
 - `fee_amount_bp`: The basis point of fee to be charged
 - `account`: The account information of current order owner
 

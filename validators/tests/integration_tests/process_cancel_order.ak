@@ -3,8 +3,8 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
-  BurnIntent, CancelOrder, CancelOrderIntent, HydraOrderBookDatum,
-  HydraUserIntentDatum, UserSpotAccount,
+  BurnIntent, CancelOrder, CancelOrderIntent, HydraUserIntentDatum, Order,
+  UserSpotAccount,
 }
 use hydra_order_book/core as ob
 use hydra_user_intent/mint as intent_mint
@@ -37,7 +37,7 @@ type TestCase {
 
 fn mock_tx(
   test_case: TestCase,
-) -> (Transaction, HydraUserIntentDatum, List<HydraOrderBookDatum>) {
+) -> (Transaction, HydraUserIntentDatum, List<Order>) {
   let TestCase {
     is_single_intent_input,
     without_random_input,
@@ -50,7 +50,7 @@ fn mock_tx(
     is_withdrawal_script_validated,
   } = test_case
 
-  let order_size = 250_000_000
+  let size = 250_000_000
   let list_price_times_1bil = 1_000_000_000
   let fee_amount_bp = 10
 
@@ -67,7 +67,7 @@ fn mock_tx(
         "order_abc"
       },
       False,
-      order_size,
+      size,
       list_price_times_1bil,
       fee_amount_bp,
       if is_all_cancels_same_account {
@@ -81,7 +81,7 @@ fn mock_tx(
     mock_order(
       "order_2",
       False,
-      order_size,
+      size,
       list_price_times_1bil,
       fee_amount_bp,
       mock_account,
@@ -90,7 +90,7 @@ fn mock_tx(
     mock_order(
       "order_3",
       True,
-      order_size,
+      size,
       list_price_times_1bil,
       fee_amount_bp,
       mock_account,
@@ -130,7 +130,7 @@ fn mock_tx(
           True,
           mock_tx_hash(0),
           2,
-          mock_hydra_lovelace(order_size),
+          mock_hydra_lovelace(size),
           mock_hydra_order_book_address,
         )
       |> tx_in_inline_datum(True, order_1)
@@ -138,7 +138,7 @@ fn mock_tx(
           True,
           mock_tx_hash(0),
           2,
-          mock_hydra_lovelace(order_size),
+          mock_hydra_lovelace(size),
           mock_hydra_order_book_address,
         )
       |> tx_in_inline_datum(True, order_2)
@@ -146,7 +146,7 @@ fn mock_tx(
           True,
           mock_tx_hash(0),
           2,
-          mock_hydra_usd(order_size),
+          mock_hydra_usd(size),
           mock_hydra_order_book_address,
         )
       |> tx_in_inline_datum(True, order_3)

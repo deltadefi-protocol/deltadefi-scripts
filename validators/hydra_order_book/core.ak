@@ -6,9 +6,8 @@ use cardano/transaction.{OutputReference, Transaction, find_input}
 use cocktail.{address_script_hash}
 use cocktail/vodka_redeemers.{withdrawal_redeemer}
 use hydra_dex/types.{
-  CancelOrder, CombineOrderMerkle, FillOrder, HydraOrderBookDatum,
-  HydraOrderBookRedeemer, ModifyOrder, PlaceOrder, SplitOrderMerkle,
-  TreeOrProofsWithTokenMap,
+  CancelOrder, CombineOrderMerkle, FillOrder, HydraOrderBookRedeemer,
+  ModifyOrder, Order, PlaceOrder, SplitOrderMerkle, TreeOrProofsWithTokenMap,
 }
 use hydra_order_book/cancel_order.{cancel_order}
 use hydra_order_book/combine_order_merkle.{combine_order_merkle}
@@ -19,7 +18,7 @@ use hydra_order_book/split_order_merkle.{split_order_merkle}
 
 validator hydra_order_book(oracle_nft: PolicyId) {
   spend(
-    _datum_opt: Option<HydraOrderBookDatum>,
+    _datum_opt: Option<Order>,
     redeemer: Data,
     input: OutputReference,
     tx: Transaction,

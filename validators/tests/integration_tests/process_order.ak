@@ -46,24 +46,24 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
   let account = UserSpotAccount { account: mock_account }
 
   let is_long = False
-  let order_size = 250_000_000
+  let size = 250_000_000
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
 
   let intent_datum =
     mock_order_intent(
       is_long,
-      order_size,
+      size,
       list_price_times_1bil,
       fee_amount_bp,
-      from_lovelace(order_size),
+      from_lovelace(size),
     )
   let order_datum =
     if is_datum_correct {
       mock_order(
         mock_order_id,
         is_long,
-        order_size,
+        size,
         list_price_times_1bil,
         fee_amount_bp,
         mock_account,
@@ -136,11 +136,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
       //    - `AO` - Account Output with `red_account` at intent
       //    - `OO` - Order Output with `red_account` at intent
       //    - Other outputs
-      |> tx_out(
-          True,
-          mock_hydra_order_book_address,
-          mock_hydra_lovelace(order_size),
-        )
+      |> tx_out(True, mock_hydra_order_book_address, mock_hydra_lovelace(size))
       |> tx_out_inline_datum(True, order_datum)
       |> tx_out(True, mock_hydra_account_balance_address, output_balance)
       |> tx_out_inline_datum(True, account)
@@ -169,7 +165,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
       |> tx_out(
           !is_single_order_output,
           mock_hydra_order_book_address,
-          mock_hydra_lovelace(order_size),
+          mock_hydra_lovelace(size),
         )
       |> tx_out_inline_datum(!is_single_order_output, order_datum)
       |> complete()

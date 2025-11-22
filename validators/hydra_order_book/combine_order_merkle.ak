@@ -13,8 +13,8 @@ use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
 }
 use hydra_dex/types.{
-  DexOrderBookDatum, FullTree, HydraOrderBookDatum, MerklizedOrderDatum, Proofs,
-  TokenMap, TreeOrProofs,
+  DexOrderBookDatum, FullTree, MerklizedOrderDatum, Order, Proofs, TokenMap,
+  TreeOrProofs,
 }
 use hydra_dex/utils.{get_dex_order_book_datum, to_mvalue}
 
@@ -57,7 +57,7 @@ pub fn combine_order_merkle(
       |> list.map(
           fn(input: Input) {
             expect InlineDatum(input_datum) = input.output.datum
-            expect order_book_datum: HydraOrderBookDatum = input_datum
+            expect order_book_datum: Order = input_datum
             let merkle_datum =
               MerklizedOrderDatum {
                 datum: order_book_datum,
