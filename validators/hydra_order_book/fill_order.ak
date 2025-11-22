@@ -173,20 +173,24 @@ pub fn fill_order(
         //   - Calculate fee (`FQ` \* 10bp round down)
         let fee_value = get_fee_value(filler_payoff_value, order.fee_amount_bp)
 
-        // //   - `order remaining value` = `start qty` - `to pay qty`
+        // - Pay the `order remaining value` to taker
+        //   - If there is negative `order remaining value` → deduct from fee instead
         let total_order_value = total_order_value |> merge(final_order_value)
         let total_payoff_value = total_payoff_value |> merge(final_payoff_value)
-        let order_remaining_qty =
+        let order_remaining_value =
           total_order_value |> merge(negate(total_payoff_value))
 
-        // Add: add everything to payoff
-        // //   - Pay the `order remaining value` to taker
         let final_account_payoff =
           account_payoff
+            |> handle_remaining_value(
+                order.account,
+                fee_account,
+                order_remaining_value,
+              )
             |> add_to_payoff(fee_account, fee_value)
             |> add_to_payoff(
                 order.account,
-                merge(final_payoff_value, order_remaining_qty)
+                final_payoff_value
                   |> merge(negate(fee_value)),
               )
 
@@ -310,13 +314,19 @@ fn add_to_payoff(
   value: Value,
 ) -> Pairs<UserAccount, Value> {
   when payoff |> pairs.get_first(user_account) is {
-    Some(current_payoff) ->
-      payoff
-        |> pairs.repsert_by_ascending_key(
-            user_account,
-            current_payoff |> merge(value),
-            compare_user_account,
-          )
+    Some(current_payoff) -> {
+      let post_merge_value = current_payoff |> merge(value)
+      if post_merge_value == zero {
+        payoff |> pairs.delete_first(user_account)
+      } else {
+        payoff
+          |> pairs.repsert_by_ascending_key(
+              user_account,
+              post_merge_value,
+              compare_user_account,
+            )
+      }
+    }
     None ->
       payoff
         |> pairs.repsert_by_ascending_key(
@@ -343,6 +353,29 @@ fn get_fee_value(transacted_value: Value, fee_bp: Int) -> Value {
         fn(policy, name, qty, fee_acc) {
           let fee_qty = get_fee(qty, fee_bp)
           fee_acc |> merge(from_asset(policy, name, fee_qty))
+        },
+      )
+}
+
+fn handle_remaining_value(
+  payoff: Pairs<UserAccount, Value>,
+  taker: UserAccount,
+  fee_account: UserAccount,
+  remaining_value: Value,
+) -> Pairs<UserAccount, Value> {
+  remaining_value
+    |> assets.reduce(
+        payoff,
+        fn(policy, name, qty, acc) {
+          acc
+            |> add_to_payoff(
+                if qty > 0 {
+                  taker
+                } else {
+                  fee_account
+                },
+                from_asset(policy, name, qty),
+              )
         },
       )
 }
