@@ -1,7 +1,7 @@
 use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use emergency_request/cancel_order_mint
-use hydra_dex/types.{EmergencyCancelRequestDatum, RMint, UserSpotAccount}
+use hydra_dex/types.{EmergencyCancelRequestDatum, RMint, UserTradeAccount}
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, tx_out, tx_out_inline_datum,
@@ -35,7 +35,7 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
 
   let output_datum =
     EmergencyCancelRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
       order_id: "order_id",
       timestamp: 100,
     }

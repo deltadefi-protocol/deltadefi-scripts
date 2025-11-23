@@ -4,7 +4,7 @@ use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/types.{
   BurnIntent, HydraUserIntentDatum, PlaceOrder, UpdateBalanceWithPlaceOrder,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use hydra_order_book/core as ob
 use hydra_user_intent as hui
@@ -42,7 +42,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
     is_withdrawal_script_attached,
   } = test_case
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let is_long = False
   let size = 250_000_000
@@ -173,7 +173,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
 
 fn check_all_scripts(test_case: TestCase) {
   let (tx, intent_datum) = mock_tx(test_case)
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let check_withdraw =
     ob.hydra_order_book.withdraw(

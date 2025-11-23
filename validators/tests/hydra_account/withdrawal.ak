@@ -5,7 +5,7 @@ use hydra_account/core as ha
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
   DexAccountBalanceDatum, HydraAccountRedeemer, MPFUpdate, ProcessWithdrawal,
-  UserSpotAccount, WithdrawalIntent,
+  UserTradeAccount, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -95,7 +95,7 @@ fn mock_hydra_withdrawal_tx(
       |> tx_in_inline_datum(
           True,
           WithdrawalIntent {
-            account: UserSpotAccount { account: mock_account },
+            account: UserTradeAccount { account: mock_account },
             amount: withdrawal_amount |> to_mvalue(),
           },
         )
@@ -126,9 +126,9 @@ fn mock_hydra_withdrawal_tx(
           hydra_account_start,
           mock_hydra_account_address,
         )
-      |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
+      |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account })
       |> tx_out(True, mock_hydra_account_address, hydra_account_end)
-      |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
+      |> tx_out_inline_datum(True, UserTradeAccount { account: mock_account })
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
       |> mint(
           is_withdraw_value_burnt,

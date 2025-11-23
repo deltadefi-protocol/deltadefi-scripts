@@ -3,7 +3,7 @@ use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, ModifyOrderIntent,
-  Order, PlaceOrderIntent, TokenMap, UserAccount, UserSpotAccount,
+  Order, PlaceOrderIntent, TokenMap, UserAccount, UserTradeAccount,
   WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
@@ -136,7 +136,7 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
   DexOrderBookDatum {
     operation_key: mock_operation_key,
     stop_key: mock_stop_key,
-    fee_account: UserSpotAccount { account: mock_fee_account },
+    fee_account: UserTradeAccount { account: mock_fee_account },
     limit_orders_merkle_root: "mock_limit_orders_merkle_root",
     dex_account_balance_token: mock_dex_account_balance_token,
     dex_account_balance_address: mock_dex_account_balance_address,
@@ -253,7 +253,7 @@ pub fn mock_order(
     list_price_times_1bil,
     size,
     fee_amount_bp,
-    account: UserSpotAccount { account },
+    account: UserTradeAccount { account },
   }
 }
 
@@ -276,7 +276,7 @@ pub fn mock_order_intent(
       list_price_times_1bil,
       size,
       fee_amount_bp,
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
     },
     authorized_account_value: authorized_account_value |> to_mvalue(),
   }
@@ -302,7 +302,7 @@ pub fn mock_modify_order_intent(
       list_price_times_1bil,
       size,
       fee_amount_bp,
-      account: UserSpotAccount { account },
+      account: UserTradeAccount { account },
     },
     authorized_account_value: authorized_account_value |> to_mvalue(),
   }
@@ -331,7 +331,7 @@ pub fn mock_hydra_lovelace(qty: Int) -> Value {
 }
 
 pub fn mock_user_account(account: Account) -> UserAccount {
-  UserSpotAccount { account }
+  UserTradeAccount { account }
 }
 
 pub const mock_token_map: TokenMap =

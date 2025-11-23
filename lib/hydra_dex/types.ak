@@ -38,7 +38,7 @@ pub type MintPolarity {
 }
 
 pub type UserAccount {
-  UserSpotAccount { account: Account }
+  UserTradeAccount { account: Account }
   UserFundingAccount { account: Account }
   UserMobileAccount { account: Account }
 }

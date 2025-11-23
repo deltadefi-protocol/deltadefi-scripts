@@ -4,7 +4,7 @@ use emergency_request/withdrawal_spend
 use hydra_dex/types.{
   EmergencyRequestExpiredWithdraw, EmergencyRequestProcessEmergencyAction,
   EmergencyRequestSpamPreventionWithdraw, EmergencyWithdrawalRequestDatum,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -46,7 +46,7 @@ fn mock_emergency_withdrawal_tx(
 
   let datum =
     EmergencyWithdrawalRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
       amount: from_lovelace(2_000_000)
         |> to_mvalue(),
       timestamp: 100,
@@ -257,7 +257,7 @@ fn mock_expire_tx(
 
   let datum =
     EmergencyWithdrawalRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
       amount: from_lovelace(2_000_000)
         |> to_mvalue(),
       timestamp: 100,

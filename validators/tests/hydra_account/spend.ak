@@ -1,7 +1,7 @@
 use cardano/assets.{from_asset, zero}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
-use hydra_dex/types.{HydraAccountSpamPreventionWithdraw, UserSpotAccount}
+use hydra_dex/types.{HydraAccountSpamPreventionWithdraw, UserTradeAccount}
 use mocktail.{
   complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, tx_in,
@@ -87,7 +87,7 @@ test s8_spend_success_spam_prevention_with_empty_balance_only() {
       },
     )
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
   ha.hydra_account.spend(
     mock_dex_order_book_token,
     Some(account),
@@ -106,7 +106,7 @@ test s8_spend_fail_spam_prevention_with_non_empty_balance_and_with_datum() {
       },
     )
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   !ha.hydra_account.spend(
     mock_dex_order_book_token,

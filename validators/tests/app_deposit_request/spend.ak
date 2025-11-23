@@ -5,7 +5,7 @@ use hydra_dex/types.{
   AppDepositRequestDatum, AppDepositRequestEmergencyWithdrawal,
   AppDepositRequestSpamPreventionWithdraw,
   AppDepositRequestTransferAccountBalance, EmergencyWithdrawalRequestDatum,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -89,7 +89,7 @@ fn mock_emergency_withdraw_tx(
 
   let datum =
     AppDepositRequestDatum {
-      account: UserSpotAccount {
+      account: UserTradeAccount {
         account: if is_account_correct {
           mock_account
         } else {
@@ -134,7 +134,7 @@ fn mock_emergency_withdraw_tx(
       |> tx_in_inline_datum(
           True,
           EmergencyWithdrawalRequestDatum {
-            account: UserSpotAccount { account: mock_account },
+            account: UserTradeAccount { account: mock_account },
             amount: zero |> to_mvalue(),
             timestamp: 100,
           },

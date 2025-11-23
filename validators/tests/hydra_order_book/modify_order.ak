@@ -1,7 +1,7 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{ModifyOrder, Order, UserSpotAccount}
+use hydra_dex/types.{ModifyOrder, Order, UserTradeAccount}
 use hydra_order_book/core as ob
 use mocktail.{
   complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -46,7 +46,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     modify_add_value_to_order_case,
   } = test_case
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let is_long = False
   let old_size = 500_000_000
@@ -220,7 +220,7 @@ test s9_w_mo_success_decrease_order_value_case() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -245,7 +245,7 @@ test s9_w_mo_success_increase_order_value_case() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -270,7 +270,7 @@ test s9_w_mo_fail_with_multiple_intent_input() fail {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -295,7 +295,7 @@ test s9_w_mo_fail_with_multiple_order_output() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -320,7 +320,7 @@ test s9_w_mo_fail_with_random_input() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -345,7 +345,7 @@ test s9_w_mo_fail_with_random_output() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -370,7 +370,7 @@ test s9_w_mo_fail_with_incorrect_intent_account() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -395,7 +395,7 @@ test s9_w_mo_fail_without_following_intent() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -420,7 +420,7 @@ test s9_w_mo_fail_without_order_id_matched() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -445,7 +445,7 @@ test s9_w_mo_fail_without_intent_token_burnt() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -470,7 +470,7 @@ test s9_w_mo_fail_without_balance_updated() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -495,7 +495,7 @@ test s9_w_mo_fail_without_operation_key_signed() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    ModifyOrder { account: UserSpotAccount { account: mock_account } },
+    ModifyOrder { account: UserTradeAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )

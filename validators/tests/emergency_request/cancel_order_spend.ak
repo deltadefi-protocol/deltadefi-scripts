@@ -4,7 +4,7 @@ use emergency_request/cancel_order_spend
 use hydra_dex/types.{
   EmergencyCancelRequestDatum, EmergencyRequestExpiredCancel,
   EmergencyRequestProcessCancel, EmergencyRequestSpamPreventionCancel,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx,
@@ -162,7 +162,7 @@ fn mock_expire_tx(
 
   let datum =
     EmergencyCancelRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
       order_id: "order_id",
       timestamp: 100,
     }

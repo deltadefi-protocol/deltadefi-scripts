@@ -3,7 +3,7 @@ use cardano/address.{Script}
 use cardano/assets.{add, from_asset, from_asset_list, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
-  Account, AppDepositRequestDatum, MValue, RBurn, RMint, UserSpotAccount,
+  Account, AppDepositRequestDatum, MValue, RBurn, RMint, UserTradeAccount,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -45,7 +45,7 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
 
   let output_datum =
     AppDepositRequestDatum {
-      account: UserSpotAccount {
+      account: UserTradeAccount {
         account: Account {
           account_id: "1",
           master_key: Script(mock_script_hash(0)),

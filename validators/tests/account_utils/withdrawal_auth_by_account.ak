@@ -1,7 +1,7 @@
 use cardano/address.{Script, VerificationKey}
 use hydra_dex/account_utils.{withdrawal_auth_by_account}
 use hydra_dex/types.{
-  Account, UserFundingAccount, UserMobileAccount, UserSpotAccount,
+  Account, UserFundingAccount, UserMobileAccount, UserTradeAccount,
 }
 
 pub const mock_normal_account =
@@ -19,22 +19,22 @@ pub const mock_script_account =
   }
 
 test au_wa_spot_normal_1() {
-  let account = UserSpotAccount { account: mock_normal_account }
+  let account = UserTradeAccount { account: mock_normal_account }
   !withdrawal_auth_by_account(account, [], ["mock_operation_key"])
 }
 
 test au_wa_spot_normal_2() {
-  let account = UserSpotAccount { account: mock_normal_account }
+  let account = UserTradeAccount { account: mock_normal_account }
   withdrawal_auth_by_account(account, [], ["mock_master_key"])
 }
 
 test au_wa_spot_normal_3() {
-  let account = UserSpotAccount { account: mock_normal_account }
+  let account = UserTradeAccount { account: mock_normal_account }
   !withdrawal_auth_by_account(account, [], ["mock_master_key_2"])
 }
 
 test au_wa_spot_normal_4() {
-  let account = UserSpotAccount { account: mock_normal_account }
+  let account = UserTradeAccount { account: mock_normal_account }
   withdrawal_auth_by_account(
     account,
     [],
@@ -43,12 +43,12 @@ test au_wa_spot_normal_4() {
 }
 
 test au_wa_spot_script_1() {
-  let account = UserSpotAccount { account: mock_script_account }
+  let account = UserTradeAccount { account: mock_script_account }
   withdrawal_auth_by_account(account, [Pair(Script("mock_master_key"), 0)], [])
 }
 
 test au_wa_spot_script_2() {
-  let account = UserSpotAccount { account: mock_script_account }
+  let account = UserTradeAccount { account: mock_script_account }
   !withdrawal_auth_by_account(
     account,
     [Pair(Script("mock_operation_key"), 0)],
@@ -57,7 +57,7 @@ test au_wa_spot_script_2() {
 }
 
 test au_wa_spot_script_3() {
-  let account = UserSpotAccount { account: mock_script_account }
+  let account = UserTradeAccount { account: mock_script_account }
   !withdrawal_auth_by_account(
     account,
     [Pair(Script("mock_script_hash_3"), 0)],
@@ -66,7 +66,7 @@ test au_wa_spot_script_3() {
 }
 
 test au_wa_spot_script_4() {
-  let account = UserSpotAccount { account: mock_script_account }
+  let account = UserTradeAccount { account: mock_script_account }
   withdrawal_auth_by_account(
     account,
     [Pair(Script("mock_script_hash_3"), 0), Pair(Script("mock_master_key"), 0)],

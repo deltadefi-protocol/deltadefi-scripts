@@ -4,7 +4,7 @@ use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   AppDepositRequestDatum, DexAccountBalanceDatum, MPFUpdate, ProcessAppDeposit,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -68,7 +68,7 @@ fn mock_process_deposit_tx(
 
   let deposit_datum =
     AppDepositRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
       amount: deposit_amount |> to_mvalue(),
     }
 

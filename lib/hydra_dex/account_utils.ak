@@ -15,7 +15,7 @@ use cocktail.{input_inline_datum, one_of_keys_signed, output_inline_datum}
 use hydra_dex/types.{
   DexAccountBalanceDatum, DexOrderBookDatum, MPFDelete, MPFInsert, MPFProof,
   MPFUpdate, MValue, MerklizedOrderDatum, TokenMap, UserAccount,
-  UserFundingAccount, UserMobileAccount, UserSpotAccount,
+  UserFundingAccount, UserMobileAccount, UserTradeAccount,
 }
 use hydra_dex/utils.{withdrawal_script_hashes}
 
@@ -111,7 +111,7 @@ pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
 
 pub fn get_account_id(account: UserAccount) -> ByteArray {
   when account is {
-    UserSpotAccount { account } -> account.account_id
+    UserTradeAccount { account } -> account.account_id
     UserFundingAccount { account } -> account.account_id
     UserMobileAccount { account } -> account.account_id
   }
@@ -136,7 +136,7 @@ pub fn split_creds(
 
 pub fn get_master_key(account: UserAccount) -> Credential {
   when account is {
-    UserSpotAccount { account } -> account.master_key
+    UserTradeAccount { account } -> account.master_key
     UserFundingAccount { account } -> account.master_key
     UserMobileAccount { account } -> account.master_key
   }
@@ -147,7 +147,8 @@ pub fn get_trade_keys(
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserSpotAccount { account } -> [account.master_key, account.operation_key]
+      UserTradeAccount { account } ->
+        [account.master_key, account.operation_key]
       UserFundingAccount { account } -> [account.master_key]
       UserMobileAccount { account } ->
         [account.master_key, account.operation_key]
@@ -160,7 +161,7 @@ pub fn get_withdrawal_keys(
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserSpotAccount { account } -> [account.master_key]
+      UserTradeAccount { account } -> [account.master_key]
       UserFundingAccount { account } ->
         [account.master_key, account.operation_key]
       UserMobileAccount { account } ->

@@ -2732,7 +2732,7 @@
       "title": "UserAccount",
       "anyOf": [
         {
-          "title": "UserSpotAccount",
+          "title": "UserTradeAccount",
           "dataType": "constructor",
           "index": 0,
           "fields": [

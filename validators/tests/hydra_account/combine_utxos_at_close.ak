@@ -7,7 +7,7 @@ use hydra_account/core as ha
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
   Account, DexAccountBalanceDatum, FullTree, ProcessCombineUtxosAtClose, Tree,
-  TreeBranch, TreeLeaf, TreeOrProofsWithTokenMap, UserSpotAccount,
+  TreeBranch, TreeLeaf, TreeOrProofsWithTokenMap, UserTradeAccount,
 }
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -145,11 +145,11 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
         mock_hydra_usd(10000),
         mock_hydra_account_address,
       )
-    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_2 })
+    |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account_2 })
     |> tx_in(True, mock_tx_hash(5), 0, zero, mock_hydra_account_address)
     |> tx_in_inline_datum(
         is_inputs_correct,
-        UserSpotAccount { account: mock_account },
+        UserTradeAccount { account: mock_account },
       )
     |> tx_in(
         True,
@@ -158,7 +158,7 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
         mock_hydra_lovelace(100),
         mock_hydra_account_address,
       )
-    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_3 })
+    |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account_3 })
     |> tx_out(
         True,
         mock_dex_account_balance_address,

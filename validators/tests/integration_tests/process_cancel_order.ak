@@ -4,7 +4,7 @@ use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   BurnIntent, CancelOrder, CancelOrderIntent, HydraUserIntentDatum, Order,
-  UserSpotAccount,
+  UserTradeAccount,
 }
 use hydra_order_book/core as ob
 use hydra_user_intent as hui
@@ -53,7 +53,7 @@ fn mock_tx(
   let list_price_times_1bil = 1_000_000_000
   let fee_amount_bp = 10
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let intent_datum =
     CancelOrderIntent { account, order_ids: ["order_1", "order_2", "order_3"] }

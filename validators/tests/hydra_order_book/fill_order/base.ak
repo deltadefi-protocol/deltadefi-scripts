@@ -3,7 +3,7 @@ use cardano/address.{Script}
 use cardano/assets.{Value, from_asset, merge, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/order_utils.{get_min_order_value}
-use hydra_dex/types.{Account, FillOrder, Order, UserAccount, UserSpotAccount}
+use hydra_dex/types.{Account, FillOrder, Order, UserAccount, UserTradeAccount}
 use hydra_order_book/core as ob
 use mocktail.{
   MocktailTx, complete, mock_pub_key_address, mock_tx_hash, mocktail_tx,
@@ -32,7 +32,7 @@ fn mk_base_order(order: Order) -> Pair<Order, Value> {
 }
 
 fn mk_balance(account: Account, value: Value) -> Pair<UserAccount, Value> {
-  Pair(UserSpotAccount { account }, value)
+  Pair(UserTradeAccount { account }, value)
 }
 
 fn add_order_inputs(

@@ -6,7 +6,7 @@ use hydra_dex/types.{
   CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
   HydraUserIntentRedeemer, MintCancelOrderIntent, MintCancelWithdrawalIntent,
   MintPlaceOrderIntent, MintTransferIntent, MintWithdrawalIntent, Order,
-  PlaceOrderIntent, TransferIntent, UserAccount, UserSpotAccount,
+  PlaceOrderIntent, TransferIntent, UserAccount, UserTradeAccount,
   WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
@@ -33,7 +33,7 @@ fn create_mock_limit_order() -> Order {
     list_price_times_1bil: 1_000_000_000,
     size: 999,
     fee_amount_bp: 999,
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
   }
 }
 
@@ -54,7 +54,7 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
       list_price_times_1bil: 1_000_000_000,
       size: 999,
       fee_amount_bp: 999,
-      account: UserSpotAccount { account: mock_account },
+      account: UserTradeAccount { account: mock_account },
     },
     authorized_account_value: mock_usd(999_000_000)
       |> to_mvalue(),
@@ -63,21 +63,21 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
 
 fn create_mock_mint_cancel_order_intent() -> HydraUserIntentRedeemer {
   MintCancelOrderIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     order_ids: [mock_order_id],
   }
 }
 
 fn create_mock_cancel_order_intent() -> HydraUserIntentDatum {
   CancelOrderIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     order_ids: [mock_order_id],
   }
 }
 
 fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
   MintWithdrawalIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     amount: [
       Pair("A", [Pair("abc", 1), Pair("def", 10)]),
       Pair("B", [Pair("abc", 1), Pair("def", 10)]),
@@ -87,7 +87,7 @@ fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
 
 fn create_mock_mint_cancel_withdrawal_intent() -> HydraUserIntentRedeemer {
   MintCancelWithdrawalIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     amount: [
       Pair("A", [Pair("abc", 1), Pair("def", 10)]),
       Pair("B", [Pair("abc", 1), Pair("def", 10)]),
@@ -97,7 +97,7 @@ fn create_mock_mint_cancel_withdrawal_intent() -> HydraUserIntentRedeemer {
 
 fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
   WithdrawalIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     amount: [
       Pair("A", [Pair("abc", 1), Pair("def", 10)]),
       Pair("B", [Pair("abc", 1), Pair("def", 10)]),
@@ -107,7 +107,7 @@ fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
 
 fn create_mock_cancel_withdrawal_intent() -> HydraUserIntentDatum {
   CancelWithdrawalIntent {
-    account: UserSpotAccount { account: mock_account },
+    account: UserTradeAccount { account: mock_account },
     amount: [
       Pair("A", [Pair("abc", 1), Pair("def", 10)]),
       Pair("B", [Pair("abc", 1), Pair("def", 10)]),
@@ -117,8 +117,8 @@ fn create_mock_cancel_withdrawal_intent() -> HydraUserIntentDatum {
 
 fn create_mock_mint_transfer_intent() -> HydraUserIntentRedeemer {
   MintTransferIntent {
-    from: UserSpotAccount { account: mock_account },
-    to: UserSpotAccount { account: mock_account_2 },
+    from: UserTradeAccount { account: mock_account },
+    to: UserTradeAccount { account: mock_account_2 },
     amount: [
       Pair("A", [Pair("abc", 1), Pair("def", 10)]),
       Pair("B", [Pair("abc", 1), Pair("def", 10)]),
@@ -189,7 +189,7 @@ fn mock_mint_place_order_intent_tx(
     is_output_correct,
   } = test_case
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let output_datum: HydraUserIntentDatum = create_mock_place_order_intent()
 
@@ -390,7 +390,7 @@ fn mock_mint_cancel_order_intent_tx(
     is_output_correct,
   } = test_case
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
   let output_datum = create_mock_cancel_order_intent()
 
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
@@ -591,7 +591,7 @@ fn mock_mint_withdrawal_intent_tx(
   } = test_case
 
   let output_datum = create_mock_withdrawal_intent()
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
 
@@ -791,7 +791,7 @@ fn mock_mint_cancel_withdrawal_intent_tx(
   } = test_case
 
   let output_datum = create_mock_cancel_withdrawal_intent()
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
 
@@ -990,12 +990,12 @@ fn mock_mint_transfer_intent_tx(
     is_output_correct,
   } = test_case
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = UserTradeAccount { account: mock_account }
 
   let output_datum =
     create_mock_transfer_intent(
       from: account,
-      to: UserSpotAccount { account: mock_account_2 },
+      to: UserTradeAccount { account: mock_account_2 },
     )
 
   let correct_output_value =

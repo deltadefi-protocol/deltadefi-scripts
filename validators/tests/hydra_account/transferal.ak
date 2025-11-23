@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
-use hydra_dex/types.{ProcessTransferal, TransferIntent, UserSpotAccount}
+use hydra_dex/types.{ProcessTransferal, TransferIntent, UserTradeAccount}
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -68,8 +68,8 @@ fn mock_hydra_internal_transfer_tx(
     |> tx_in_inline_datum(
         True,
         TransferIntent {
-          from: UserSpotAccount { account: mock_account },
-          to: UserSpotAccount { account: mock_account_2 },
+          from: UserTradeAccount { account: mock_account },
+          to: UserTradeAccount { account: mock_account_2 },
           amount: transferal_amount |> to_mvalue(),
         },
       )
@@ -80,9 +80,9 @@ fn mock_hydra_internal_transfer_tx(
         from_balance_start,
         mock_hydra_account_address,
       )
-    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
+    |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account })
     |> tx_out(True, mock_hydra_account_address, from_balance_end)
-    |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
+    |> tx_out_inline_datum(True, UserTradeAccount { account: mock_account })
     |> tx_in(
         True,
         mock_tx_hash(0),
@@ -90,9 +90,9 @@ fn mock_hydra_internal_transfer_tx(
         to_balance_start,
         mock_hydra_account_address,
       )
-    |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account_2 })
+    |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account_2 })
     |> tx_out(True, mock_hydra_account_address, to_balance_end)
-    |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account_2 })
+    |> tx_out_inline_datum(True, UserTradeAccount { account: mock_account_2 })
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()

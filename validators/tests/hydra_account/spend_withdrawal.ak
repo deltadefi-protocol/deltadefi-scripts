@@ -5,7 +5,7 @@ use hydra_dex/types.{
   CancelOrder, FillOrder, MPFInsert, PlaceOrder, ProcessCancelWithdrawal,
   ProcessCombineUtxosAtClose, ProcessWithdrawal, Proofs,
   TreeOrProofsWithTokenMap, UpdateBalanceWithCancelOrder,
-  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder, UserSpotAccount,
+  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder, UserTradeAccount,
 }
 use mocktail.{
   complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
@@ -58,7 +58,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       )
     |> withdrawal_redeemer_value(
         is_place_order_script_attached,
-        PlaceOrder { account: UserSpotAccount { account: mock_account } },
+        PlaceOrder { account: UserTradeAccount { account: mock_account } },
       )
     |> withdrawal_redeemer_value(
         is_fill_order_script_attached,

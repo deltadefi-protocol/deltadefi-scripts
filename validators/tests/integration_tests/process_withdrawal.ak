@@ -7,7 +7,7 @@
 // use hydra_dex/types.{
 //   BurnIntent, DexAccountBalanceDatum, HydraUserIntentDatum, HydraWithdrawal,
 //   MPFUpdate, ProcessHydraWithdrawal, UpdateBalanceWithWithdrawal,
-//   UserSpotAccount, WithdrawalIntent,
+//   UserTradeAccount, WithdrawalIntent,
 // }
 // use hydra_dex/utils.{to_mvalue}
 // use hydra_user_intent/mint as intent_mint
@@ -57,7 +57,7 @@
 //     is_withdraw_value_burnt,
 //   } = test_case
 
-//   let account = UserSpotAccount { account: mock_account }
+//   let account = UserTradeAccount { account: mock_account }
 
 //   // MPF
 //   let old_root =
@@ -101,7 +101,7 @@
 
 //   let intent_datum =
 //     WithdrawalIntent {
-//       account: UserSpotAccount { account: mock_account },
+//       account: UserTradeAccount { account: mock_account },
 //       amount: withdrawal_amount |> to_mvalue(),
 //     }
 
@@ -233,7 +233,7 @@
 //   let check_hydra_balance =
 //     hab.hydra_account.spend(
 //       mock_dex_order_book_token,
-//       Some(UserSpotAccount { account: mock_account }),
+//       Some(UserTradeAccount { account: mock_account }),
 //       UpdateBalanceWithWithdrawal,
 //       mock_utxo_ref(0, 3),
 //       tx,
