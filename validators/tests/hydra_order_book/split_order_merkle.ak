@@ -151,6 +151,9 @@ fn mock_dex_order_book_split_order_merkle_tx(
     |> complete()
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | key_values == output_serialised_datum_list ? False
 test s9_w_som_success_split_order_merkle() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {

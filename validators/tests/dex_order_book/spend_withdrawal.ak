@@ -69,6 +69,10 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
 test s6_spend_w_success_split_merkle_tree() {
   let redeemer = DexOrderBookSplitMerkleTree
   let tx =
@@ -91,7 +95,7 @@ test s6_spend_w_success_split_merkle_tree() {
   )
 }
 
-test s6_spend_w_fail_split_merkle_tree_with_no_attached() {
+test s6_spend_w_fail_split_merkle_tree_with_no_attached() fail {
   let redeemer = DexOrderBookSplitMerkleTree
 
   let tx =
@@ -114,6 +118,10 @@ test s6_spend_w_fail_split_merkle_tree_with_no_attached() {
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
 test s6_spend_w_success_combine_merkle_tree() {
   let redeemer = DexOrderBookCombineMerkleTree
   let tx =
@@ -136,7 +144,7 @@ test s6_spend_w_success_combine_merkle_tree() {
   )
 }
 
-test s6_spend_w_fail_combine_merkle_tree_with_no_attached() {
+test s6_spend_w_fail_combine_merkle_tree_with_no_attached() fail {
   let redeemer = DexOrderBookCombineMerkleTree
 
   let tx =

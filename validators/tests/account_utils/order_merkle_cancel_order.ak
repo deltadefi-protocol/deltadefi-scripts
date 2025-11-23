@@ -7,6 +7,10 @@ use hydra_dex/types.{MPFDelete, MerklizedOrderDatum, Order, UserSpotAccount}
 use hydra_dex/utils.{to_mvalue}
 use tests/utils.{mock_account} as test_utils
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test au_omco() {
   let order_id = #"032f3cc8274143358eb2bbf7b58acaf8"
   let order =

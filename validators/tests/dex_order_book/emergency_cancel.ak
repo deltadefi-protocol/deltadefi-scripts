@@ -231,6 +231,10 @@ fn mock_process_withdrawal_tx(
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test s6_wec_success() {
   let test_case =
     AppWithdrawalTestCase {
@@ -331,6 +335,10 @@ test s6_wec_failed_with_multiple_dex_order_book_output() {
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_without_merkle_updated() {
   let test_case =
     AppWithdrawalTestCase {
@@ -406,6 +414,10 @@ test s6_wec_failed_without_sufficient_amount_sent_to_users() {
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test s6_wec_success_emergency_withdrawal() {
   let test_case =
     AppWithdrawalTestCase {
@@ -456,6 +468,10 @@ test s6_wec_failed_emergency_withdrawal_without_token_burnt() fail {
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_emergency_withdrawal_without_time_passed() {
   let test_case =
     AppWithdrawalTestCase {
@@ -481,6 +497,10 @@ test s6_wec_failed_emergency_withdrawal_without_time_passed() {
   )
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | the validator crashed / exited prematurely
+// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_emergency_withdrawal_without_user_signature() {
   let test_case =
     AppWithdrawalTestCase {

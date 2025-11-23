@@ -13,27 +13,20 @@ Glossary
 | ------------------------------------------- | ---- |
 | `au_ta` - trade_auth_by_account             | ✓    |
 | `au_wa` - withdrawal_auth_by_account        | ✓    |
-| `au_hbi` - hydra_balance_increase           | ✓    |
-| `au_hbd` - hydra_balance_decrease           | ✓    |
 | `au_ambi` - account_merkle_balance_increase | ✓    |
 | `au_ambd` - account_merkle_balance_decrease | ✓    |
-| `au_omco` - order_merkle_cancel_order       | ✓    |
+| `au_omco` - order_merkle_cancel_order       |      |
 | `vhc` - validate_hydra_commit               | ✓    |
-| `ou_gsq` - get_short_qty                    | ✓    |
-| `ou_gosi` - get_order_settlement_info       | ✓    |
+| `htu` - hydra_tree_utils                    | ✓    |
+| `ou_gmov` - get_min_order_value             | ✓    |
+| `ou_gmpv` - get_min_payoff_value            | ✓    |
+| `ou_gpq` - get_payoff_quantity              |      |
 | `ou_gf` - get_fee                           | ✓    |
 
 | **Scripts** | `I` | `SC` | `UT`         | `PBT` |
 | ----------- | --- | ---- | ------------ | ----- |
-| s0_mint     | ✓   | ✓    | ✓            |       |
-| s0_spend    | ✓   | ✓    | ✓            |       |
-| s1_wad      | ✓   | ✓    | ✓            |       |
-| s1_waw      | ✓   | ✓    | ✓            |       |
-| s1_whc      |     |      |              |       |
-| s1_who      |     |      |              |       |
-| s1_whit     | ✓   | ✓    | ✓            |       |
-| s1_whw      | ✓   | ✓    | ✓            |       |
-| s1_whcw     | ✓   | ✓    | ✓            |       |
+| s1_spend    | ✓   | ✓    | ✓            |       |
+| s1_mint     | ✓   | ✓    | ✓            |       |
 | s2_spend    | ✓   | ✓    | ✓            |       |
 | s3_mint     | ✓   | ✓    | ✓            |       |
 | s3_spend    | ✓   | ✓    | ✓            |       |

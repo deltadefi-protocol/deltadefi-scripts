@@ -159,6 +159,9 @@ fn mock_combine_order_merkle_tx(
     |> complete()
 }
 
+// TODO: Fix
+// │ · with traces
+// │ | extract_key_values(tree) == sorted_serialised_inputs ? False
 test s9_w_com_success_combine_order_merkle() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
