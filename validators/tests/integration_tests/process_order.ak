@@ -97,7 +97,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
         )
       |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
       //  - Categorize inputs into
-      //    - `AI` - Account Inputs with `red_account` at intent
+      //    - `AI` - Account Inputs with `account` at intent
       //    - `II` - Intent Input
       |> tx_in(
           True,
@@ -132,8 +132,8 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
         )
       |> tx_in_inline_datum(True, account)
       //  - Categorize outputs into
-      //    - `AO` - Account Output with `red_account` at intent
-      //    - `OO` - Order Output with `red_account` at intent
+      //    - `AO` - Account Output with `account` at intent
+      //    - `OO` - Order Output with `account` at intent
       //    - Other outputs
       |> tx_out(True, mock_hydra_order_book_address, mock_hydra_lovelace(size))
       |> tx_out_inline_datum(True, order_datum)
@@ -150,7 +150,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
         )
       |> withdrawal_redeemer_value(
           is_withdrawal_script_attached,
-          PlaceOrder { red_account: account },
+          PlaceOrder { account },
         )
       // failing cases
       |> tx_in(
@@ -178,7 +178,7 @@ fn check_all_scripts(test_case: TestCase) {
   let check_withdraw =
     ob.hydra_order_book.withdraw(
       mock_dex_order_book_token,
-      PlaceOrder { red_account: account },
+      PlaceOrder { account },
       Script(mock_hydra_order_book),
       tx,
     )

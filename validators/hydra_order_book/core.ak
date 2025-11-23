@@ -36,11 +36,11 @@ validator hydra_order_book(oracle_nft: PolicyId) {
     tx: Transaction,
   ) {
     when redeemer is {
-      PlaceOrder { red_account } -> place_order(oracle_nft, red_account, tx)
+      PlaceOrder { account } -> place_order(oracle_nft, account, tx)
       FillOrder { filler_order_id } ->
         fill_order(oracle_nft, filler_order_id, tx)
       CancelOrder -> cancel_order(oracle_nft, tx)
-      ModifyOrder { red_account } -> modify_order(oracle_nft, red_account, tx)
+      ModifyOrder { account } -> modify_order(oracle_nft, account, tx)
       CombineOrderMerkle { tree_or_proofs_with_token_map } -> {
         let TreeOrProofsWithTokenMap { proof, token_map } =
           tree_or_proofs_with_token_map
