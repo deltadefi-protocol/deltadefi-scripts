@@ -26,12 +26,13 @@ pub fn fill_order(
     operation_key,
     fee_account,
     hydra_order_book_script_hash,
-    hydra_account_balance_address,
+    hydra_account_script_hash,
     hydra_token_policy_id,
     ..
   }: DexOrderBookDatum =
     reference_inputs |> get_dex_order_book_datum(oracle_nft)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
+  let hydra_account_address = from_script(hydra_account_script_hash)
 
   // - Ref input with `dex_oracle_nft`
   // - Categorize inputs into
@@ -44,7 +45,7 @@ pub fn fill_order(
   //   - `AO` - Account Outputs
   //   - `OO` - Order Output
   //   - Other outputs
-  let ao_filter = o_at(hydra_account_balance_address)
+  let ao_filter = o_at(hydra_account_address)
   let oo_filter = o_at(hydra_order_book_address)
   let (account_outputs, order_outputs, other_outputs) =
     cocktail.group_outputs_2(outputs, ao_filter, oo_filter)

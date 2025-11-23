@@ -11,7 +11,7 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_balance_address, mock_hydra_lovelace, mock_hydra_order_book,
+  mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
   mock_hydra_order_book_address, mock_hydra_usd, mock_hydra_user_intent_address,
   mock_hydra_user_intent_token, mock_operation_key, mock_order,
 } as test_utils
@@ -141,7 +141,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     // - Categorize outputs into
     //    - `AO` - Account Output with `account` at intent
     //    - Other outputs
-    |> tx_out(True, mock_hydra_account_balance_address, output_balance)
+    |> tx_out(True, mock_hydra_account_address, output_balance)
     |> tx_out_inline_datum(True, account)
     //  - The input intent token is burnt
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")

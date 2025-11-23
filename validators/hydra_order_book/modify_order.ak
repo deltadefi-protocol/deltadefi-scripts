@@ -30,13 +30,13 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
 
   let DexOrderBookDatum {
     operation_key,
-    hydra_user_intent_token,
-    hydra_user_intent_address,
-    hydra_account_balance_address,
+    hydra_user_intent_script_hash,
+    hydra_account_script_hash,
     hydra_order_book_script_hash,
     hydra_token_policy_id,
     ..
   } = reference_inputs |> get_dex_order_book_datum(oracle_nft)
+  let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
   //  - Categorize inputs into
   //    - `II` - Intent Input
@@ -44,9 +44,9 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   //    - `OI` - Order Input
   //    - Other inputs
   let ai_filter =
-    create_account_inputs_filter(account, hydra_account_balance_address)
+    create_account_inputs_filter(account, hydra_account_script_hash)
   let ii_filter =
-    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_token)
+    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_script_hash)
   let (account_inputs, intent_inputs, other_inputs) =
     group_inputs_2(inputs, ai_filter, ii_filter)
   expect [intent_input] = intent_inputs
@@ -56,7 +56,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   //    - `OO` - Order Output with `account` at intent
   //    - Other outputs
   let ao_filter =
-    create_account_outputs_filter(account, hydra_account_balance_address)
+    create_account_outputs_filter(account, hydra_account_script_hash)
   let oo_filter = o_at(hydra_order_book_address)
   let (account_outputs, order_outputs, other_outputs) =
     group_outputs_2(outputs, ao_filter, oo_filter)
@@ -94,7 +94,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
 
   // - The input intent token is burnt
   let is_intent_token_burnt =
-    policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
+    policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
 
   // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
   let deducted_account_value =

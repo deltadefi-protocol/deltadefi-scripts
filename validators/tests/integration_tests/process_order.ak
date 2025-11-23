@@ -1,14 +1,13 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
-use hydra_account_balance/spend as hydra_account_balance
+use hydra_account/core as ha
 use hydra_dex/types.{
   BurnIntent, HydraUserIntentDatum, PlaceOrder, UpdateBalanceWithPlaceOrder,
   UserSpotAccount,
 }
 use hydra_order_book/core as ob
-use hydra_user_intent/mint as intent_mint
-use hydra_user_intent/spend as intent_spend
+use hydra_user_intent as hui
 use mocktail.{
   complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
@@ -16,8 +15,8 @@ use mocktail.{
 }
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_order_book_address,
+  mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
+  mock_hydra_order_book, mock_hydra_order_book_address,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, mock_order, mock_order_id, mock_order_intent,
 }
@@ -113,7 +112,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
           mock_tx_hash(0),
           2,
           mock_hydra_lovelace(200_000_000),
-          mock_hydra_account_balance_address,
+          mock_hydra_account_address,
         )
       |> tx_in_inline_datum(True, account)
       |> tx_in(
@@ -121,7 +120,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
           mock_tx_hash(0),
           2,
           mock_hydra_lovelace(200_000_000),
-          mock_hydra_account_balance_address,
+          mock_hydra_account_address,
         )
       |> tx_in_inline_datum(True, account)
       |> tx_in(
@@ -129,7 +128,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
           mock_tx_hash(0),
           2,
           mock_hydra_lovelace(100_000_000),
-          mock_hydra_account_balance_address,
+          mock_hydra_account_address,
         )
       |> tx_in_inline_datum(True, account)
       //  - Categorize outputs into
@@ -138,7 +137,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
       //    - Other outputs
       |> tx_out(True, mock_hydra_order_book_address, mock_hydra_lovelace(size))
       |> tx_out_inline_datum(True, order_datum)
-      |> tx_out(True, mock_hydra_account_balance_address, output_balance)
+      |> tx_out(True, mock_hydra_account_address, output_balance)
       |> tx_out_inline_datum(True, account)
       // - The input token is burnt
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
@@ -184,7 +183,7 @@ fn check_all_scripts(test_case: TestCase) {
       tx,
     )
   let check_intent_spend =
-    intent_spend.hydra_user_intent.spend(
+    hui.hydra_user_intent.spend(
       mock_dex_order_book_token,
       Some(intent_datum),
       Void,
@@ -192,14 +191,14 @@ fn check_all_scripts(test_case: TestCase) {
       tx,
     )
   let check_intent_mint =
-    intent_mint.hydra_user_intent.mint(
+    hui.hydra_user_intent.mint(
       mock_dex_order_book_token,
       BurnIntent,
       mock_hydra_user_intent_token,
       tx,
     )
   let check_hydra_balance =
-    hydra_account_balance.hydra_account_balance.spend(
+    ha.hydra_account.spend(
       mock_dex_order_book_token,
       Some(account),
       UpdateBalanceWithPlaceOrder,

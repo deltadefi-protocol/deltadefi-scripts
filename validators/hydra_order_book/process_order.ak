@@ -29,13 +29,13 @@ pub fn process_order(
 
   let DexOrderBookDatum {
     operation_key,
-    hydra_user_intent_token,
-    hydra_user_intent_address,
-    hydra_account_balance_address,
+    hydra_user_intent_script_hash,
+    hydra_account_script_hash,
     hydra_order_book_script_hash,
     hydra_token_policy_id,
     ..
   }: DexOrderBookDatum = oracle
+  let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
 
   //  - Categorize inputs into
@@ -43,10 +43,10 @@ pub fn process_order(
   //    - `II` - Intent Inputs
   //    - Other inputs
   let ai_filter =
-    create_account_inputs_filter(account, hydra_account_balance_address)
+    create_account_inputs_filter(account, hydra_account_script_hash)
 
   let ii_filter =
-    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_token)
+    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_script_hash)
 
   let (account_inputs, intent_inputs, other_inputs) =
     group_inputs_2(inputs, ai_filter, ii_filter)
@@ -60,7 +60,7 @@ pub fn process_order(
   //    - `OO` - Order Output with `account` at intent
   //    - Other outputs
   let ao_filter =
-    create_account_outputs_filter(account, hydra_account_balance_address)
+    create_account_outputs_filter(account, hydra_account_script_hash)
 
   let oo_filter = o_at(hydra_order_book_address)
 
@@ -93,7 +93,7 @@ pub fn process_order(
 
   //  - The input token is burnt
   let is_intent_token_burnt =
-    policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
+    policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
 
   // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
   let deducted_account_value =

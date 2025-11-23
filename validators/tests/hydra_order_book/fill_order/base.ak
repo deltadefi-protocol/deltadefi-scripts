@@ -13,7 +13,7 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token, mock_fee_account,
-  mock_hydra_account_balance_address, mock_hydra_lovelace, mock_hydra_order_book,
+  mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
   mock_hydra_order_book_address, mock_hydra_token_policy_id, mock_hydra_usd,
   mock_operation_key, mock_order,
 }
@@ -72,7 +72,7 @@ fn add_output_balances(
     mock_tx,
     fn(Pair(account, value), tx) {
       tx
-        |> tx_out(True, mock_hydra_account_balance_address, value)
+        |> tx_out(True, mock_hydra_account_address, value)
         |> tx_out_inline_datum(True, account)
     },
   )

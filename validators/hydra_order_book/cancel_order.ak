@@ -25,13 +25,13 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
   //  - Ref input with `dex_oracle_nft`
   let DexOrderBookDatum {
     operation_key,
-    hydra_user_intent_token,
-    hydra_user_intent_address,
-    hydra_account_balance_address,
+    hydra_user_intent_script_hash,
+    hydra_account_script_hash,
     hydra_order_book_script_hash,
     ..
   }: DexOrderBookDatum =
     reference_inputs |> get_dex_order_book_datum(oracle_nft)
+  let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
 
   //  - Categorize inputs into
@@ -41,7 +41,7 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
   let oi_filter = i_at(hydra_order_book_address)
 
   let ii_filter =
-    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_token)
+    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_script_hash)
 
   let (order_inputs, intent_inputs, other_inputs) =
     group_inputs_2(inputs, oi_filter, ii_filter)
@@ -56,7 +56,7 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
   //    - `AO` - Account Output with `account` at intent
   //    - Other outputs
   let ao_filter =
-    create_account_outputs_filter(account, hydra_account_balance_address)
+    create_account_outputs_filter(account, hydra_account_script_hash)
 
   let (account_outputs, other_outputs) = group_outputs(outputs, ao_filter)
 
@@ -81,7 +81,7 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
 
   //  - The input intent token is burnt
   let is_intent_token_burnt =
-    policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
+    policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
 
   //  - Value parity: `OI` == `AO` (to clear: is the check needed?)
   let input_value = order_inputs |> inputs_value |> without_lovelace
