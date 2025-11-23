@@ -48,8 +48,8 @@ Glossary
 | s8_w_cw     | ✓   | ✓    | ✓    |       |
 | s8_w_t      | ✓   | ✓    | ✓    |       |
 | s8_w_sat    | ✓   | ✓    | ✓    |       |
-| s8_w_suao   | ✓   | ✓    | ✓    |       |
-| s8_w_cuac   | ✓   | ✓    | ✓    |       |
+| s8_w_suao   | ✓   | ✓    |      |       |
+| s8_w_cuac   | ✓   | ✓    |      |       |
 | s9_spend    | ✓   | ✓    | NA   |       |
 | s9_w_po     | ✓   | ✓    | ✓    |       |
 | s9_w_co     | ✓   | ✓    | ✓    |       |
