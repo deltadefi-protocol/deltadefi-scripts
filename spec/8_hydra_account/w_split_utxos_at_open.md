@@ -1,5 +1,9 @@
 # Specification - HydraAccount - SplitUtxosAtOpen
 
+## Redeemer
+
+- ProcessSplitUtxosAtOpen { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
+
 ## User Action
 
 - Find the `DexAccountBalance` input and output, locate the merkle root

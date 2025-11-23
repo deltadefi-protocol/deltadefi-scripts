@@ -89,8 +89,6 @@ pub type AppOracleRedeemer {
   RotateHydraInfo { new_hydra_info: HydraInfo }
 }
 
-// all_token_indices: Pairs<Int, (PolicyId, AssetName)>,
-
 // 1 - AccountOperation
 
 pub type ProcessAppDeposit {
@@ -101,11 +99,6 @@ pub type ProcessAppWithdrawal {
   account: UserAccount,
   amount: MValue,
   mpf_action: MPFProof,
-}
-
-pub type ProcessHydraHeadOpen {
-  account_balance_proof: ByteArray,
-  net_deposit_proof: ByteArray,
 }
 
 // 3 - AppDepositRequest
