@@ -169,7 +169,7 @@ fn mock_hydra_withdrawal_tx(
   (mock_tx, ProcessWithdrawal { mpf_action: proof })
 }
 
-test s8_whw_success() {
+test s8_ww_success() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -186,7 +186,7 @@ test s8_whw_success() {
   ha.hydra_account.withdraw(mock_dex_order_book_token, redeemer, Script(""), tx)
 }
 
-test s8_whw_failed_without_operation_key_signed() {
+test s8_ww_failed_without_operation_key_signed() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: False,
@@ -208,7 +208,7 @@ test s8_whw_failed_without_operation_key_signed() {
   )
 }
 
-test s8_whw_failed_with_multiple_dex_account_balance_input() fail {
+test s8_ww_failed_with_multiple_dex_account_balance_input() fail {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -225,7 +225,7 @@ test s8_whw_failed_with_multiple_dex_account_balance_input() fail {
   ha.hydra_account.withdraw(mock_dex_order_book_token, redeemer, Script(""), tx)
 }
 
-test s8_whw_failed_with_multiple_dex_account_balance_output() fail {
+test s8_ww_failed_with_multiple_dex_account_balance_output() fail {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -242,7 +242,7 @@ test s8_whw_failed_with_multiple_dex_account_balance_output() fail {
   ha.hydra_account.withdraw(mock_dex_order_book_token, redeemer, Script(""), tx)
 }
 
-test s8_whw_failed_without_merkle_root_updated() {
+test s8_ww_failed_without_merkle_root_updated() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -264,7 +264,7 @@ test s8_whw_failed_without_merkle_root_updated() {
   )
 }
 
-test s8_whw_failed_without_account_balance_updated() {
+test s8_ww_failed_without_account_balance_updated() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -286,7 +286,7 @@ test s8_whw_failed_without_account_balance_updated() {
   )
 }
 
-test s8_whw_failed_without_intent_token_burnt() {
+test s8_ww_failed_without_intent_token_burnt() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -308,7 +308,7 @@ test s8_whw_failed_without_intent_token_burnt() {
   )
 }
 
-test s8_whw_failed_without_withdraw_value_burnt() {
+test s8_ww_failed_without_withdraw_value_burnt() {
   let test_case =
     HydraWithdrawalTestCase {
       is_operation_key_signed: True,

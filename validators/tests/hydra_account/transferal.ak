@@ -98,7 +98,7 @@ fn mock_hydra_internal_transfer_tx(
     |> complete()
 }
 
-test s8_whit_success() {
+test s8_wt_success() {
   let test_case =
     HydraInternalTransferTestCase {
       is_operation_key_signed: True,
@@ -117,7 +117,7 @@ test s8_whit_success() {
   )
 }
 
-test s8_whit_failed_without_operation_key_signed() {
+test s8_wt_failed_without_operation_key_signed() {
   let test_case =
     HydraInternalTransferTestCase {
       is_operation_key_signed: False,
@@ -136,7 +136,7 @@ test s8_whit_failed_without_operation_key_signed() {
   )
 }
 
-test s8_whit_failed_without_from_account_balance_deducted() {
+test s8_wt_failed_without_from_account_balance_deducted() {
   let test_case =
     HydraInternalTransferTestCase {
       is_operation_key_signed: True,
@@ -155,7 +155,7 @@ test s8_whit_failed_without_from_account_balance_deducted() {
   )
 }
 
-test s8_whit_failed_without_to_account_balance_added() {
+test s8_wt_failed_without_to_account_balance_added() {
   let test_case =
     HydraInternalTransferTestCase {
       is_operation_key_signed: True,
@@ -174,7 +174,7 @@ test s8_whit_failed_without_to_account_balance_added() {
   )
 }
 
-test s8_whit_failed_without_intent_token_burnt() {
+test s8_wt_failed_without_intent_token_burnt() {
   let test_case =
     HydraInternalTransferTestCase {
       is_operation_key_signed: True,
