@@ -2,7 +2,7 @@
 
 ## Redeemer
 
-- ModifyOrder { red_account: UserAccount, authorized_account_value: MValue }
+- ModifyOrder { account: UserAccount, authorized_account_value: MValue }
 
 ## Logic
 

@@ -27,7 +27,7 @@
 
    - Redeemers contain withdrawal script validation with same `cancel_order` redeemer
 
-3. Modify Order - Redeemer `red_account`: `UserAccount`
+3. Modify Order - Redeemer `account`: `UserAccount`
 
    - Redeemers contain withdrawal script validation with same `modify_order` redeemer
 

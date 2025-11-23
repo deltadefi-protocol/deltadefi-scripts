@@ -13,7 +13,7 @@ use hydra_order_book/cancel_order.{cancel_order}
 use hydra_order_book/combine_order_merkle.{combine_order_merkle}
 use hydra_order_book/fill_order.{fill_order}
 use hydra_order_book/modify_order.{modify_order}
-use hydra_order_book/process_order.{process_order}
+use hydra_order_book/place_order.{place_order}
 use hydra_order_book/split_order_merkle.{split_order_merkle}
 
 validator hydra_order_book(oracle_nft: PolicyId) {
@@ -36,7 +36,7 @@ validator hydra_order_book(oracle_nft: PolicyId) {
     tx: Transaction,
   ) {
     when redeemer is {
-      PlaceOrder { red_account } -> process_order(oracle_nft, red_account, tx)
+      PlaceOrder { red_account } -> place_order(oracle_nft, red_account, tx)
       FillOrder { filler_order_id } ->
         fill_order(oracle_nft, filler_order_id, tx)
       CancelOrder -> cancel_order(oracle_nft, tx)

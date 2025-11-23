@@ -72,7 +72,7 @@ pub fn place_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction) 
   // - `II` with `PlaceOrderIntent` datum
   expect order_datum: Order = output_inline_datum(order_output)
 
-  // - `II` with `red_account` as account
+  // - `II` with `account` as account
   let is_intent_account_correct = intent_order.account == account
 
   // - `II` with `PlaceOrderIntent` datum

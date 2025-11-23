@@ -100,7 +100,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       )
     |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
     //  - Categorize inputs into
-    //    - `AI` - Account Inputs with `red_account` at intent
+    //    - `AI` - Account Inputs with `account` at intent
     //    - `II` - Intent Input
     |> tx_in(
         True,
@@ -135,8 +135,8 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       )
     |> tx_in_inline_datum(True, account)
     //  - Categorize outputs into
-    //    - `AO` - Account Output with `red_account` at intent
-    //    - `OO` - Order Output with `red_account` at intent
+    //    - `AO` - Account Output with `account` at intent
+    //    - `OO` - Order Output with `account` at intent
     //    - Other outputs
     |> tx_out(
         !no_account_output_case,
@@ -193,7 +193,7 @@ test s9_wpo_success() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -216,7 +216,7 @@ test s9_wpo_success_no_account_output_case() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -239,7 +239,7 @@ test s9_wpo_fail_with_multiple_intent_input() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -262,7 +262,7 @@ test s9_wpo_fail_with_multiple_order_output() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -285,7 +285,7 @@ test s9_wpo_fail_with_random_input() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -308,7 +308,7 @@ test s9_wpo_fail_with_random_output() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -331,7 +331,7 @@ test s9_wpo_fail_without_intent_token_burnt() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -354,7 +354,7 @@ test s9_wpo_fail_with_incorrect_datum() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -377,7 +377,7 @@ test s9_wpo_fail_without_balance_updated() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -400,7 +400,7 @@ test s9_wpo_fail_without_operation_key_signed() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { red_account: UserSpotAccount { account: mock_account } },
+    PlaceOrder { account: UserSpotAccount { account: mock_account } },
     Script(mock_hydra_order_book),
     tx,
   )

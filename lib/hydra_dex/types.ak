@@ -249,10 +249,10 @@ pub type HydraAccountRedeemer {
 // 9 - HydraOrderBook
 
 pub type HydraOrderBookRedeemer {
-  PlaceOrder { red_account: UserAccount }
+  PlaceOrder { account: UserAccount }
   CancelOrder
   FillOrder { filler_order_id: ByteArray }
-  ModifyOrder { red_account: UserAccount }
+  ModifyOrder { account: UserAccount }
   CombineOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
   SplitOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
 }

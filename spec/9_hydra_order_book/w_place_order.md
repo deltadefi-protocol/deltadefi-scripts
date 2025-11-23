@@ -2,22 +2,22 @@
 
 ## Redeemer
 
-- PlaceOrder { red_account: UserAccount, authorized_account_value: MValue }
+- PlaceOrder { account: UserAccount, authorized_account_value: MValue }
 
 ## Logic
 
 - Ref input with `dex_oracle_nft`
 - Categorize inputs into
-  - `AI` - Account Inputs with `red_account` at intent
+  - `AI` - Account Inputs with `account` at intent
   - `II` - Intent Input
   - Other inputs
 - Categorize outputs into
-  - `AO` - Account Output with `red_account` at intent
-  - `OO` - Order Output with `red_account` at intent
+  - `AO` - Account Output with `account` at intent
+  - `OO` - Order Output with `account` at intent
   - Other outputs
 - No other inputs and outputs
 - `II` with `PlaceOrderIntent` datum
-- `II` with `red_account` as account
+- `II` with `account` as account
 - `OO` with exactly datum `II`
 - `OO` has at least value
   - `is_long` == True -> at least short qty of short token

@@ -2199,7 +2199,7 @@
           "index": 0,
           "fields": [
             {
-              "title": "red_account",
+              "title": "account",
               "$ref": "#/definitions/hydra_dex~1types~1UserAccount"
             }
           ]
@@ -2227,7 +2227,7 @@
           "index": 3,
           "fields": [
             {
-              "title": "red_account",
+              "title": "account",
               "$ref": "#/definitions/hydra_dex~1types~1UserAccount"
             }
           ]
