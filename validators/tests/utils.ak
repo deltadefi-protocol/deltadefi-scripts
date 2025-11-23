@@ -2,9 +2,9 @@ use cardano/address.{Script, VerificationKey, from_script}
 use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
-  Account, AppOracleDatum, DexOrderBookDatum, DexOrderBookWithdrawalScripts,
-  HydraInfo, ModifyOrderIntent, Order, PlaceOrderIntent, TokenMap, UserAccount,
-  UserSpotAccount, WithdrawalScriptHashes,
+  Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, ModifyOrderIntent,
+  Order, PlaceOrderIntent, TokenMap, UserAccount, UserSpotAccount,
+  WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -51,7 +51,7 @@ pub const mock_app_deposit = mock_script_hash(0)
 
 pub const mock_app_withdrawal = mock_script_hash(1)
 
-pub const mock_emergency_cancel_order = mock_script_hash(700)
+pub const mock_emergency_cancel_order = mock_script_hash(401)
 
 pub const mock_withdrawal_script_hashes: WithdrawalScriptHashes =
   WithdrawalScriptHashes {
@@ -123,25 +123,15 @@ pub const mock_hydra_internal_transfer = mock_script_hash(6)
 
 pub const mock_hydra_combine_balance = mock_script_hash(13)
 
-pub const mock_dex_order_book_withdrawal_scripts: DexOrderBookWithdrawalScripts =
-  DexOrderBookWithdrawalScripts {
-    hydra_head_open: mock_hydra_head_open,
-    hydra_head_close: mock_hydra_head_close,
-    hydra_withdrawal: mock_hydra_withdrawal,
-    hydra_cancel_withdrawal: mock_hydra_cancel_withdrawal,
-    hydra_internal_transfer: mock_hydra_internal_transfer,
-    hydra_combine_balance: mock_hydra_combine_balance,
-  }
+pub const mock_hydra_user_intent = mock_script_hash(700)
 
-pub const mock_hydra_user_intent_token = mock_policy_id(5)
+pub const mock_hydra_user_intent_token = mock_hydra_user_intent
 
-pub const mock_hydra_user_intent_address =
-  from_script("hydra_user_intent_address")
+pub const mock_hydra_user_intent_address = from_script(mock_hydra_user_intent)
 
-pub const mock_hydra_account_balance = mock_script_hash(800)
+pub const mock_hydra_account = mock_script_hash(800)
 
-pub const mock_hydra_account_balance_address =
-  from_script("hydra_account_balance_address")
+pub const mock_hydra_account_address = from_script(mock_hydra_account)
 
 pub const mock_hydra_order_book = mock_script_hash(900)
 
@@ -164,11 +154,9 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
     dex_account_balance_address: mock_dex_account_balance_address,
     dex_order_book_token: mock_dex_order_book_token,
     dex_order_book_address: mock_dex_order_book_address,
-    hydra_user_intent_token: mock_hydra_user_intent_token,
-    hydra_user_intent_address: mock_hydra_user_intent_address,
-    hydra_account_balance_address: mock_hydra_account_balance_address,
+    hydra_user_intent_script_hash: mock_hydra_user_intent,
+    hydra_account_script_hash: mock_hydra_account,
     hydra_order_book_script_hash: mock_hydra_order_book,
-    withdrawal_script_hashes: mock_dex_order_book_withdrawal_scripts,
     hydra_token_policy_id: mock_hydra_token_policy_id,
   }
 
@@ -354,7 +342,7 @@ pub fn mock_hydra_lovelace(qty: Int) -> Value {
   from_asset(mock_hydra_token_policy_id, hash_token("", ""), qty)
 }
 
-pub fn mock_hydra_account(account: Account) -> UserAccount {
+pub fn mock_user_account(account: Account) -> UserAccount {
   UserSpotAccount { account }
 }
 
