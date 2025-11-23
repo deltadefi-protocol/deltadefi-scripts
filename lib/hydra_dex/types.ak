@@ -236,7 +236,7 @@ pub type HydraAccountRedeemer {
   HydraAccountSpamPreventionWithdraw
   ProcessWithdrawal { mpf_action: MPFProof }
   ProcessCancelWithdrawal { mpf_action: MPFProof }
-  ProcessSameAccountTransferal
+  ProcessSameAccountTransferal { account: UserAccount }
   ProcessTransferal
   ProcessCombineUtxosAtClose {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,

@@ -1,4 +1,4 @@
-# Specification - DexAccountBalance - HydraWithdrawal
+# Specification - HydraAccount - Withdrawal
 
 ## User Action
 

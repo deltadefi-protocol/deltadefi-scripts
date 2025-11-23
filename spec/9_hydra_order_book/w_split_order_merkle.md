@@ -1,4 +1,4 @@
-# Specification - DexOrderBook - SplitOrderMerkle
+# Specification - HydraOrderBook - SplitOrderMerkle
 
 ## Parameter
 

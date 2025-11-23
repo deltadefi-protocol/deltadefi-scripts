@@ -1,4 +1,4 @@
-# Specification - AccountOperation - HydraInternalTransfer
+# Specification - HydraAccount - Transfer
 
 ## User Action
 

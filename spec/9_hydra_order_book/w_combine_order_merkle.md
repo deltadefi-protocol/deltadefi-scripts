@@ -1,4 +1,4 @@
-# Specification - DexOrderBook - CombineOrderMerkle
+# Specification - HydraOrderBook - CombineOrderMerkle
 
 ## Parameter
 

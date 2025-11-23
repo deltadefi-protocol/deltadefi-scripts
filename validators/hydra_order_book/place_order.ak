@@ -19,11 +19,7 @@ use hydra_dex/types.{
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
-pub fn process_order(
-  oracle_nft: PolicyId,
-  account: UserAccount,
-  tx: Transaction,
-) {
+pub fn place_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction) {
   let Transaction { inputs, outputs, extra_signatories, mint, .. } = tx
   let oracle = tx.reference_inputs |> get_dex_order_book_datum(oracle_nft)
 
