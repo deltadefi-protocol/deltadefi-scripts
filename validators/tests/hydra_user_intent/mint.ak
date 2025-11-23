@@ -10,7 +10,7 @@ use hydra_dex/types.{
   WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
-use hydra_user_intent/mint as hydra_user_intent_mint
+use hydra_user_intent as hui
 use mocktail.{
   MocktailTx, complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_out,
@@ -251,7 +251,7 @@ test s7_mint_success_place_order_intent_with_withdraw_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -273,7 +273,7 @@ test s7_mint_success_place_order_intent_with_trade_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -295,7 +295,7 @@ test s7_mint_fail_place_order_intent_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -317,7 +317,7 @@ test s7_mint_fail_place_order_intent_with_no_token_minted() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -339,7 +339,7 @@ test s7_mint_fail_place_order_intent_with_wrong_token_name() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -361,7 +361,7 @@ test s7_mint_fail_place_order_intent_with_no_key_signed() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -451,7 +451,7 @@ test s7_mint_success_cancel_order_intent_with_withdraw_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -473,7 +473,7 @@ test s7_mint_success_cancel_order_intent_with_trade_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -495,7 +495,7 @@ test s7_mint_fail_cancel_order_intent_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -517,7 +517,7 @@ test s7_mint_fail_cancel_order_intent_with_no_token_minted() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -539,7 +539,7 @@ test s7_mint_fail_cancel_order_intent_with_wrong_token_name() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -561,7 +561,7 @@ test s7_mint_fail_cancel_order_intent_with_no_key_signed() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -651,7 +651,7 @@ test s7_mint_success_withdrawal_intent_with_withdraw_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -673,7 +673,7 @@ test s7_mint_success_withdrawal_intent_with_trade_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -695,7 +695,7 @@ test s7_mint_fail_withdrawal_intent_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -717,7 +717,7 @@ test s7_mint_fail_withdrawal_intent_with_no_token_minted() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -739,7 +739,7 @@ test s7_mint_fail_withdrawal_intent_with_wrong_token_name() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -761,7 +761,7 @@ test s7_mint_fail_withdrawal_intent_with_no_key_signed() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -851,7 +851,7 @@ test s7_mint_success_cancel_withdrawal_intent_with_withdraw_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -873,7 +873,7 @@ test s7_mint_success_cancel_withdrawal_intent_with_trade_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -895,7 +895,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -917,7 +917,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_token_minted() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -939,7 +939,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_wrong_token_name() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -961,7 +961,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_key_signed() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1057,7 +1057,7 @@ test s7_mint_success_transfer_intent_with_withdraw_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1080,7 +1080,7 @@ test s7_mint_success_transfer_intent_with_trade_key_sign() {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1103,7 +1103,7 @@ test s7_mint_fail_transfer_intent_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1125,7 +1125,7 @@ test s7_mint_fail_transfer_intent_with_no_token_minted() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1147,7 +1147,7 @@ test s7_mint_fail_transfer_intent_with_wrong_token_name() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,
@@ -1169,7 +1169,7 @@ test fail_transfer_intent_with_no_key_signed() {
       },
     )
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     redeemer,
     mock_hydra_user_intent_token,

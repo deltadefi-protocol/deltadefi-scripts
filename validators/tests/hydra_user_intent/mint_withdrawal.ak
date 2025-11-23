@@ -1,7 +1,7 @@
 use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{BurnIntent}
-use hydra_user_intent/mint as hydra_user_intent_mint
+use hydra_user_intent as hui
 use mocktail.{
   complete, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash,
@@ -31,7 +31,7 @@ fn mock_process_intent_tx(is_operation_key_signed: Bool) -> Transaction {
 test s7_mint_w_success_process_place_order() {
   let tx = mock_process_intent_tx(True)
 
-  hydra_user_intent_mint.hydra_user_intent.mint(
+  hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     BurnIntent,
     mock_hydra_user_intent_token,
@@ -42,7 +42,7 @@ test s7_mint_w_success_process_place_order() {
 test s7_mint_w_fail_process_place_order_not_signed() {
   let tx = mock_process_intent_tx(False)
 
-  !hydra_user_intent_mint.hydra_user_intent.mint(
+  !hui.hydra_user_intent.mint(
     mock_dex_order_book_token,
     BurnIntent,
     mock_hydra_user_intent_token,

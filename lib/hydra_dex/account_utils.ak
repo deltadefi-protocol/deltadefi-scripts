@@ -5,7 +5,7 @@ use aiken/collection/pairs
 use aiken/crypto.{ScriptHash, VerificationKeyHash, blake2b_256}
 use aiken/merkle_patricia_forestry as mpf
 use aiken/primitive/bytearray
-use cardano/address.{Address, Credential, Script, VerificationKey}
+use cardano/address.{Credential, Script, VerificationKey, from_script}
 use cardano/assets.{
   AssetName, Lovelace, PolicyId, Value, from_asset_list, merge, negate, tokens,
   zero,
@@ -23,10 +23,10 @@ use hydra_dex/utils.{withdrawal_script_hashes}
 
 pub fn create_account_inputs_filter(
   account: UserAccount,
-  hydra_account_balance_address: Address,
+  hydra_account_script_hash: ByteArray,
 ) {
   fn(input: Input) {
-    if input.output.address == hydra_account_balance_address {
+    if input.output.address == from_script(hydra_account_script_hash) {
       expect input_datum: UserAccount = input_inline_datum(input)
       input_datum == account
     } else {
@@ -37,10 +37,10 @@ pub fn create_account_inputs_filter(
 
 pub fn create_account_outputs_filter(
   account: UserAccount,
-  hydra_account_balance_address: Address,
+  hydra_account_script_hash: ByteArray,
 ) {
   fn(output: Output) {
-    if output.address == hydra_account_balance_address {
+    if output.address == from_script(hydra_account_script_hash) {
       expect output_datum: UserAccount = output_inline_datum(output)
       output_datum == account
     } else {
@@ -194,34 +194,6 @@ pub fn withdrawal_auth_by_account(
   signature_auth || script_auth
 }
 
-pub fn hydra_balance_increase(
-  input: Input,
-  output: Output,
-  increase: Value,
-) -> Bool {
-  expect input_datum: UserAccount = input_inline_datum(input)
-  expect output_datum: UserAccount = output_inline_datum(output)
-  let old_balance = input.output.value
-  let new_balance = output.value
-  let expected_balance = old_balance |> merge(increase)
-  let is_same_account = input_datum == output_datum
-  is_same_account? && (expected_balance == new_balance)?
-}
-
-pub fn hydra_balance_decrease(
-  input: Input,
-  output: Output,
-  decrease: Value,
-) -> Bool {
-  expect input_datum: UserAccount = input_inline_datum(input)
-  expect output_datum: UserAccount = output_inline_datum(output)
-  let old_balance = input.output.value
-  let new_balance = output.value
-  let expected_balance = old_balance |> merge(negate(decrease))
-  let is_same_account = input_datum == output_datum
-  is_same_account && expected_balance == new_balance
-}
-
 pub fn dex_account_balance_balance_increase(
   input: Input,
   output: Output,
@@ -320,33 +292,6 @@ pub fn account_merkle_balance_decrease(
     }
     _ -> False
   }
-}
-
-pub fn get_account_input(
-  inputs: List<Input>,
-  account: UserAccount,
-) -> Option<Input> {
-  inputs
-    |> list.find(
-        fn(account_input) {
-          expect datum_account: UserAccount = input_inline_datum(account_input)
-          datum_account == account
-        },
-      )
-}
-
-pub fn get_account_output(
-  outputs: List<Output>,
-  account: UserAccount,
-) -> Option<Output> {
-  outputs
-    |> list.find(
-        fn(account_output) {
-          expect datum_account: UserAccount =
-            output_inline_datum(account_output)
-          datum_account == account
-        },
-      )
 }
 
 // Dex Order Book
