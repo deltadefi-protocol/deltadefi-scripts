@@ -134,6 +134,14 @@ pub fn split_creds(
       )
 }
 
+pub fn get_trading_logic(account: UserAccount) -> ScriptHash {
+  when account is {
+    UserTradeAccount { trading_logic, .. } -> trading_logic
+    UserFundingAccount { trading_logic, .. } -> trading_logic
+    UserMobileAccount { trading_logic, .. } -> trading_logic
+  }
+}
+
 pub fn get_master_key(account: UserAccount) -> Credential {
   when account is {
     UserTradeAccount { account, .. } -> account.master_key

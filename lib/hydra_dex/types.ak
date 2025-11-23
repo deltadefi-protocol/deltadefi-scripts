@@ -223,9 +223,7 @@ pub type HydraUserIntentDatum {
 // 8 - HydraAccount
 
 pub type HydraAccountRedeemer {
-  UpdateBalanceWithPlaceOrder
-  UpdateBalanceWithFillOrder
-  UpdateBalanceWithCancelOrder
+  Trade { trade_redeemer: Data }
   HydraAccountSpamPreventionWithdraw
   ProcessWithdrawal { mpf_action: MPFProof }
   ProcessCancelWithdrawal { mpf_action: MPFProof }

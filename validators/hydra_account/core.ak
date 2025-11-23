@@ -9,13 +9,12 @@ use hydra_account/same_account_transferal.{same_account_transferal}
 use hydra_account/split_utxos_at_open.{split_utxos_at_open}
 use hydra_account/transferal.{transferal}
 use hydra_account/withdrawal.{withdrawal}
+use hydra_dex/account_utils.{get_trading_logic}
 use hydra_dex/types.{
-  CancelOrder, DexOrderBookDatum, FillOrder, HydraAccountRedeemer,
-  HydraAccountSpamPreventionWithdraw, HydraOrderBookRedeemer, PlaceOrder,
+  DexOrderBookDatum, HydraAccountRedeemer, HydraAccountSpamPreventionWithdraw,
   ProcessCancelWithdrawal, ProcessCombineUtxosAtClose,
   ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
-  ProcessWithdrawal, TreeOrProofsWithTokenMap, UpdateBalanceWithCancelOrder,
-  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder, UserAccount,
+  ProcessWithdrawal, Trade, TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -34,36 +33,15 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
       ..
     } = tx
 
-    let DexOrderBookDatum { operation_key, hydra_order_book_script_hash, .. }: DexOrderBookDatum =
+    let DexOrderBookDatum { operation_key, .. }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
-      UpdateBalanceWithPlaceOrder -> {
+      Trade { trade_redeemer } -> {
+        expect Some(account) = datum_opt
         expect Some(w_redeemer) =
-          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
-        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
-        when w_redeemer is {
-          PlaceOrder { .. } -> True
-          _ -> False
-        }
-      }
-      UpdateBalanceWithFillOrder -> {
-        expect Some(w_redeemer) =
-          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
-        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
-        when w_redeemer is {
-          FillOrder { .. } -> True
-          _ -> False
-        }
-      }
-      UpdateBalanceWithCancelOrder -> {
-        expect Some(w_redeemer) =
-          withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
-        expect w_redeemer: HydraOrderBookRedeemer = w_redeemer
-        when w_redeemer is {
-          CancelOrder { .. } -> True
-          _ -> False
-        }
+          withdrawal_redeemer(redeemers, get_trading_logic(account))
+        w_redeemer == trade_redeemer
       }
       HydraAccountSpamPreventionWithdraw -> {
         expect Some(own_input) = inputs |> find_input(input)

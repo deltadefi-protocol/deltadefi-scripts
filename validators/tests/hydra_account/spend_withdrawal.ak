@@ -3,9 +3,8 @@ use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/types.{
   CancelOrder, FillOrder, MPFInsert, PlaceOrder, ProcessCancelWithdrawal,
-  ProcessCombineUtxosAtClose, ProcessWithdrawal, Proofs,
-  TreeOrProofsWithTokenMap, UpdateBalanceWithCancelOrder,
-  UpdateBalanceWithFillOrder, UpdateBalanceWithPlaceOrder,
+  ProcessCombineUtxosAtClose, ProcessWithdrawal, Proofs, Trade,
+  TreeOrProofsWithTokenMap,
 }
 use mocktail.{
   complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
@@ -91,7 +90,8 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 }
 
 test s8_w_spend_success_update_balance_with_place_order_intent() {
-  let redeemer = UpdateBalanceWithPlaceOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: PlaceOrder { account } }
   let tx =
     mock_tx(
       TestCase {
@@ -107,7 +107,7 @@ test s8_w_spend_success_update_balance_with_place_order_intent() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -115,7 +115,8 @@ test s8_w_spend_success_update_balance_with_place_order_intent() {
 }
 
 test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_dex_oracle_inputed() fail {
-  let redeemer = UpdateBalanceWithPlaceOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: PlaceOrder { account } }
   let tx =
     mock_tx(
       TestCase {
@@ -131,7 +132,7 @@ test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_dex_oracle_i
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -139,7 +140,8 @@ test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_dex_oracle_i
 }
 
 test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_auth_attached() fail {
-  let redeemer = UpdateBalanceWithPlaceOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: PlaceOrder { account } }
   let tx =
     mock_tx(
       TestCase {
@@ -155,7 +157,7 @@ test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_auth_attache
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -163,7 +165,8 @@ test s8_w_spend_fail_update_balance_with_place_order_intent_with_no_auth_attache
 }
 
 test s8_w_spend_success_update_balance_with_fill_order() {
-  let redeemer = UpdateBalanceWithFillOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: FillOrder { filler_order_id: "" } }
   let tx =
     mock_tx(
       TestCase {
@@ -179,7 +182,7 @@ test s8_w_spend_success_update_balance_with_fill_order() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -187,7 +190,8 @@ test s8_w_spend_success_update_balance_with_fill_order() {
 }
 
 test s8_w_spend_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed() fail {
-  let redeemer = UpdateBalanceWithFillOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: FillOrder { filler_order_id: "" } }
   let tx =
     mock_tx(
       TestCase {
@@ -203,7 +207,7 @@ test s8_w_spend_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed()
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -211,7 +215,8 @@ test s8_w_spend_fail_update_balance_with_fill_order_with_no_dex_oracle_inputed()
 }
 
 test s8_w_spend_fail_update_balance_with_fill_order_with_no_auth_attached() fail {
-  let redeemer = UpdateBalanceWithFillOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: FillOrder { filler_order_id: "" } }
   let tx =
     mock_tx(
       TestCase {
@@ -227,7 +232,7 @@ test s8_w_spend_fail_update_balance_with_fill_order_with_no_auth_attached() fail
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -235,7 +240,8 @@ test s8_w_spend_fail_update_balance_with_fill_order_with_no_auth_attached() fail
 }
 
 test s8_w_spend_success_update_balance_with_cancel_order() {
-  let redeemer = UpdateBalanceWithCancelOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: CancelOrder }
   let tx =
     mock_tx(
       TestCase {
@@ -251,7 +257,7 @@ test s8_w_spend_success_update_balance_with_cancel_order() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -259,7 +265,8 @@ test s8_w_spend_success_update_balance_with_cancel_order() {
 }
 
 test s8_w_spend_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed() fail {
-  let redeemer = UpdateBalanceWithCancelOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: CancelOrder }
   let tx =
     mock_tx(
       TestCase {
@@ -275,7 +282,7 @@ test s8_w_spend_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -283,7 +290,8 @@ test s8_w_spend_fail_update_balance_with_cancel_order_with_no_dex_oracle_inputed
 }
 
 test s8_w_spend_fail_update_balance_with_cancel_order_with_no_auth_attached() fail {
-  let redeemer = UpdateBalanceWithCancelOrder
+  let account = mock_user_account(mock_account)
+  let redeemer = Trade { trade_redeemer: CancelOrder }
   let tx =
     mock_tx(
       TestCase {
@@ -299,7 +307,7 @@ test s8_w_spend_fail_update_balance_with_cancel_order_with_no_auth_attached() fa
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -307,6 +315,7 @@ test s8_w_spend_fail_update_balance_with_cancel_order_with_no_auth_attached() fa
 }
 
 test s8_w_spend_success_update_balance_with_withdrawal_intent() {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -323,7 +332,7 @@ test s8_w_spend_success_update_balance_with_withdrawal_intent() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -331,6 +340,7 @@ test s8_w_spend_success_update_balance_with_withdrawal_intent() {
 }
 
 test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -347,7 +357,7 @@ test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_in
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -355,6 +365,7 @@ test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_dex_oracle_in
 }
 
 test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_auth_attached() fail {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -371,7 +382,7 @@ test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_auth_attached
 
   !ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -379,6 +390,7 @@ test s8_w_spend_fail_update_balance_with_withdrawal_intent_with_no_auth_attached
 }
 
 test s8_w_spend_success_update_balance_with_cancel_withdrawal_intent() {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessCancelWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -395,7 +407,7 @@ test s8_w_spend_success_update_balance_with_cancel_withdrawal_intent() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -403,6 +415,7 @@ test s8_w_spend_success_update_balance_with_cancel_withdrawal_intent() {
 }
 
 test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessCancelWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -419,7 +432,7 @@ test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_or
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -427,6 +440,7 @@ test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_dex_or
 }
 
 test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_attached() fail {
+  let account = mock_user_account(mock_account)
   let redeemer = ProcessCancelWithdrawal { mpf_action: MPFInsert { proof: [] } }
   let tx =
     mock_tx(
@@ -443,7 +457,7 @@ test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_a
 
   !ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -451,6 +465,7 @@ test s8_w_spend_fail_update_balance_with_cancel_withdrawal_intent_with_no_auth_a
 }
 
 test s8_w_spend_success_combine_utxos_at_close() {
+  let account = mock_user_account(mock_account)
   let redeemer =
     ProcessCombineUtxosAtClose {
       tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
@@ -473,7 +488,7 @@ test s8_w_spend_success_combine_utxos_at_close() {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -481,6 +496,7 @@ test s8_w_spend_success_combine_utxos_at_close() {
 }
 
 test s8_w_spend_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
+  let account = mock_user_account(mock_account)
   let redeemer =
     ProcessCombineUtxosAtClose {
       tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
@@ -503,7 +519,7 @@ test s8_w_spend_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
 
   ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
@@ -511,6 +527,7 @@ test s8_w_spend_fail_combine_utxos_at_close_with_no_dex_oracle_inputed() fail {
 }
 
 test s8_w_spend_fail_combine_utxos_at_close_with_no_auth_attached() fail {
+  let account = mock_user_account(mock_account)
   let redeemer =
     ProcessCombineUtxosAtClose {
       tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
@@ -533,7 +550,7 @@ test s8_w_spend_fail_combine_utxos_at_close_with_no_auth_attached() fail {
 
   !ha.hydra_account.spend(
     mock_dex_order_book_token,
-    None,
+    Some(account),
     redeemer,
     mock_utxo_ref(0, 0),
     tx,
