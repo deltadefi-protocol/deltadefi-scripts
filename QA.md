@@ -88,4 +88,4 @@ Glossary
 | it_hcw  | Cancel Withdrawal                        | ✓   | NA   |       |       |
 | it_hpcw | Process cancel withdrawal                | ✓   | ✓    |       |       |
 | it_cobu | Combine utxos for HydraOrderBook         |     |      |       |       |
-| it_cabu | Combine utxos for HydraAccountBalance    |     |      |       |       |
+| it_cabu | Combine utxos for HydraAccount           |     |      |       |       |

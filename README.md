@@ -52,11 +52,11 @@
 
 2. Internal - prepare account balance utxos
 
-   - Consume merkle tree, divide all account balance into single utxo at HydraAccountBalance
+   - Consume merkle tree, divide all account balance into single utxo at HydraAccount
 
 3. Internal - process deposit (DexAccountBalance)
 
-   - Consume merkle tree, merge all account balance into utxo at HydraAccountBalance
+   - Consume merkle tree, merge all account balance into utxo at HydraAccount
 
 4. Place order
 
@@ -70,7 +70,7 @@
 
 9. Combine utxos for HydraOrderBook
 
-10. Combine utxos for HydraAccountBalance
+10. Combine utxos for HydraAccount
 
 ## Hydra
 

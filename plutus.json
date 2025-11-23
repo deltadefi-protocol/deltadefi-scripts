@@ -936,7 +936,7 @@
       "hash": "51d611275632f6beaa2a13e6cac082c57a6c534b7bf6576767315c3b"
     },
     {
-      "title": "hydra_account_balance/spend.hydra_account_balance.spend",
+      "title": "hydra_account/spend.hydra_account.spend",
       "datum": {
         "title": "datum_opt",
         "schema": {
@@ -946,7 +946,7 @@
       "redeemer": {
         "title": "redeemer",
         "schema": {
-          "$ref": "#/definitions/hydra_dex~1types~1HydraAccountBalanceRedeemer"
+          "$ref": "#/definitions/hydra_dex~1types~1HydraAccountRedeemer"
         }
       },
       "parameters": [
@@ -961,7 +961,7 @@
       "hash": "fb0ad031448917ac17592f18c8d7345f3ab6e79e63402dd26a8ac822"
     },
     {
-      "title": "hydra_account_balance/spend.hydra_account_balance.else",
+      "title": "hydra_account/spend.hydra_account.else",
       "redeemer": {
         "schema": {}
       },
@@ -1859,7 +1859,7 @@
               "$ref": "#/definitions/cardano~1address~1Address"
             },
             {
-              "title": "hydra_account_balance_address",
+              "title": "hydra_account_script_hash",
               "$ref": "#/definitions/cardano~1address~1Address"
             },
             {
@@ -2067,8 +2067,8 @@
         }
       ]
     },
-    "hydra_dex/types/HydraAccountBalanceRedeemer": {
-      "title": "HydraAccountBalanceRedeemer",
+    "hydra_dex/types/HydraAccountRedeemer": {
+      "title": "HydraAccountRedeemer",
       "anyOf": [
         {
           "title": "UpdateBalanceWithPlaceOrder",
@@ -2119,7 +2119,7 @@
           "fields": []
         },
         {
-          "title": "HydraAccountBalanceSpamPreventionWithdraw",
+          "title": "HydraAccountSpamPreventionWithdraw",
           "dataType": "constructor",
           "index": 8,
           "fields": []

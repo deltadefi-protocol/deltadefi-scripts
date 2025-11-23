@@ -112,10 +112,6 @@ pub type ProcessHydraWithdrawal {
   mpf_action: MPFProof,
 }
 
-pub type ProcessHydraCancelWithdrawal {
-  mpf_action: MPFProof,
-}
-
 // 3 - AppDepositRequest
 
 pub type AppDepositRequestDatum {
@@ -168,17 +164,20 @@ pub type DexAccountBalanceDatum {
 }
 
 pub type DexAccountBalanceRedeemer {
+  // L1 actions
   AppDeposit
   AppWithdrawal
+  // Hydra actions
+  DABHydraIncrementalDecommit
+  DABHydraCommit
+  // In hydra actions
   HydraWithdrawal
   HydraCancelWithdrawal
-  DexAccountBalanceHydraCommit
-  DexAccountBalanceTransferAccountBalance
-  DexAccountBalanceSplitMerkleTree
-  DexAccountBalanceCombineMerkleTree
-  DexAccountBalanceSpamPreventionWithdraw
-  DexAccountBalanceRemoveRegistry
-  HydraIncrementalDecommit
+  DABSplitMerkleTree
+  DABCombineMerkleTree
+  // Edge cases
+  DABSpamPreventionWithdraw
+  DABRemoveRegistry
 }
 
 // 6 - DexOrderBook
@@ -200,21 +199,10 @@ pub type DexOrderBookDatum {
   dex_account_balance_address: Address,
   dex_order_book_token: PolicyId,
   dex_order_book_address: Address,
-  hydra_user_intent_token: PolicyId,
-  hydra_user_intent_address: Address,
-  hydra_account_balance_address: Address,
+  hydra_user_intent_script_hash: ByteArray,
+  hydra_account_script_hash: ByteArray,
   hydra_order_book_script_hash: ByteArray,
-  withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
   hydra_token_policy_id: PolicyId,
-}
-
-pub type DexOrderBookWithdrawalScripts {
-  hydra_head_open: ScriptHash,
-  hydra_head_close: ScriptHash,
-  hydra_withdrawal: ScriptHash,
-  hydra_cancel_withdrawal: ScriptHash,
-  hydra_internal_transfer: ScriptHash,
-  hydra_combine_balance: ScriptHash,
 }
 
 pub type MerklizedOrderDatum {
@@ -243,18 +231,23 @@ pub type HydraUserIntentDatum {
   TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
 }
 
-// 8 - HydraAccountBalance
+// 8 - HydraAccount
 
-pub type HydraAccountBalanceRedeemer {
+pub type HydraAccountRedeemer {
   UpdateBalanceWithPlaceOrder
   UpdateBalanceWithFillOrder
   UpdateBalanceWithCancelOrder
-  UpdateBalanceWithWithdrawal
-  UpdateBalanceWithCancelWithdrawal
-  UpdateBalanceWithTransfer
-  HydraCombineUtxosAtClose
-  HydraCombineUtxosAtOpen
-  HydraAccountBalanceSpamPreventionWithdraw
+  HydraAccountSpamPreventionWithdraw
+  ProcessWithdrawal { mpf_action: MPFProof }
+  ProcessCancelWithdrawal { mpf_action: MPFProof }
+  ProcessSameAccountTransferal
+  ProcessTransferal
+  ProcessCombineUtxosAtClose {
+    tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
+  }
+  ProcessSplitUtxosAtOpen {
+    tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
+  }
 }
 
 // 9 - HydraOrderBook
