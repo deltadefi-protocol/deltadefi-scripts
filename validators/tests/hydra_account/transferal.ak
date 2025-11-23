@@ -6,13 +6,12 @@ use hydra_dex/types.{ProcessTransferal, TransferIntent, UserSpotAccount}
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
-  required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
-  tx_out_inline_datum,
+  required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
 }
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_address, mock_hydra_internal_transfer, mock_hydra_lovelace,
+  mock_hydra_account_address, mock_hydra_lovelace,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key,
 } as test_utils
@@ -95,7 +94,6 @@ fn mock_hydra_internal_transfer_tx(
     |> tx_out(True, mock_hydra_account_address, to_balance_end)
     |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account_2 })
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
-    |> script_withdrawal(True, mock_hydra_internal_transfer, 0)
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
 }

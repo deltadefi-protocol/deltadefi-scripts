@@ -10,8 +10,7 @@ use hydra_dex/types.{
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
-  required_signer_hash, script_withdrawal, tx_in, tx_in_inline_datum, tx_out,
-  tx_out_inline_datum,
+  required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
 }
 use tests/utils.{
   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
@@ -19,7 +18,7 @@ use tests/utils.{
   mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
   mock_hydra_token_policy_id, mock_hydra_usd_token_name,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_hydra_withdrawal, mock_operation_key, mock_usd,
+  mock_operation_key, mock_usd,
 } as test_utils
 
 type HydraWithdrawalTestCase {
@@ -130,7 +129,6 @@ fn mock_hydra_withdrawal_tx(
       |> tx_in_inline_datum(True, UserSpotAccount { account: mock_account })
       |> tx_out(True, mock_hydra_account_address, hydra_account_end)
       |> tx_out_inline_datum(True, UserSpotAccount { account: mock_account })
-      |> script_withdrawal(True, mock_hydra_withdrawal, 0)
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
       |> mint(
           is_withdraw_value_burnt,
