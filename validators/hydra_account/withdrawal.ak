@@ -76,7 +76,7 @@ pub fn withdrawal(
   let (account_outputs, dex_account_balance_outputs, other_outputs) =
     group_outputs_2(outputs, ao_filter, do_filter)
 
-  // - No other inputs
+  // - Other inputs length == 1 (the intent input)
   // - No other outputs
   let no_other_inputs = list.length(other_inputs) == 1
   let no_other_outputs = list.length(other_outputs) == 0
@@ -108,7 +108,6 @@ pub fn withdrawal(
   //   1. Deduct in value for `account` (`AI` - `AO`) -> translate into L1 value
   //   2. Increase in value for in root (change in root in `DO`)
   //   3. Value in withdrawal intent
-  // - Signed by `operating_key`
   let deducted_amount =
     inputs_value(account_inputs)
       |> merge(negate(outputs_value(account_outputs)))

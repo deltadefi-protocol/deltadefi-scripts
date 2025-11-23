@@ -1,10 +1,10 @@
-# Specification - DexAccountBalance - HydraWithdrawal
+# Specification - DexAccountBalance - HydraCancelWithdrawal
 
 ## User Action
 
 - Ref input with `oracle_nft`
 - Get `II` - Intent Input
-- `II` with `WithdrawalIntent` datum
+- `II` with `CancelWithdrawalIntent` datum
 - Categorize inputs into
   - `AI` - Account Inputs with `from` account at intent
   - `DI` - Dex Account Balance Input
@@ -16,10 +16,10 @@
 - Other inputs length == 1 (the intent input)
 - No other outputs
 - `DO` with updated merkle root (with translated L1 value)
-- The `HydraToken` deducted is burnt
+- The `HydraToken` added is minted
 - Intent value is burnt
 - The 3 value are equal:
-  1. Deduct in value for `account` (`AI` - `AO`)
-  2. Increase in value for in root (change in root in `DO`) -> translate into hydra balance
-  3. Value in withdrawal intent -> translate into hydra balance
+  1. Increase in value for `account` (`AO` - `AI`)
+  2. Deduct in value for in root (change in root in `DO`) -> translate into hydra balance
+  3. Value in cancel withdrawal intent -> translate into hydra balance
 - Signed by `operating_key`

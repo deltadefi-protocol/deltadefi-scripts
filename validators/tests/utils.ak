@@ -111,18 +111,6 @@ pub const mock_output_oracle_datum: AppOracleDatum =
     stop_key: mock_new_stop_key,
   }
 
-pub const mock_hydra_head_open = mock_script_hash(2)
-
-pub const mock_hydra_head_close = mock_script_hash(3)
-
-pub const mock_hydra_withdrawal = mock_script_hash(4)
-
-pub const mock_hydra_cancel_withdrawal = mock_script_hash(5)
-
-pub const mock_hydra_internal_transfer = mock_script_hash(6)
-
-pub const mock_hydra_combine_balance = mock_script_hash(13)
-
 pub const mock_hydra_user_intent = mock_script_hash(700)
 
 pub const mock_hydra_user_intent_token = mock_hydra_user_intent

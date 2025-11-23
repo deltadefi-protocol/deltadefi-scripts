@@ -108,10 +108,6 @@ pub type ProcessHydraHeadOpen {
   net_deposit_proof: ByteArray,
 }
 
-pub type ProcessHydraWithdrawal {
-  mpf_action: MPFProof,
-}
-
 // 3 - AppDepositRequest
 
 pub type AppDepositRequestDatum {
