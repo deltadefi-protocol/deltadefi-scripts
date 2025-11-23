@@ -50,7 +50,7 @@ fn mock_rotate_tx(test_case: RotateTestCase) -> Transaction {
     |> complete()
 }
 
-test s0_spend_success_rotate() {
+test s1_spend_success_rotate() {
   let datum = mock_input_oracle_datum
   let redeemer = mock_redeemer
   let tx =
@@ -71,7 +71,7 @@ test s0_spend_success_rotate() {
   )
 }
 
-test s0_spend_fail_rotate_with_no_old_stop_key_signed() {
+test s1_spend_fail_rotate_with_no_old_stop_key_signed() {
   let datum = mock_input_oracle_datum
   let redeemer = mock_redeemer
   let tx =
@@ -92,7 +92,7 @@ test s0_spend_fail_rotate_with_no_old_stop_key_signed() {
   )
 }
 
-test s0_spend_fail_rotate_with_unclean_output() {
+test s1_spend_fail_rotate_with_unclean_output() {
   let datum = mock_input_oracle_datum
   let redeemer = mock_redeemer
   let tx =
@@ -113,7 +113,7 @@ test s0_spend_fail_rotate_with_unclean_output() {
   )
 }
 
-test s0_spend_fail_rotate_with_no_new_stop_key_signed() {
+test s1_spend_fail_rotate_with_no_new_stop_key_signed() {
   let datum = mock_input_oracle_datum
   let redeemer = mock_redeemer
   let tx =
@@ -134,7 +134,7 @@ test s0_spend_fail_rotate_with_no_new_stop_key_signed() {
   )
 }
 
-test s0_spend_fail_rotate_with_incorrect_new_datum() {
+test s1_spend_fail_rotate_with_incorrect_new_datum() {
   let datum = mock_input_oracle_datum
   let redeemer = mock_redeemer
   let tx =
@@ -199,7 +199,7 @@ fn mock_stop_oracle_tx(test_case: StopOracleTestCase) -> Transaction {
     |> complete()
 }
 
-test s0_spend_success_stop() {
+test s1_spend_success_stop() {
   let datum = mock_input_oracle_datum
   let redeemer = StopDex
   let tx =
@@ -219,7 +219,7 @@ test s0_spend_success_stop() {
   )
 }
 
-test s0_spend_fail_stop_with_no_stop_key_signed() fail {
+test s1_spend_fail_stop_with_no_stop_key_signed() fail {
   let datum = mock_input_oracle_datum
   let redeemer = StopDex
 
@@ -240,7 +240,7 @@ test s0_spend_fail_stop_with_no_stop_key_signed() fail {
   )
 }
 
-test s0_spend_fail_stop_with_oracle_nft_not_burnt() fail {
+test s1_spend_fail_stop_with_oracle_nft_not_burnt() fail {
   let datum = mock_input_oracle_datum
   let redeemer = StopDex
 
