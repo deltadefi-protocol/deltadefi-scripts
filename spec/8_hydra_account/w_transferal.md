@@ -19,5 +19,5 @@
   1. Deduct in value for `from` (`AI_from` - `AO_from`)
   2. Increase in value for `to` (`AO_to` - `AI_to`)
   3. Value in transferal intent
-- Signed by `operating_key`
 - The intent token is burnt
+- Signed by `operating_key`

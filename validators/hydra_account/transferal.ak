@@ -86,12 +86,13 @@ pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
   let is_values_matching =
     deducted_amount == added_amount && added_amount == intent_amount
 
-  // - Signed by `operating_key`
-  let is_hydra_internal_transfer_authorized =
-    key_signed(extra_signatories, operation_key)
   // - The intent token is burnt
   let is_intent_token_burnt =
     assets.match(mint, negate(without_lovelace(intent_input.output.value)), ==)
+
+  // - Signed by `operating_key`
+  let is_hydra_internal_transfer_authorized =
+    key_signed(extra_signatories, operation_key)
 
   and {
     no_other_inputs?,
