@@ -1,19 +1,16 @@
 use app_deposit_request/mint as app_deposit_request_mint
-use cardano/address.{Script}
 use cardano/assets.{add, from_asset, from_asset_list, from_lovelace}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{
-  Account, AppDepositRequestDatum, MValue, RBurn, RMint, UserTradeAccount,
-}
+use hydra_dex/types.{AppDepositRequestDatum, MValue, RBurn, RMint}
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
-  complete, mint, mock_policy_id, mock_script_hash, mock_tx_hash, mocktail_tx,
-  ref_tx_in, ref_tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  complete, mint, mock_policy_id, mock_tx_hash, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, tx_out, tx_out_inline_datum,
 }
 use tests/utils.{
-  mock_app_deposit_request_address, mock_app_deposit_request_token,
+  mock_account, mock_app_deposit_request_address, mock_app_deposit_request_token,
   mock_input_oracle_datum, mock_oracle_address, mock_oracle_nft,
-  mock_withdrawal_script_hashes,
+  mock_user_account, mock_withdrawal_script_hashes,
 } as test_utils
 
 type MintTestCase {
@@ -45,13 +42,7 @@ fn mock_mint_tx(test_case: MintTestCase) -> Transaction {
 
   let output_datum =
     AppDepositRequestDatum {
-      account: UserTradeAccount {
-        account: Account {
-          account_id: "1",
-          master_key: Script(mock_script_hash(0)),
-          operation_key: Script(mock_script_hash(1)),
-        },
-      },
+      account: mock_user_account(mock_account),
       amount: deposit_value,
     }
   mocktail_tx()

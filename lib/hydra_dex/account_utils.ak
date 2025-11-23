@@ -111,9 +111,9 @@ pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
 
 pub fn get_account_id(account: UserAccount) -> ByteArray {
   when account is {
-    UserTradeAccount { account } -> account.account_id
-    UserFundingAccount { account } -> account.account_id
-    UserMobileAccount { account } -> account.account_id
+    UserTradeAccount { account, .. } -> account.account_id
+    UserFundingAccount { account, .. } -> account.account_id
+    UserMobileAccount { account, .. } -> account.account_id
   }
 }
 
@@ -136,9 +136,9 @@ pub fn split_creds(
 
 pub fn get_master_key(account: UserAccount) -> Credential {
   when account is {
-    UserTradeAccount { account } -> account.master_key
-    UserFundingAccount { account } -> account.master_key
-    UserMobileAccount { account } -> account.master_key
+    UserTradeAccount { account, .. } -> account.master_key
+    UserFundingAccount { account, .. } -> account.master_key
+    UserMobileAccount { account, .. } -> account.master_key
   }
 }
 
@@ -147,10 +147,10 @@ pub fn get_trade_keys(
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserTradeAccount { account } ->
+      UserTradeAccount { account, .. } ->
         [account.master_key, account.operation_key]
-      UserFundingAccount { account } -> [account.master_key]
-      UserMobileAccount { account } ->
+      UserFundingAccount { account, .. } -> [account.master_key]
+      UserMobileAccount { account, .. } ->
         [account.master_key, account.operation_key]
     }
   split_creds(creds)
@@ -161,10 +161,10 @@ pub fn get_withdrawal_keys(
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserTradeAccount { account } -> [account.master_key]
-      UserFundingAccount { account } ->
+      UserTradeAccount { account, .. } -> [account.master_key]
+      UserFundingAccount { account, .. } ->
         [account.master_key, account.operation_key]
-      UserMobileAccount { account } ->
+      UserMobileAccount { account, .. } ->
         [account.master_key, account.operation_key]
     }
   split_creds(creds)

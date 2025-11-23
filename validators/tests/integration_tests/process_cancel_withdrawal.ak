@@ -58,7 +58,7 @@
 //     is_cancel_withdrawal_amount_minted,
 //   } = test_case
 
-//   let account = UserTradeAccount { account: mock_account }
+//   let account = mock_user_account(mock_account)
 
 //   // MPF
 //   let old_root =
@@ -100,7 +100,7 @@
 
 //   let intent_datum =
 //     CancelWithdrawalIntent {
-//       account: UserTradeAccount { account: mock_account },
+//       account: mock_user_account(mock_account),
 //       amount: withdrawal_amount |> to_mvalue(),
 //     }
 
@@ -226,7 +226,7 @@
 //   let check_hydra_balance =
 //     hydra_account.hydra_account.spend(
 //       mock_dex_order_book_token,
-//       Some(UserTradeAccount { account: mock_account }),
+//       Some(mock_user_account(mock_account)),
 //       UpdateBalanceWithCancelWithdrawal,
 //       mock_utxo_ref(0, 1),
 //       tx,

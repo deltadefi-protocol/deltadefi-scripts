@@ -4,7 +4,6 @@ use emergency_request/cancel_order_spend
 use hydra_dex/types.{
   EmergencyCancelRequestDatum, EmergencyRequestExpiredCancel,
   EmergencyRequestProcessCancel, EmergencyRequestSpamPreventionCancel,
-  UserTradeAccount,
 }
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx,
@@ -15,7 +14,7 @@ use tests/utils.{
   mock_account, mock_account_master_key_hash, mock_emergency_cancel_order,
   mock_emergency_cancel_order_request_address,
   mock_emergency_cancel_order_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft,
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, mock_user_account,
 }
 
 fn mock_emergency_cancel_tx(is_withdrawal_script_presented: Bool) -> Transaction {
@@ -162,7 +161,7 @@ fn mock_expire_tx(
 
   let datum =
     EmergencyCancelRequestDatum {
-      account: UserTradeAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       order_id: "order_id",
       timestamp: 100,
     }

@@ -6,7 +6,7 @@ use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum, MPFUpdate,
-  ProcessAppWithdrawal, UserTradeAccount,
+  ProcessAppWithdrawal,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -20,7 +20,7 @@ use tests/utils.{
   mock_app_withdrawal, mock_dex_account_balance_address,
   mock_dex_account_balance_token, mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft,
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, mock_user_account,
 } as test_utils
 
 type AppWithdrawalTestCase {
@@ -166,7 +166,7 @@ fn mock_process_withdrawal_tx(
       |> tx_in_inline_datum(
           is_emergency_withdraw,
           EmergencyWithdrawalRequestDatum {
-            account: UserTradeAccount { account: mock_account },
+            account: mock_user_account(mock_account),
             amount: withdrawal_amount |> to_mvalue(),
             timestamp: 100,
           },
@@ -217,7 +217,7 @@ fn mock_process_withdrawal_tx(
   (
     mock_tx,
     ProcessAppWithdrawal {
-      account: UserTradeAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       amount: withdrawal_amount |> to_mvalue(),
       mpf_action: proof,
     },

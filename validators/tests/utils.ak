@@ -3,8 +3,8 @@ use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, ModifyOrderIntent,
-  Order, PlaceOrderIntent, TokenMap, UserAccount, UserTradeAccount,
-  WithdrawalScriptHashes,
+  Order, PlaceOrderIntent, TokenMap, UserAccount, UserFundingAccount,
+  UserMobileAccount, UserTradeAccount, WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -136,7 +136,10 @@ pub const mock_dex_order_book_datum: DexOrderBookDatum =
   DexOrderBookDatum {
     operation_key: mock_operation_key,
     stop_key: mock_stop_key,
-    fee_account: UserTradeAccount { account: mock_fee_account },
+    fee_account: UserTradeAccount {
+      account: mock_fee_account,
+      trading_logic: mock_hydra_order_book,
+    },
     limit_orders_merkle_root: "mock_limit_orders_merkle_root",
     dex_account_balance_token: mock_dex_account_balance_token,
     dex_account_balance_address: mock_dex_account_balance_address,
@@ -253,7 +256,7 @@ pub fn mock_order(
     list_price_times_1bil,
     size,
     fee_amount_bp,
-    account: UserTradeAccount { account },
+    account: UserTradeAccount { account, trading_logic: mock_hydra_order_book },
   }
 }
 
@@ -276,7 +279,10 @@ pub fn mock_order_intent(
       list_price_times_1bil,
       size,
       fee_amount_bp,
-      account: UserTradeAccount { account: mock_account },
+      account: UserTradeAccount {
+        account: mock_account,
+        trading_logic: mock_hydra_order_book,
+      },
     },
     authorized_account_value: authorized_account_value |> to_mvalue(),
   }
@@ -302,7 +308,10 @@ pub fn mock_modify_order_intent(
       list_price_times_1bil,
       size,
       fee_amount_bp,
-      account: UserTradeAccount { account },
+      account: UserTradeAccount {
+        account,
+        trading_logic: mock_hydra_order_book,
+      },
     },
     authorized_account_value: authorized_account_value |> to_mvalue(),
   }
@@ -331,7 +340,15 @@ pub fn mock_hydra_lovelace(qty: Int) -> Value {
 }
 
 pub fn mock_user_account(account: Account) -> UserAccount {
-  UserTradeAccount { account }
+  UserTradeAccount { account, trading_logic: mock_hydra_order_book }
+}
+
+pub fn mock_funding_account(account: Account) -> UserAccount {
+  UserFundingAccount { account, trading_logic: mock_hydra_order_book }
+}
+
+pub fn mock_mobile_account(account: Account) -> UserAccount {
+  UserMobileAccount { account, trading_logic: mock_hydra_order_book }
 }
 
 pub const mock_token_map: TokenMap =

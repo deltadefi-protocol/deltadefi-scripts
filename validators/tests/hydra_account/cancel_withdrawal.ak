@@ -6,7 +6,7 @@ use hydra_account/core as ha
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
   CancelWithdrawalIntent, DexAccountBalanceDatum, HydraAccountRedeemer,
-  MPFUpdate, ProcessCancelWithdrawal, UserTradeAccount,
+  MPFUpdate, ProcessCancelWithdrawal,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -18,7 +18,7 @@ use tests/utils.{
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
   mock_hydra_token_policy_id, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_operation_key,
+  mock_hydra_user_intent_token, mock_operation_key, mock_user_account,
 } as test_utils
 
 type TestCase {
@@ -97,7 +97,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountRedeemer) {
       |> tx_in_inline_datum(
           True,
           CancelWithdrawalIntent {
-            account: UserTradeAccount { account: mock_account },
+            account: mock_user_account(mock_account),
             amount: withdrawal_amount |> to_mvalue(),
           },
         )
@@ -128,9 +128,9 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountRedeemer) {
           hydra_account_start,
           mock_hydra_account_address,
         )
-      |> tx_in_inline_datum(True, UserTradeAccount { account: mock_account })
+      |> tx_in_inline_datum(True, mock_user_account(mock_account))
       |> tx_out(True, mock_hydra_account_address, hydra_account_end)
-      |> tx_out_inline_datum(True, UserTradeAccount { account: mock_account })
+      |> tx_out_inline_datum(True, mock_user_account(mock_account))
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
       |> mint(
           is_cancel_withdrawal_amount_minted,

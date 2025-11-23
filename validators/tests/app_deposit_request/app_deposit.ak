@@ -4,7 +4,6 @@ use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   AppDepositRequestDatum, DexAccountBalanceDatum, MPFUpdate, ProcessAppDeposit,
-  UserTradeAccount,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -17,7 +16,7 @@ use tests/utils.{
   mock_app_deposit_request_token, mock_app_vault_address,
   mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_input_oracle_datum, mock_operation_key, mock_oracle_address,
-  mock_oracle_nft,
+  mock_oracle_nft, mock_user_account,
 } as test_utils
 
 type ProcessDepositTestCase {
@@ -68,7 +67,7 @@ fn mock_process_deposit_tx(
 
   let deposit_datum =
     AppDepositRequestDatum {
-      account: UserTradeAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       amount: deposit_amount |> to_mvalue(),
     }
 

@@ -57,7 +57,7 @@
 //     is_withdraw_value_burnt,
 //   } = test_case
 
-//   let account = UserTradeAccount { account: mock_account }
+//   let account = mock_user_account(mock_account)
 
 //   // MPF
 //   let old_root =
@@ -101,7 +101,7 @@
 
 //   let intent_datum =
 //     WithdrawalIntent {
-//       account: UserTradeAccount { account: mock_account },
+//       account: mock_user_account(mock_account),
 //       amount: withdrawal_amount |> to_mvalue(),
 //     }
 
@@ -233,7 +233,7 @@
 //   let check_hydra_balance =
 //     hab.hydra_account.spend(
 //       mock_dex_order_book_token,
-//       Some(UserTradeAccount { account: mock_account }),
+//       Some(mock_user_account(mock_account)),
 //       UpdateBalanceWithWithdrawal,
 //       mock_utxo_ref(0, 3),
 //       tx,

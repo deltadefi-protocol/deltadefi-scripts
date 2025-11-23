@@ -53,7 +53,11 @@ fn mock_tx(
   let list_price_times_1bil = 1_000_000_000
   let fee_amount_bp = 10
 
-  let account = UserTradeAccount { account: mock_account }
+  let account =
+    UserTradeAccount {
+      account: mock_account,
+      trading_logic: mock_hydra_order_book,
+    }
 
   let intent_datum =
     CancelOrderIntent { account, order_ids: ["order_1", "order_2", "order_3"] }

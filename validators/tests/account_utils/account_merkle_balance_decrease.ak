@@ -1,11 +1,11 @@
 use aiken/merkle_patricia_forestry.{Branch}
 use cardano/assets.{add, from_asset}
 use hydra_dex/account_utils.{account_merkle_balance_decrease}
-use hydra_dex/types.{MPFDelete, MPFUpdate, UserTradeAccount}
-use tests/utils.{mock_account}
+use hydra_dex/types.{MPFDelete, MPFUpdate}
+use tests/utils.{mock_account, mock_user_account}
 
 test au_hmbd_delete() {
-  let account = UserTradeAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
   let old_root =
     #"c30c594b7188370e1995e5cf31d319f386d386d967f2987aa56a0c542f2ef076"
   let new_root =
@@ -31,7 +31,7 @@ test au_hmbd_delete() {
 }
 
 test au_hmbd_update() {
-  let account = UserTradeAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
   let old_root =
     #"c30c594b7188370e1995e5cf31d319f386d386d967f2987aa56a0c542f2ef076"
   let new_root =

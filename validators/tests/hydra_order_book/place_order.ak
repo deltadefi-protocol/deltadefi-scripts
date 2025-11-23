@@ -1,7 +1,7 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{PlaceOrder, UserTradeAccount}
+use hydra_dex/types.{PlaceOrder}
 use hydra_order_book/core as ob
 use mocktail.{
   complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -14,6 +14,7 @@ use tests/utils.{
   mock_hydra_order_book, mock_hydra_order_book_address,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, mock_order, mock_order_id, mock_order_intent,
+  mock_user_account,
 } as test_utils
 
 type TestCase {
@@ -41,7 +42,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     no_account_output_case,
   } = test_case
 
-  let account = UserTradeAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
 
   let is_long = False
   let size =
@@ -193,7 +194,7 @@ test s9_w_po_success() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -216,7 +217,7 @@ test s9_w_po_success_no_account_output_case() {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -239,7 +240,7 @@ test s9_w_po_fail_with_multiple_intent_input() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -262,7 +263,7 @@ test s9_w_po_fail_with_multiple_order_output() fail {
     )
   ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -285,7 +286,7 @@ test s9_w_po_fail_with_random_input() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -308,7 +309,7 @@ test s9_w_po_fail_with_random_output() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -331,7 +332,7 @@ test s9_w_po_fail_without_intent_token_burnt() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -354,7 +355,7 @@ test s9_w_po_fail_with_incorrect_datum() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -377,7 +378,7 @@ test s9_w_po_fail_without_balance_updated() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )
@@ -400,7 +401,7 @@ test s9_w_po_fail_without_operation_key_signed() {
     )
   !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    PlaceOrder { account: UserTradeAccount { account: mock_account } },
+    PlaceOrder { account: mock_user_account(mock_account) },
     Script(mock_hydra_order_book),
     tx,
   )

@@ -38,9 +38,9 @@ pub type MintPolarity {
 }
 
 pub type UserAccount {
-  UserTradeAccount { account: Account }
-  UserFundingAccount { account: Account }
-  UserMobileAccount { account: Account }
+  UserTradeAccount { account: Account, trading_logic: ScriptHash }
+  UserFundingAccount { account: Account, trading_logic: ScriptHash }
+  UserMobileAccount { account: Account, trading_logic: ScriptHash }
 }
 
 pub type Account {
