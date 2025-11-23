@@ -1,5 +1,5 @@
-use account_operation/app_withdrawal
 use aiken/merkle_patricia_forestry.{Branch}
+use app_vault/app_withdrawal
 use cardano/address.{Address, Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
@@ -217,7 +217,7 @@ fn mock_process_withdrawal_tx(
   )
 }
 
-test s1_waw_success() {
+test s2_waw_success() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -242,7 +242,7 @@ test s1_waw_success() {
   )
 }
 
-test s1_waw_failed_without_operation_key_signed() {
+test s2_waw_failed_without_operation_key_signed() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: False,
@@ -267,7 +267,7 @@ test s1_waw_failed_without_operation_key_signed() {
   )
 }
 
-test s1_waw_failed_with_multiple_dex_account_balance_input() {
+test s2_waw_failed_with_multiple_dex_account_balance_input() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -292,7 +292,7 @@ test s1_waw_failed_with_multiple_dex_account_balance_input() {
   )
 }
 
-test s1_waw_failed_with_multiple_dex_account_balance_output() {
+test s2_waw_failed_with_multiple_dex_account_balance_output() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -317,7 +317,7 @@ test s1_waw_failed_with_multiple_dex_account_balance_output() {
   )
 }
 
-test s1_waw_failed_without_merkle_updated() {
+test s2_waw_failed_without_merkle_updated() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -342,7 +342,7 @@ test s1_waw_failed_without_merkle_updated() {
   )
 }
 
-test s1_waw_failed_with_excessive_value_unlocked() {
+test s2_waw_failed_with_excessive_value_unlocked() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -367,7 +367,7 @@ test s1_waw_failed_with_excessive_value_unlocked() {
   )
 }
 
-test s1_waw_failed_without_sufficient_amount_sent_to_users() {
+test s2_waw_failed_without_sufficient_amount_sent_to_users() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: True,
@@ -392,7 +392,7 @@ test s1_waw_failed_without_sufficient_amount_sent_to_users() {
   )
 }
 
-test s1_waw_success_emergency_withdrawal() {
+test s2_waw_success_emergency_withdrawal() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: False,
@@ -417,7 +417,7 @@ test s1_waw_success_emergency_withdrawal() {
   )
 }
 
-test s1_waw_failed_emergency_withdrawal_without_token_burnt() fail {
+test s2_waw_failed_emergency_withdrawal_without_token_burnt() fail {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: False,
@@ -442,7 +442,7 @@ test s1_waw_failed_emergency_withdrawal_without_token_burnt() fail {
   )
 }
 
-test s1_waw_failed_emergency_withdrawal_without_time_passed() {
+test s2_waw_failed_emergency_withdrawal_without_time_passed() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: False,
@@ -467,7 +467,7 @@ test s1_waw_failed_emergency_withdrawal_without_time_passed() {
   )
 }
 
-test s1_waw_failed_emergency_withdrawal_without_user_signature() {
+test s2_waw_failed_emergency_withdrawal_without_user_signature() {
   let test_case =
     AppWithdrawalTestCase {
       is_operation_key_signed: False,

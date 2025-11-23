@@ -1,4 +1,4 @@
-use account_operation/app_deposit
+use app_deposit_request/app_deposit
 use app_deposit_request/mint as app_deposit_request_mint
 use app_deposit_request/spend as app_deposit_request_spend
 use cardano/address.{Script}

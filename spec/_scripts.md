@@ -69,7 +69,7 @@ The address serves only inside hydra head.
 - `s7_mint` - `mint`
 - `s7_spend` - `spend`
 
-## 8. HydraAccountBalance
+## 8. HydraAccount
 
 The address serves only inside hydra head.
 
