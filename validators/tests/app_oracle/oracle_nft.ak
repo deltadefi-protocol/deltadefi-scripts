@@ -1,3 +1,4 @@
+use app_oracle/oracle_nft
 use cardano/assets.{add, from_asset, zero}
 use cardano/transaction.{Transaction, placeholder}
 use hydra_dex/types.{RBurn, RMint}
@@ -5,7 +6,6 @@ use mocktail.{
   complete, mint, mock_policy_id, mock_pub_key_address, mock_tx_hash,
   mock_utxo_ref, mocktail_tx, tx_in,
 }
-use oracle_nft
 use tests/utils.{mock_oracle_nft}
 
 test s1_mint_success_mint() {

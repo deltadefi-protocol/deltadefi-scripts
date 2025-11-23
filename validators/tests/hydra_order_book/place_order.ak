@@ -176,7 +176,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s9_wpo_success() {
+test s9_w_po_success() {
   let tx =
     mock_tx(
       TestCase {
@@ -199,7 +199,7 @@ test s9_wpo_success() {
   )
 }
 
-test s9_wpo_success_no_account_output_case() {
+test s9_w_po_success_no_account_output_case() {
   let tx =
     mock_tx(
       TestCase {
@@ -222,7 +222,7 @@ test s9_wpo_success_no_account_output_case() {
   )
 }
 
-test s9_wpo_fail_with_multiple_intent_input() fail {
+test s9_w_po_fail_with_multiple_intent_input() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -245,7 +245,7 @@ test s9_wpo_fail_with_multiple_intent_input() fail {
   )
 }
 
-test s9_wpo_fail_with_multiple_order_output() fail {
+test s9_w_po_fail_with_multiple_order_output() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -268,7 +268,7 @@ test s9_wpo_fail_with_multiple_order_output() fail {
   )
 }
 
-test s9_wpo_fail_with_random_input() {
+test s9_w_po_fail_with_random_input() {
   let tx =
     mock_tx(
       TestCase {
@@ -291,7 +291,7 @@ test s9_wpo_fail_with_random_input() {
   )
 }
 
-test s9_wpo_fail_with_random_output() {
+test s9_w_po_fail_with_random_output() {
   let tx =
     mock_tx(
       TestCase {
@@ -314,7 +314,7 @@ test s9_wpo_fail_with_random_output() {
   )
 }
 
-test s9_wpo_fail_without_intent_token_burnt() {
+test s9_w_po_fail_without_intent_token_burnt() {
   let tx =
     mock_tx(
       TestCase {
@@ -337,7 +337,7 @@ test s9_wpo_fail_without_intent_token_burnt() {
   )
 }
 
-test s9_wpo_fail_with_incorrect_datum() {
+test s9_w_po_fail_with_incorrect_datum() {
   let tx =
     mock_tx(
       TestCase {
@@ -360,7 +360,7 @@ test s9_wpo_fail_with_incorrect_datum() {
   )
 }
 
-test s9_wpo_fail_without_balance_updated() {
+test s9_w_po_fail_without_balance_updated() {
   let tx =
     mock_tx(
       TestCase {
@@ -383,7 +383,7 @@ test s9_wpo_fail_without_balance_updated() {
   )
 }
 
-test s9_wpo_fail_without_operation_key_signed() {
+test s9_w_po_fail_without_operation_key_signed() {
   let tx =
     mock_tx(
       TestCase {

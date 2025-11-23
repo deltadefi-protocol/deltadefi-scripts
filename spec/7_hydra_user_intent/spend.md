@@ -4,11 +4,9 @@
 
 - `dex_oracle_nft`: The policy id of the token attached with `DexOrderBook`
 
-## Datum - Either
+## Datum
 
-- Same as `HydraOrderBook`'s `LimitOrder` with an extra field of `order_id` (For reference - UUID without `-`)
-- `WithdrawalIntent { amount: MValue }`
-- `CancelIntent { account: Account, orderId: string }`
+- HydraUserIntentDatum
 
 ## User Action
 

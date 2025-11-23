@@ -165,7 +165,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountRedeemer) {
   (mock_tx, ProcessCancelWithdrawal { mpf_action: proof })
 }
 
-test s8_whcw_success() {
+test s8_w_hcw_success() {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -182,7 +182,7 @@ test s8_whcw_success() {
   ha.hydra_account.withdraw(mock_dex_order_book_token, redeemer, Script(""), tx)
 }
 
-test s8_whcw_failed_without_operation_key_signed() {
+test s8_w_hcw_failed_without_operation_key_signed() {
   let test_case =
     TestCase {
       is_operation_key_signed: False,
@@ -204,7 +204,7 @@ test s8_whcw_failed_without_operation_key_signed() {
   )
 }
 
-test s8_whcw_failed_with_multiple_dex_account_balance_input() fail {
+test s8_w_hcw_failed_with_multiple_dex_account_balance_input() fail {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -226,7 +226,7 @@ test s8_whcw_failed_with_multiple_dex_account_balance_input() fail {
   )
 }
 
-test s8_whcw_failed_with_multiple_dex_account_balance_output() fail {
+test s8_w_hcw_failed_with_multiple_dex_account_balance_output() fail {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -248,7 +248,7 @@ test s8_whcw_failed_with_multiple_dex_account_balance_output() fail {
   )
 }
 
-test s8_whcw_failed_without_merkle_root_updated() {
+test s8_w_hcw_failed_without_merkle_root_updated() {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -270,7 +270,7 @@ test s8_whcw_failed_without_merkle_root_updated() {
   )
 }
 
-test s8_whcw_failed_without_account_balance_updated() {
+test s8_w_hcw_failed_without_account_balance_updated() {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -292,7 +292,7 @@ test s8_whcw_failed_without_account_balance_updated() {
   )
 }
 
-test s8_whcw_failed_without_intent_token_burnt() {
+test s8_w_hcw_failed_without_intent_token_burnt() {
   let test_case =
     TestCase {
       is_operation_key_signed: True,
@@ -314,7 +314,7 @@ test s8_whcw_failed_without_intent_token_burnt() {
   )
 }
 
-test s8_whcw_failed_without_cancel_withdrawal_amount_minted() {
+test s8_w_hcw_failed_without_cancel_withdrawal_amount_minted() {
   let test_case =
     TestCase {
       is_operation_key_signed: True,

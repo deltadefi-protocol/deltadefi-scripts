@@ -23,33 +23,40 @@ Glossary
 | `ou_gpq` - get_payoff_quantity              |      |
 | `ou_gf` - get_fee                           | ✓    |
 
-| **Scripts** | `I` | `SC` | `UT`         | `PBT` |
-| ----------- | --- | ---- | ------------ | ----- |
-| s1_spend    | ✓   | ✓    | ✓            |       |
-| s1_mint     | ✓   | ✓    | ✓            |       |
-| s2_spend    | ✓   | ✓    | ✓            |       |
-| s3_mint     | ✓   | ✓    | ✓            |       |
-| s3_spend    | ✓   | ✓    | ✓            |       |
-| s4_c_mint   | ✓   | ✓    | ✓            |       |
-| s4_c_spend  | ✓   | ✓    | ✓            |       |
-| s4_w_mint   | ✓   | ✓    | ✓            |       |
-| s4_w_spend  | ✓   | ✓    | ✓            |       |
-| s5_mint     | ✓   | ✓    | ✓            |       |
-| s5_spend    | ✓   | ✓    | ✓            |       |
-| s6_spend    | ✓   | ✓    | ✓            |       |
-| s6_wco      |     |      |              |       |
-| s6_wso      |     |      |              |       |
-| s6_wec      | ✓   | ✓    | ✓            |       |
-| s7_mint     | ✓   | ✓    | ✓            |       |
-| s7_spend    | ✓   | ✓    | ✓            |       |
-| s8_mint     | ✓   | ✓    | ✓            |       |
-| s8_spend    | ✓   | ✓    | ✓            |       |
-| s9_mint     | ✓   | ✓    | NA           |       |
-| s9_spend    | ✓   | ✓    | NA           |       |
-| s9_wpo      | ✓   | ✓    | ✓            |       |
-| s9_wco      | ✓   | ✓    | ✓            |       |
-| s9_wfo      | ✓   | ✓    | ✓ (TW check) |       |
-| s9_wrev     | ✓   | ✓    | ✓            |       |
+| **Scripts** | `I` | `SC` | `UT` | `PBT` |
+| ----------- | --- | ---- | ---- | ----- |
+| s1_mint     | ✓   | ✓    | ✓    |       |
+| s1_spend    | ✓   | ✓    | ✓    |       |
+| s2_spend    | ✓   | ✓    | ✓    |       |
+| s2_w_aw     | ✓   | ✓    | ✓    |       |
+| s3_mint     | ✓   | ✓    | ✓    |       |
+| s3_spend    | ✓   | ✓    | ✓    |       |
+| s3_w_ad     | ✓   | ✓    | ✓    |       |
+| s4_c_mint   | ✓   | ✓    | ✓    |       |
+| s4_c_spend  | ✓   | ✓    | ✓    |       |
+| s4_w_mint   | ✓   | ✓    | ✓    |       |
+| s4_w_spend  | ✓   | ✓    | ✓    |       |
+| s5_mint     | ✓   | ✓    | ✓    |       |
+| s5_spend    | ✓   | ✓    | ✓    |       |
+| s6_spend    | ✓   | ✓    | ✓    |       |
+| s6_wec      | ✓   | ✓    | ✓    |       |
+| s7_mint     | ✓   | ✓    | ✓    |       |
+| s7_spend    | ✓   | ✓    | ✓    |       |
+| s8_mint     | ✓   | ✓    | ✓    |       |
+| s8_spend    | ✓   | ✓    | ✓    |       |
+| s8_w_w      | ✓   | ✓    | ✓    |       |
+| s8_w_cw     | ✓   | ✓    | ✓    |       |
+| s8_w_t      | ✓   | ✓    | ✓    |       |
+| s8_w_sat    | ✓   | ✓    | ✓    |       |
+| s8_w_suao   | ✓   | ✓    | ✓    |       |
+| s8_w_cuac   | ✓   | ✓    | ✓    |       |
+| s9_spend    | ✓   | ✓    | NA   |       |
+| s9_w_po     | ✓   | ✓    | ✓    |       |
+| s9_w_co     | ✓   | ✓    | ✓    |       |
+| s9_w_fo     | ✓   | ✓    | ✓    |       |
+| s9_w_mo     | ✓   | ✓    | ✓    |       |
+| s9_w_som    | ✓   | ✓    | ✓    |       |
+| s9_w_com    | ✓   | ✓    | ✓    |       |
 
 | **Setup**                     | `I` | `IT` | `PBT` | `E2E` |
 | ----------------------------- | --- | ---- | ----- | ----- |
@@ -72,7 +79,6 @@ Glossary
 | it_pabu | Internal - prepare account balance utxos |     |      |       |       |
 | it_hplo | Place order                              | ✓   | NA   |       |       |
 | it_hpro | Internal - Process order                 | ✓   | ✓    |       |       |
-| it_hrev | Internal - Release order extra value     | ✓   | ✓    |       |       |
 | it_hfo  | Internal - Fill order                    | ✓   | ✓    |       |       |
 | it_hco  | Cancel order                             | ✓   | NA   |       |       |
 | it_hpco | Internal - Process cancel order          | ✓   | ✓    |       |       |

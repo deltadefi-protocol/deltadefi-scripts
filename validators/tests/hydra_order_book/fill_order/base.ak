@@ -132,7 +132,7 @@ fn base_case() {
   (order_1, order_2, output_balances)
 }
 
-test s9_wfo_success() {
+test s9_w_fo_success() {
   let (order_1, order_2, output_balances) = base_case()
 
   let tx =
@@ -154,7 +154,7 @@ test s9_wfo_success() {
   )
 }
 
-test s9_wfo_fail_with_other_inputs() {
+test s9_w_fo_fail_with_other_inputs() {
   let (order_1, order_2, output_balances) = base_case()
 
   let tx =
@@ -176,7 +176,7 @@ test s9_wfo_fail_with_other_inputs() {
   )
 }
 
-test s9_wfo_fail_with_other_outputs() {
+test s9_w_fo_fail_with_other_outputs() {
   let (order_1, order_2, output_balances) = base_case()
 
   let tx =
@@ -198,7 +198,7 @@ test s9_wfo_fail_with_other_outputs() {
   )
 }
 
-test s9_wfo_fail_without_key() {
+test s9_w_fo_fail_without_key() {
   let (order_1, order_2, output_balances) = base_case()
 
   let tx =

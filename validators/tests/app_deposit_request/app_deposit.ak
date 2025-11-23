@@ -161,7 +161,7 @@ fn mock_process_deposit_tx(
   (mock_tx, ProcessAppDeposit { mpf_action: proof })
 }
 
-test s3_wad_success() {
+test s3_w_ad_success() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -178,7 +178,7 @@ test s3_wad_success() {
   app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_without_operation_key_signed() {
+test s3_w_ad_failed_without_operation_key_signed() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: False,
@@ -195,7 +195,7 @@ test s3_wad_failed_without_operation_key_signed() {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_with_multiple_app_deposit_requests() fail {
+test s3_w_ad_failed_with_multiple_app_deposit_requests() fail {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -212,7 +212,7 @@ test s3_wad_failed_with_multiple_app_deposit_requests() fail {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_with_multiple_dex_account_balance_input() {
+test s3_w_ad_failed_with_multiple_dex_account_balance_input() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -229,7 +229,7 @@ test s3_wad_failed_with_multiple_dex_account_balance_input() {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_with_multiple_dex_account_balance_output() {
+test s3_w_ad_failed_with_multiple_dex_account_balance_output() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -246,7 +246,7 @@ test s3_wad_failed_with_multiple_dex_account_balance_output() {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_without_updating_merkle() {
+test s3_w_ad_failed_without_updating_merkle() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -263,7 +263,7 @@ test s3_wad_failed_without_updating_merkle() {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_without_intent_token_burnt() {
+test s3_w_ad_failed_without_intent_token_burnt() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,
@@ -280,7 +280,7 @@ test s3_wad_failed_without_intent_token_burnt() {
   !app_deposit.app_deposit.withdraw(mock_oracle_nft, redeemer, Script(""), tx)
 }
 
-test s3_wad_failed_without_sending_value_to_vault() {
+test s3_w_ad_failed_without_sending_value_to_vault() {
   let test_case =
     ProcessDepositTestCase {
       is_operation_key_signed: True,

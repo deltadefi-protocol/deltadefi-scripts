@@ -167,7 +167,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s9_wco_success() {
+test s9_w_co_success() {
   let tx =
     mock_tx(
       TestCase {
@@ -189,7 +189,7 @@ test s9_wco_success() {
   )
 }
 
-test s9_wco_fail_with_multiple_intent_input() fail {
+test s9_w_co_fail_with_multiple_intent_input() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -211,7 +211,7 @@ test s9_wco_fail_with_multiple_intent_input() fail {
   )
 }
 
-test s9_wco_fail_with_random_input() {
+test s9_w_co_fail_with_random_input() {
   let tx =
     mock_tx(
       TestCase {
@@ -233,7 +233,7 @@ test s9_wco_fail_with_random_input() {
   )
 }
 
-test s9_wco_fail_with_random_output() {
+test s9_w_co_fail_with_random_output() {
   let tx =
     mock_tx(
       TestCase {
@@ -255,7 +255,7 @@ test s9_wco_fail_with_random_output() {
   )
 }
 
-test s9_wco_fail_without_intent_token_burnt() {
+test s9_w_co_fail_without_intent_token_burnt() {
   let tx =
     mock_tx(
       TestCase {
@@ -277,7 +277,7 @@ test s9_wco_fail_without_intent_token_burnt() {
   )
 }
 
-test s9_wco_fail_with_mixed_accounts() {
+test s9_w_co_fail_with_mixed_accounts() {
   let tx =
     mock_tx(
       TestCase {
@@ -299,7 +299,7 @@ test s9_wco_fail_with_mixed_accounts() {
   )
 }
 
-test s9_wco_fail_without_all_cancels_approved() {
+test s9_w_co_fail_without_all_cancels_approved() {
   let tx =
     mock_tx(
       TestCase {
@@ -321,7 +321,7 @@ test s9_wco_fail_without_all_cancels_approved() {
   )
 }
 
-test s9_wco_fail_without_balance_updated() {
+test s9_w_co_fail_without_balance_updated() {
   let tx =
     mock_tx(
       TestCase {
@@ -343,7 +343,7 @@ test s9_wco_fail_without_balance_updated() {
   )
 }
 
-test s9_wco_fail_without_operation_key_signed() {
+test s9_w_co_fail_without_operation_key_signed() {
   let tx =
     mock_tx(
       TestCase {
