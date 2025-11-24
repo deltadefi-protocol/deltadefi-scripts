@@ -44,6 +44,7 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
         w_redeemer == trade_redeemer
       }
       HydraAccountSpamPreventionWithdraw -> {
+        // todo: review
         expect Some(own_input) = inputs |> find_input(input)
         let is_no_value =
           own_input.output.value

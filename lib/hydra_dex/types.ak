@@ -277,6 +277,8 @@ pub type HydraTokensRedeemer {
   BurnAtHydraClose
   MintAtCancelWithdrawal
   BurnAtWithdrawal
+  MintAtInitOrderBook
+  BurnAtCombineOrderBook
 }
 
 // From Hydra scripts

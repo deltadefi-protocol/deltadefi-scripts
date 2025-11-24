@@ -17,6 +17,7 @@ use hydra_order_book/place_order.{place_order}
 use hydra_order_book/split_order_merkle.{split_order_merkle}
 
 validator hydra_order_book(oracle_nft: PolicyId) {
+  // todo: spam prevention
   spend(
     _datum_opt: Option<Order>,
     redeemer: Data,

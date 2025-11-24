@@ -12,6 +12,7 @@ use hydra_dex/types.{
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 validator hydra_user_intent(dex_oracle_nft: PolicyId) {
+  // todo: spam prevention
   spend(
     _datum: Option<HydraUserIntentDatum>,
     _redeemer: Data,
