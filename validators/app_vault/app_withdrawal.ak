@@ -10,8 +10,7 @@ use cocktail.{
 }
 use cocktail/vodka_inputs.{input_inline_datum}
 use hydra_dex/account_utils.{
-  dex_account_balance_balance_decrease, get_master_key,
-  withdrawal_auth_by_account,
+  dex_account_balance_balance_decrease, get_master_key, master_auth_by_account,
 }
 use hydra_dex/types.{
   AppOracleDatum, EmergencyWithdrawalRequestDatum, ProcessAppWithdrawal,
@@ -120,7 +119,7 @@ validator app_withdrawal(oracle_nft: PolicyId) {
             and {
               is_emergency_token_burnt,
               is_redeemer_matches_withdrawal_request,
-              withdrawal_auth_by_account(
+              master_auth_by_account(
                 redeemer.account,
                 withdrawals,
                 extra_signatories,

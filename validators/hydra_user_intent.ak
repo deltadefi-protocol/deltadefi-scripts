@@ -4,11 +4,12 @@ use cardano/transaction.{OutputReference, Transaction, find_input}
 use cocktail.{
   key_signed, only_minted_token, output_inline_datum, outputs_at_with_policy,
 }
-use hydra_dex/account_utils.{trade_auth_by_account, withdrawal_auth_by_account}
+use hydra_dex/account_utils.{master_auth_by_account, trade_auth_by_account}
 use hydra_dex/types.{
   BurnIntent, CancelWithdrawalIntent, DexOrderBookDatum, HydraUserIntentDatum,
-  HydraUserIntentRedeemer, MintCancelWithdrawalIntent, MintTradeIntent,
-  MintTransferIntent, MintWithdrawalIntent, TransferIntent, WithdrawalIntent,
+  HydraUserIntentRedeemer, MintCancelWithdrawalIntent, MintMasterIntent,
+  MintTradeIntent, MintTransferIntent, MintWithdrawalIntent, TransferIntent,
+  WithdrawalIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -75,6 +76,27 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           trade_auth_by_account(account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
+      MintMasterIntent { account, intent } -> {
+        let token_check = only_minted_token(mint, policy_id, "", 1)
+        let only_output_check =
+          when
+            outputs_at_with_policy(
+              outputs,
+              hydra_user_intent_address,
+              oracle.hydra_user_intent_script_hash,
+            )
+          is {
+            [only_output] -> {
+              expect only_output_datum: Data = output_inline_datum(only_output)
+              only_output_datum == intent
+            }
+            _ -> False
+          }
+
+        let is_account_auth =
+          master_auth_by_account(account, withdrawals, extra_signatories)
+        token_check? && only_output_check? && is_account_auth?
+      }
       MintWithdrawalIntent { account, amount } -> {
         let token_check = only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
@@ -94,7 +116,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             _ -> False
           }
         let is_account_auth =
-          withdrawal_auth_by_account(account, withdrawals, extra_signatories)
+          master_auth_by_account(account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
       MintCancelWithdrawalIntent { account, amount } -> {
@@ -117,7 +139,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             _ -> False
           }
         let is_account_auth =
-          withdrawal_auth_by_account(account, withdrawals, extra_signatories)
+          master_auth_by_account(account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
       MintTransferIntent { from, to, amount } -> {
@@ -140,7 +162,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
             _ -> False
           }
         let is_account_auth =
-          withdrawal_auth_by_account(from, withdrawals, extra_signatories)
+          master_auth_by_account(from, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
       BurnIntent -> key_signed(extra_signatories, oracle.operation_key)

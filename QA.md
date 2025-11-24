@@ -12,7 +12,7 @@ Glossary
 | **Utils**                                   | `UT` |
 | ------------------------------------------- | ---- |
 | `au_ta` - trade_auth_by_account             | ✓    |
-| `au_wa` - withdrawal_auth_by_account        | ✓    |
+| `au_ma` - master_auth_by_account            | ✓    |
 | `au_ambi` - account_merkle_balance_increase | ✓    |
 | `au_ambd` - account_merkle_balance_decrease | ✓    |
 | `au_omco` - order_merkle_cancel_order       |      |

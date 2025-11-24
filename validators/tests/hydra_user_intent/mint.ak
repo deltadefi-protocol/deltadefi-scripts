@@ -1,7 +1,7 @@
 use aiken/collection/list
 use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
-use hydra_dex/account_utils.{get_trade_keys, get_withdrawal_keys}
+use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
   CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
   HydraUserIntentRedeemer, MintCancelWithdrawalIntent, MintTradeIntent,
@@ -203,7 +203,7 @@ fn mock_mint_place_order_intent_tx(
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
   let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_withdrawal_keys(account)
+    get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
@@ -403,7 +403,7 @@ fn mock_mint_cancel_order_intent_tx(
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
   let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_withdrawal_keys(account)
+    get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
@@ -603,7 +603,7 @@ fn mock_mint_withdrawal_intent_tx(
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
   let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_withdrawal_keys(account)
+    get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
@@ -803,7 +803,7 @@ fn mock_mint_cancel_withdrawal_intent_tx(
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
   let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_withdrawal_keys(account)
+    get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
@@ -1009,7 +1009,7 @@ fn mock_mint_transfer_intent_tx(
       |> add("", "", 2_000_000)
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
   let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_withdrawal_keys(account)
+    get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)

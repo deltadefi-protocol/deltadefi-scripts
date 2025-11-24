@@ -164,7 +164,7 @@ pub fn get_trade_keys(
   split_creds(creds)
 }
 
-pub fn get_withdrawal_keys(
+pub fn get_master_keys(
   account: UserAccount,
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
@@ -191,12 +191,12 @@ pub fn trade_auth_by_account(
   signature_auth || script_auth
 }
 
-pub fn withdrawal_auth_by_account(
+pub fn master_auth_by_account(
   account: UserAccount,
   withdrawals: Pairs<Credential, Lovelace>,
   extra_signatories: List<VerificationKeyHash>,
 ) -> Bool {
-  let (pub_key_hashes, script_hashes) = get_withdrawal_keys(account)
+  let (pub_key_hashes, script_hashes) = get_master_keys(account)
   let signature_auth = one_of_keys_signed(extra_signatories, pub_key_hashes)
   let script_auth =
     withdrawal_script_hashes(withdrawals) |> one_of_keys_signed(script_hashes)

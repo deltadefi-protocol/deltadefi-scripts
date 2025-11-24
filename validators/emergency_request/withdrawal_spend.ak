@@ -3,7 +3,7 @@ use aiken/interval.{is_entirely_after}
 use cardano/assets.{PolicyId, negate, tokens}
 use cardano/transaction.{OutputReference, Transaction, find_input}
 use cocktail.{key_signed, value_length}
-use hydra_dex/account_utils.{withdrawal_auth_by_account}
+use hydra_dex/account_utils.{master_auth_by_account}
 use hydra_dex/types.{
   AppOracleDatum, EmergencyRequestExpiredWithdraw,
   EmergencyRequestProcessEmergencyAction, EmergencyRequestSpamPreventionWithdraw,
@@ -48,11 +48,7 @@ validator emergency_withdrawal_request(oracle_nft: PolicyId) {
 
         expect Some(datum) = datum_opt
         let is_user_authorized =
-          withdrawal_auth_by_account(
-            datum.account,
-            withdrawals,
-            extra_signatories,
-          )
+          master_auth_by_account(datum.account, withdrawals, extra_signatories)
         is_user_authorized? && is_current_input_clean? && is_current_token_burnt?
       }
 
@@ -83,7 +79,7 @@ validator emergency_withdrawal_request(oracle_nft: PolicyId) {
         let is_operation_key_signed =
           key_signed(extra_signatories, operation_key)
         let is_user_authorized =
-          withdrawal_auth_by_account(
+          master_auth_by_account(
             input_datum.account,
             withdrawals,
             extra_signatories,

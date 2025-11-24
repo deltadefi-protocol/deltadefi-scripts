@@ -203,6 +203,7 @@ pub type MerklizedOrderDatum {
 
 pub type HydraUserIntentRedeemer {
   MintTradeIntent { account: UserAccount, intent: Data }
+  MintMasterIntent { account: UserAccount, intent: Data }
   MintWithdrawalIntent { account: UserAccount, amount: MValue }
   MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
   MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
