@@ -6,7 +6,7 @@ use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
   DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum, MPFUpdate,
-  ProcessAppWithdrawal,
+  ProcessAppWithdrawal, ProcessAppWithdrawalRedeemer,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -39,7 +39,7 @@ type AppWithdrawalTestCase {
 
 fn mock_process_withdrawal_tx(
   test_case: AppWithdrawalTestCase,
-) -> (Transaction, ProcessAppWithdrawal) {
+) -> (Transaction, ProcessAppWithdrawalRedeemer) {
   let AppWithdrawalTestCase {
     is_operation_key_signed,
     is_single_dex_account_balance_input,

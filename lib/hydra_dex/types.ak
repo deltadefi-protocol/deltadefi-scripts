@@ -60,6 +60,7 @@ pub type WithdrawalScriptHashes {
 pub type AppOracleDatum {
   operation_key: VerificationKeyHash,
   stop_key: VerificationKeyHash,
+  community_stop_keys: List<VerificationKeyHash>,
   oracle_nft: PolicyId,
   oracle_address: Address,
   app_vault_address: Address,
@@ -74,7 +75,6 @@ pub type AppOracleDatum {
   emergency_withdrawal_request_token: PolicyId,
   emergency_withdrawal_request_address: Address,
   all_withdrawal_script_hashes: WithdrawalScriptHashes,
-  hydra_token_policy_id: PolicyId,
   hydra_info: HydraInfo,
 }
 
@@ -95,10 +95,13 @@ pub type ProcessAppDeposit {
   mpf_action: MPFProof,
 }
 
-pub type ProcessAppWithdrawal {
-  account: UserAccount,
-  amount: MValue,
-  mpf_action: MPFProof,
+pub type ProcessAppWithdrawalRedeemer {
+  ProcessAppWithdrawal {
+    account: UserAccount,
+    amount: MValue,
+    mpf_action: MPFProof,
+  }
+  CommunityStop
 }
 
 // 3 - AppDepositRequest

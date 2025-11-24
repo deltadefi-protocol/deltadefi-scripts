@@ -80,6 +80,7 @@ pub const mock_input_oracle_datum: AppOracleDatum =
   AppOracleDatum {
     operation_key: mock_operation_key,
     stop_key: mock_stop_key,
+    community_stop_keys: [mock_operation_key, mock_stop_key],
     oracle_nft: mock_oracle_nft,
     oracle_address: mock_oracle_address,
     app_vault_address: mock_app_vault_address,
@@ -94,7 +95,6 @@ pub const mock_input_oracle_datum: AppOracleDatum =
     emergency_withdrawal_request_token: mock_emergency_withdrawal_request_token,
     emergency_withdrawal_request_address: mock_emergency_withdrawal_request_address,
     all_withdrawal_script_hashes: mock_withdrawal_script_hashes,
-    hydra_token_policy_id: mock_hydra_token_policy_id,
     hydra_info: HydraInfo {
       hydra_initial_hash: mock_hydra_initial_hash,
       hydra_signers: mock_hydra_signers,
