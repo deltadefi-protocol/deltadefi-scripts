@@ -4,8 +4,9 @@ use cardano/transaction.{Transaction}
 use cocktail.{inputs_with_policy, withdrawal_redeemer}
 use hydra_dex/types.{
   BurnAtHydraClose, BurnAtWithdrawal, DexOrderBookDatum, HydraAccountRedeemer,
-  HydraTokensRedeemer, MintAtHydraOpen, ProcessCombineUtxosAtClose,
-  ProcessSplitUtxosAtOpen, ProcessWithdrawal,
+  HydraTokensRedeemer, MintAtCancelWithdrawal, MintAtHydraOpen,
+  ProcessCancelWithdrawal, ProcessCombineUtxosAtClose, ProcessSplitUtxosAtOpen,
+  ProcessWithdrawal,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -31,6 +32,11 @@ validator hydra_tokens(oracle_nft: PolicyId) {
       BurnAtHydraClose ->
         when w_redeemer is {
           ProcessCombineUtxosAtClose { .. } -> True
+          _ -> False
+        }
+      MintAtCancelWithdrawal ->
+        when w_redeemer is {
+          ProcessCancelWithdrawal { .. } -> True
           _ -> False
         }
       BurnAtWithdrawal ->

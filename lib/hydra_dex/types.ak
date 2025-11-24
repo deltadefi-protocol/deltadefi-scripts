@@ -192,9 +192,9 @@ pub type DexOrderBookDatum {
   dex_account_balance_address: Address,
   dex_order_book_token: PolicyId,
   dex_order_book_address: Address,
-  hydra_user_intent_script_hash: ByteArray,
-  hydra_account_script_hash: ByteArray,
-  hydra_order_book_script_hash: ByteArray,
+  hydra_user_intent_script_hash: ScriptHash,
+  hydra_account_script_hash: ScriptHash,
+  hydra_order_book_script_hash: ScriptHash,
   hydra_token_policy_id: PolicyId,
 }
 
@@ -262,7 +262,7 @@ pub type Order {
   short_token: (PolicyId, AssetName),
   is_long: Bool,
   list_price_times_1bil: Int,
-  // if is_long: `order_size` in short_token, else `order_size` in long_token
+  // if is_long: `size` in short_token, else `size` in long_token
   size: Int,
   fee_amount_bp: Int,
   account: UserAccount,
@@ -275,6 +275,7 @@ pub type MValue =
 pub type HydraTokensRedeemer {
   MintAtHydraOpen
   BurnAtHydraClose
+  MintAtCancelWithdrawal
   BurnAtWithdrawal
 }
 
