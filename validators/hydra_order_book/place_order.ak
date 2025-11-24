@@ -15,7 +15,8 @@ use hydra_dex/account_utils.{
 }
 use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraUserIntentDatum, Order, PlaceOrderIntent, UserAccount,
+  DexOrderBookDatum, HydraUserIntentDatum, Order, PlaceOrderIntent, TradeIntent,
+  UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -48,8 +49,10 @@ pub fn place_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction) 
     group_inputs_2(inputs, ai_filter, ii_filter)
 
   expect [intent_input] = intent_inputs
-  expect PlaceOrderIntent { order: intent_order, authorized_account_value }: HydraUserIntentDatum =
+  expect TradeIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
+  expect PlaceOrderIntent { order: intent_order, authorized_account_value }: PlaceOrderIntent =
+    intent
 
   //  - Categorize outputs into
   //    - `AO` - Account Output with `account` at intent

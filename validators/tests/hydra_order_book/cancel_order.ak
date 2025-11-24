@@ -1,7 +1,7 @@
 use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{CancelOrder, CancelOrderIntent}
+use hydra_dex/types.{CancelOrder, CancelOrderIntent, TradeIntent}
 use hydra_order_book/core as ob
 use mocktail.{
   complete, mint, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
@@ -47,7 +47,10 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let account = mock_user_account(mock_account)
 
   let intent_datum =
-    CancelOrderIntent { account, order_ids: ["order_1", "order_2", "order_3"] }
+    TradeIntent {
+      account,
+      intent: CancelOrderIntent { order_ids: ["order_1", "order_2", "order_3"] },
+    }
 
   let order_1 =
     mock_order(

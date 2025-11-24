@@ -4,9 +4,9 @@ use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_trade_keys, get_withdrawal_keys}
 use hydra_dex/types.{
   CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
-  HydraUserIntentRedeemer, MintCancelOrderIntent, MintCancelWithdrawalIntent,
-  MintPlaceOrderIntent, MintTransferIntent, MintWithdrawalIntent, Order,
-  PlaceOrderIntent, TransferIntent, UserAccount, WithdrawalIntent,
+  HydraUserIntentRedeemer, MintCancelWithdrawalIntent, MintTradeIntent,
+  MintTransferIntent, MintWithdrawalIntent, Order, PlaceOrderIntent, TradeIntent,
+  TransferIntent, UserAccount, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent as hui
@@ -38,40 +38,46 @@ fn create_mock_limit_order() -> Order {
 }
 
 fn create_mock_mint_place_order_intent() -> HydraUserIntentRedeemer {
-  MintPlaceOrderIntent {
-    order: create_mock_limit_order(),
-    authorized_account_value: mock_usd(999_000_000) |> to_mvalue(),
+  MintTradeIntent {
+    account: mock_user_account(mock_account),
+    intent: PlaceOrderIntent {
+      order: create_mock_limit_order(),
+      authorized_account_value: mock_usd(999_000_000) |> to_mvalue(),
+    },
   }
 }
 
 fn create_mock_place_order_intent() -> HydraUserIntentDatum {
-  PlaceOrderIntent {
-    order: Order {
-      order_id: mock_order_id,
-      long_token: (mock_account_id, mock_hydra_user_intent_token),
-      short_token: (mock_account_id, mock_hydra_user_intent_token),
-      is_long: True,
-      list_price_times_1bil: 1_000_000_000,
-      size: 999,
-      fee_amount_bp: 999,
-      account: mock_user_account(mock_account),
+  TradeIntent {
+    account: mock_user_account(mock_account),
+    intent: PlaceOrderIntent {
+      order: Order {
+        order_id: mock_order_id,
+        long_token: (mock_account_id, mock_hydra_user_intent_token),
+        short_token: (mock_account_id, mock_hydra_user_intent_token),
+        is_long: True,
+        list_price_times_1bil: 1_000_000_000,
+        size: 999,
+        fee_amount_bp: 999,
+        account: mock_user_account(mock_account),
+      },
+      authorized_account_value: mock_usd(999_000_000)
+        |> to_mvalue(),
     },
-    authorized_account_value: mock_usd(999_000_000)
-      |> to_mvalue(),
   }
 }
 
 fn create_mock_mint_cancel_order_intent() -> HydraUserIntentRedeemer {
-  MintCancelOrderIntent {
+  MintTradeIntent {
     account: mock_user_account(mock_account),
-    order_ids: [mock_order_id],
+    intent: CancelOrderIntent { order_ids: [mock_order_id] },
   }
 }
 
 fn create_mock_cancel_order_intent() -> HydraUserIntentDatum {
-  CancelOrderIntent {
+  TradeIntent {
     account: mock_user_account(mock_account),
-    order_ids: [mock_order_id],
+    intent: CancelOrderIntent { order_ids: [mock_order_id] },
   }
 }
 

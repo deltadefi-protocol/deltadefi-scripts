@@ -3,8 +3,9 @@ use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
   Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, ModifyOrderIntent,
-  Order, PlaceOrderIntent, TokenMap, UserAccount, UserFundingAccount,
-  UserMobileAccount, UserTradeAccount, WithdrawalScriptHashes,
+  Order, PlaceOrderIntent, TokenMap, TradeIntent, UserAccount,
+  UserFundingAccount, UserMobileAccount, UserTradeAccount,
+  WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -267,24 +268,24 @@ pub fn mock_order_intent(
   fee_amount_bp: Int,
   authorized_account_value: Value,
 ) {
-  PlaceOrderIntent {
-    order: Order {
-      order_id: mock_order_id,
-      long_token: ("", ""),
-      short_token: (
-        #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-        #"55534458",
-      ),
-      is_long,
-      list_price_times_1bil,
-      size,
-      fee_amount_bp,
-      account: UserTradeAccount {
-        account: mock_account,
-        trading_logic: mock_hydra_order_book,
+  TradeIntent {
+    account: mock_user_account(mock_account),
+    intent: PlaceOrderIntent {
+      order: Order {
+        order_id: mock_order_id,
+        long_token: ("", ""),
+        short_token: (
+          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+          #"55534458",
+        ),
+        is_long,
+        list_price_times_1bil,
+        size,
+        fee_amount_bp,
+        account: mock_user_account(mock_account),
       },
+      authorized_account_value: authorized_account_value |> to_mvalue(),
     },
-    authorized_account_value: authorized_account_value |> to_mvalue(),
   }
 }
 
@@ -296,24 +297,24 @@ pub fn mock_modify_order_intent(
   account: Account,
   authorized_account_value: Value,
 ) {
-  ModifyOrderIntent {
-    new_order: Order {
-      order_id: mock_order_id,
-      long_token: ("", ""),
-      short_token: (
-        #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-        #"55534458",
-      ),
-      is_long,
-      list_price_times_1bil,
-      size,
-      fee_amount_bp,
-      account: UserTradeAccount {
-        account,
-        trading_logic: mock_hydra_order_book,
+  TradeIntent {
+    account: mock_user_account(account),
+    intent: ModifyOrderIntent {
+      new_order: Order {
+        order_id: mock_order_id,
+        long_token: ("", ""),
+        short_token: (
+          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+          #"55534458",
+        ),
+        is_long,
+        list_price_times_1bil,
+        size,
+        fee_amount_bp,
+        account: mock_user_account(account),
       },
+      authorized_account_value: authorized_account_value |> to_mvalue(),
     },
-    authorized_account_value: authorized_account_value |> to_mvalue(),
   }
 }
 
