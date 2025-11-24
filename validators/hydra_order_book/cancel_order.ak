@@ -8,7 +8,8 @@ use cocktail.{
 }
 use hydra_dex/account_utils.{create_account_outputs_filter}
 use hydra_dex/types.{
-  CancelOrderIntent, DexOrderBookDatum, HydraUserIntentDatum, Order, TradeIntent,
+  CancelOrderIntent, DexOrderBookDatum, HydraOrderBookIntent,
+  HydraUserIntentDatum, Order, TradeIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -51,7 +52,7 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
   //  - `II` with `CancelOrder {account, order_ids}` datum
   expect TradeIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
-  expect CancelOrderIntent { order_ids }: CancelOrderIntent = intent
+  expect CancelOrderIntent { order_ids }: HydraOrderBookIntent = intent
 
   //  - Categorize outputs into
   //    - `AO` - Account Output with `account` at intent

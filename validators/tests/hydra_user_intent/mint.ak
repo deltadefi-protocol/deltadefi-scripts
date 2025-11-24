@@ -4,9 +4,9 @@ use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
   CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
-  HydraUserIntentRedeemer, MintCancelWithdrawalIntent, MintTradeIntent,
-  MintTransferIntent, MintWithdrawalIntent, Order, PlaceOrderIntent, TradeIntent,
-  TransferIntent, UserAccount, WithdrawalIntent,
+  HydraUserIntentRedeemer, MasterIntent, MintMasterIntent, MintTradeIntent,
+  Order, PlaceOrderIntent, TradeIntent, TransferIntent, UserAccount,
+  WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent as hui
@@ -82,53 +82,63 @@ fn create_mock_cancel_order_intent() -> HydraUserIntentDatum {
 }
 
 fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
-  MintWithdrawalIntent {
+  MintMasterIntent {
     account: mock_user_account(mock_account),
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+    intent: WithdrawalIntent {
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
 fn create_mock_mint_cancel_withdrawal_intent() -> HydraUserIntentRedeemer {
-  MintCancelWithdrawalIntent {
+  MintMasterIntent {
     account: mock_user_account(mock_account),
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+    intent: CancelWithdrawalIntent {
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
 fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
-  WithdrawalIntent {
+  MasterIntent {
     account: mock_user_account(mock_account),
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+    intent: WithdrawalIntent {
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
 fn create_mock_cancel_withdrawal_intent() -> HydraUserIntentDatum {
-  CancelWithdrawalIntent {
+  MasterIntent {
     account: mock_user_account(mock_account),
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+    intent: CancelWithdrawalIntent {
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
 fn create_mock_mint_transfer_intent() -> HydraUserIntentRedeemer {
-  MintTransferIntent {
-    from: mock_user_account(mock_account),
-    to: mock_user_account(mock_account_2),
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+  MintMasterIntent {
+    account: mock_user_account(mock_account),
+    intent: TransferIntent {
+      to: mock_user_account(mock_account_2),
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
@@ -136,13 +146,15 @@ fn create_mock_transfer_intent(
   from: UserAccount,
   to: UserAccount,
 ) -> HydraUserIntentDatum {
-  TransferIntent {
-    from,
-    to,
-    amount: [
-      Pair("A", [Pair("abc", 1), Pair("def", 10)]),
-      Pair("B", [Pair("abc", 1), Pair("def", 10)]),
-    ],
+  MasterIntent {
+    account: from,
+    intent: TransferIntent {
+      to,
+      amount: [
+        Pair("A", [Pair("abc", 1), Pair("def", 10)]),
+        Pair("B", [Pair("abc", 1), Pair("def", 10)]),
+      ],
+    },
   }
 }
 
@@ -178,7 +190,7 @@ type PlaceOrderIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
   is_token_name_matched: Bool,
-  is_authed_by_withdrawal_key: Bool,
+  is_authed_by_master_key: Bool,
   is_authed_by_trade_key: Bool,
   is_output_correct: Bool,
 }
@@ -190,7 +202,7 @@ fn mock_mint_place_order_intent_tx(
     is_dex_order_book_inputed,
     is_token_minted,
     is_token_name_matched,
-    is_authed_by_withdrawal_key,
+    is_authed_by_master_key,
     is_authed_by_trade_key,
     is_output_correct,
   } = test_case
@@ -208,11 +220,8 @@ fn mock_mint_place_order_intent_tx(
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_withdrawal_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(
-        is_authed_by_withdrawal_key,
-        withdrawal_script_hashes,
-      )
+    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
         mock_tx_hash(0),
@@ -251,7 +260,7 @@ test s7_mint_success_place_order_intent_with_withdraw_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -273,7 +282,7 @@ test s7_mint_success_place_order_intent_with_trade_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: True,
         is_output_correct: True,
       },
@@ -295,7 +304,7 @@ test s7_mint_fail_place_order_intent_with_no_dex_oracle_inputed() fail {
         is_dex_order_book_inputed: False,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -317,7 +326,7 @@ test s7_mint_fail_place_order_intent_with_no_token_minted() {
         is_dex_order_book_inputed: True,
         is_token_minted: False,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -339,7 +348,7 @@ test s7_mint_fail_place_order_intent_with_wrong_token_name() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: False,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -361,7 +370,7 @@ test s7_mint_fail_place_order_intent_with_no_key_signed() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -379,7 +388,7 @@ type CancelOrderIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
   is_token_name_matched: Bool,
-  is_authed_by_withdrawal_key: Bool,
+  is_authed_by_master_key: Bool,
   is_authed_by_trade_key: Bool,
   is_output_correct: Bool,
 }
@@ -391,7 +400,7 @@ fn mock_mint_cancel_order_intent_tx(
     is_dex_order_book_inputed,
     is_token_minted,
     is_token_name_matched,
-    is_authed_by_withdrawal_key,
+    is_authed_by_master_key,
     is_authed_by_trade_key,
     is_output_correct,
   } = test_case
@@ -408,11 +417,8 @@ fn mock_mint_cancel_order_intent_tx(
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_withdrawal_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(
-        is_authed_by_withdrawal_key,
-        withdrawal_script_hashes,
-      )
+    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
         mock_tx_hash(0),
@@ -451,7 +457,7 @@ test s7_mint_success_cancel_order_intent_with_withdraw_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -473,7 +479,7 @@ test s7_mint_success_cancel_order_intent_with_trade_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: True,
         is_output_correct: True,
       },
@@ -495,7 +501,7 @@ test s7_mint_fail_cancel_order_intent_with_no_dex_oracle_inputed() fail {
         is_dex_order_book_inputed: False,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -517,7 +523,7 @@ test s7_mint_fail_cancel_order_intent_with_no_token_minted() {
         is_dex_order_book_inputed: True,
         is_token_minted: False,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -539,7 +545,7 @@ test s7_mint_fail_cancel_order_intent_with_wrong_token_name() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: False,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -561,7 +567,7 @@ test s7_mint_fail_cancel_order_intent_with_no_key_signed() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -579,7 +585,7 @@ type WithdrawalIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
   is_token_name_matched: Bool,
-  is_authed_by_withdrawal_key: Bool,
+  is_authed_by_master_key: Bool,
   is_authed_by_trade_key: Bool,
   is_output_correct: Bool,
 }
@@ -591,7 +597,7 @@ fn mock_mint_withdrawal_intent_tx(
     is_dex_order_book_inputed,
     is_token_minted,
     is_token_name_matched,
-    is_authed_by_withdrawal_key,
+    is_authed_by_master_key,
     is_authed_by_trade_key,
     is_output_correct,
   } = test_case
@@ -608,11 +614,8 @@ fn mock_mint_withdrawal_intent_tx(
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_withdrawal_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(
-        is_authed_by_withdrawal_key,
-        withdrawal_script_hashes,
-      )
+    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
         mock_tx_hash(0),
@@ -651,7 +654,7 @@ test s7_mint_success_withdrawal_intent_with_withdraw_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -673,7 +676,7 @@ test s7_mint_success_withdrawal_intent_with_trade_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: True,
         is_output_correct: True,
       },
@@ -695,7 +698,7 @@ test s7_mint_fail_withdrawal_intent_with_no_dex_oracle_inputed() fail {
         is_dex_order_book_inputed: False,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -717,7 +720,7 @@ test s7_mint_fail_withdrawal_intent_with_no_token_minted() {
         is_dex_order_book_inputed: True,
         is_token_minted: False,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -739,7 +742,7 @@ test s7_mint_fail_withdrawal_intent_with_wrong_token_name() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: False,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -761,7 +764,7 @@ test s7_mint_fail_withdrawal_intent_with_no_key_signed() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -779,7 +782,7 @@ type CancelWithdrawalIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
   is_token_name_matched: Bool,
-  is_authed_by_withdrawal_key: Bool,
+  is_authed_by_master_key: Bool,
   is_authed_by_trade_key: Bool,
   is_output_correct: Bool,
 }
@@ -791,7 +794,7 @@ fn mock_mint_cancel_withdrawal_intent_tx(
     is_dex_order_book_inputed,
     is_token_minted,
     is_token_name_matched,
-    is_authed_by_withdrawal_key,
+    is_authed_by_master_key,
     is_authed_by_trade_key,
     is_output_correct,
   } = test_case
@@ -808,11 +811,8 @@ fn mock_mint_cancel_withdrawal_intent_tx(
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_withdrawal_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(
-        is_authed_by_withdrawal_key,
-        withdrawal_script_hashes,
-      )
+    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
         mock_tx_hash(0),
@@ -851,7 +851,7 @@ test s7_mint_success_cancel_withdrawal_intent_with_withdraw_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -873,7 +873,7 @@ test s7_mint_success_cancel_withdrawal_intent_with_trade_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: True,
         is_output_correct: True,
       },
@@ -895,7 +895,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_dex_oracle_inputed() fail {
         is_dex_order_book_inputed: False,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -917,7 +917,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_token_minted() {
         is_dex_order_book_inputed: True,
         is_token_minted: False,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -939,7 +939,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_wrong_token_name() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: False,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -961,7 +961,7 @@ test s7_mint_fail_cancel_withdrawal_intent_with_no_key_signed() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -979,7 +979,7 @@ type TransferIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
   is_token_name_matched: Bool,
-  is_authed_by_withdrawal_key: Bool,
+  is_authed_by_master_key: Bool,
   is_authed_by_trade_key: Bool,
   is_output_correct: Bool,
 }
@@ -991,7 +991,7 @@ fn mock_mint_transfer_intent_tx(
     is_dex_order_book_inputed,
     is_token_minted,
     is_token_name_matched,
-    is_authed_by_withdrawal_key,
+    is_authed_by_master_key,
     is_authed_by_trade_key,
     is_output_correct,
   } = test_case
@@ -1014,11 +1014,8 @@ fn mock_mint_transfer_intent_tx(
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_withdrawal_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(
-        is_authed_by_withdrawal_key,
-        withdrawal_script_hashes,
-      )
+    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
         mock_tx_hash(0),
@@ -1057,7 +1054,7 @@ test s7_mint_success_transfer_intent_with_withdraw_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -1080,7 +1077,7 @@ test s7_mint_success_transfer_intent_with_trade_key_sign() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: True,
         is_output_correct: True,
       },
@@ -1103,7 +1100,7 @@ test s7_mint_fail_transfer_intent_with_no_dex_oracle_inputed() fail {
         is_dex_order_book_inputed: False,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -1125,7 +1122,7 @@ test s7_mint_fail_transfer_intent_with_no_token_minted() {
         is_dex_order_book_inputed: True,
         is_token_minted: False,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -1147,7 +1144,7 @@ test s7_mint_fail_transfer_intent_with_wrong_token_name() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: False,
-        is_authed_by_withdrawal_key: True,
+        is_authed_by_master_key: True,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },
@@ -1169,7 +1166,7 @@ test fail_transfer_intent_with_no_key_signed() {
         is_dex_order_book_inputed: True,
         is_token_minted: True,
         is_token_name_matched: True,
-        is_authed_by_withdrawal_key: False,
+        is_authed_by_master_key: False,
         is_authed_by_trade_key: False,
         is_output_correct: True,
       },

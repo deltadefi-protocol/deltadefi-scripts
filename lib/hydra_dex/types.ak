@@ -204,20 +204,21 @@ pub type MerklizedOrderDatum {
 pub type HydraUserIntentRedeemer {
   MintTradeIntent { account: UserAccount, intent: Data }
   MintMasterIntent { account: UserAccount, intent: Data }
-  MintWithdrawalIntent { account: UserAccount, amount: MValue }
-  MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
-  MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
   BurnIntent
 }
 
 pub type HydraUserIntentDatum {
   TradeIntent { account: UserAccount, intent: Data }
-  WithdrawalIntent { account: UserAccount, amount: MValue }
-  CancelWithdrawalIntent { account: UserAccount, amount: MValue }
-  TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
+  MasterIntent { account: UserAccount, intent: Data }
 }
 
 // 8 - HydraAccount
+
+pub type HydraAccountIntent {
+  WithdrawalIntent { amount: MValue }
+  CancelWithdrawalIntent { amount: MValue }
+  TransferIntent { to: UserAccount, amount: MValue }
+}
 
 pub type HydraAccountRedeemer {
   Trade { trade_redeemer: Data }
@@ -236,18 +237,10 @@ pub type HydraAccountRedeemer {
 
 // 9 - HydraOrderBook
 
-pub type PlaceOrderIntent {
-  order: Order,
-  authorized_account_value: MValue,
-}
-
-pub type CancelOrderIntent {
-  order_ids: List<ByteArray>,
-}
-
-pub type ModifyOrderIntent {
-  new_order: Order,
-  authorized_account_value: MValue,
+pub type HydraOrderBookIntent {
+  PlaceOrderIntent { order: Order, authorized_account_value: MValue }
+  CancelOrderIntent { order_ids: List<ByteArray> }
+  ModifyOrderIntent { new_order: Order, authorized_account_value: MValue }
 }
 
 pub type HydraOrderBookRedeemer {

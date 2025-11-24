@@ -12,7 +12,8 @@ use hydra_dex/account_utils.{
   dex_account_balance_balance_increase, from_value_to_hydra_balance,
 }
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraUserIntentDatum, MPFProof, WithdrawalIntent,
+  DexOrderBookDatum, HydraAccountIntent, HydraUserIntentDatum, MPFProof,
+  MasterIntent, WithdrawalIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -51,8 +52,10 @@ pub fn withdrawal(
       hydra_user_intent_script_hash,
     )
   // - `II` with `WithdrawalIntent` datum
-  expect WithdrawalIntent { account, amount: withdrawal_amount }: HydraUserIntentDatum =
+  expect MasterIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
+  expect WithdrawalIntent { amount: withdrawal_amount }: HydraAccountIntent =
+    intent
 
   // - Categorize inputs into
   //   - `AI` - Account Inputs with `from` account at intent

@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
-use hydra_dex/types.{ProcessTransferal, TransferIntent}
+use hydra_dex/types.{MasterIntent, ProcessTransferal, TransferIntent}
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -67,10 +67,12 @@ fn mock_hydra_internal_transfer_tx(
       )
     |> tx_in_inline_datum(
         True,
-        TransferIntent {
-          from: mock_user_account(mock_account),
-          to: mock_user_account(mock_account_2),
-          amount: transferal_amount |> to_mvalue(),
+        MasterIntent {
+          account: mock_user_account(mock_account),
+          intent: TransferIntent {
+            to: mock_user_account(mock_account_2),
+            amount: transferal_amount |> to_mvalue(),
+          },
         },
       )
     |> tx_in(

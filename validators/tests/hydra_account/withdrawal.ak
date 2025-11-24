@@ -4,8 +4,8 @@ use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, HydraAccountRedeemer, MPFUpdate, ProcessWithdrawal,
-  WithdrawalIntent,
+  DexAccountBalanceDatum, HydraAccountRedeemer, MPFUpdate, MasterIntent,
+  ProcessWithdrawal, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -94,9 +94,11 @@ fn mock_hydra_withdrawal_tx(
         )
       |> tx_in_inline_datum(
           True,
-          WithdrawalIntent {
+          MasterIntent {
             account: mock_user_account(mock_account),
-            amount: withdrawal_amount |> to_mvalue(),
+            intent: WithdrawalIntent {
+              amount: withdrawal_amount |> to_mvalue(),
+            },
           },
         )
       |> tx_in(

@@ -13,7 +13,8 @@ use hydra_dex/account_utils.{
   dex_account_balance_balance_decrease, from_value_to_hydra_balance,
 }
 use hydra_dex/types.{
-  CancelWithdrawalIntent, DexOrderBookDatum, HydraUserIntentDatum, MPFProof,
+  CancelWithdrawalIntent, DexOrderBookDatum, HydraAccountIntent,
+  HydraUserIntentDatum, MPFProof, MasterIntent,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -53,8 +54,10 @@ pub fn cancel_withdrawal(
     )
 
   // - `II` with `CancelWithdrawalIntent` datum
-  expect CancelWithdrawalIntent { account, amount: withdrawal_amount }: HydraUserIntentDatum =
+  expect MasterIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
+  expect CancelWithdrawalIntent { amount: withdrawal_amount }: HydraAccountIntent =
+    intent
 
   // - Categorize inputs into
   //   - `AI` - Account Inputs with `from` account at intent

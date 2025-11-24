@@ -6,7 +6,7 @@ use hydra_account/core as ha
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
   CancelWithdrawalIntent, DexAccountBalanceDatum, HydraAccountRedeemer,
-  MPFUpdate, ProcessCancelWithdrawal,
+  MPFUpdate, MasterIntent, ProcessCancelWithdrawal,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -96,9 +96,11 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountRedeemer) {
         )
       |> tx_in_inline_datum(
           True,
-          CancelWithdrawalIntent {
+          MasterIntent {
             account: mock_user_account(mock_account),
-            amount: withdrawal_amount |> to_mvalue(),
+            intent: CancelWithdrawalIntent {
+              amount: withdrawal_amount |> to_mvalue(),
+            },
           },
         )
       |> tx_in(

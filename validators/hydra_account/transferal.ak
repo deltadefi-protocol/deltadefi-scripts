@@ -10,7 +10,10 @@ use cocktail/vodka_value.{inputs_value, outputs_value}
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
 }
-use hydra_dex/types.{DexOrderBookDatum, HydraUserIntentDatum, TransferIntent}
+use hydra_dex/types.{
+  DexOrderBookDatum, HydraAccountIntent, HydraUserIntentDatum, MasterIntent,
+  TransferIntent,
+}
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
@@ -41,8 +44,10 @@ pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
       hydra_user_intent_script_hash,
     )
   // - `II` with `TransferIntent` datum
-  expect TransferIntent { from, to, amount: transferal_amount }: HydraUserIntentDatum =
+  expect MasterIntent { account: from, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
+  expect TransferIntent { to, amount: transferal_amount }: HydraAccountIntent =
+    intent
 
   // - Categorize inputs into
   //   - `AI_from` - Account Inputs with `from` account at intent
