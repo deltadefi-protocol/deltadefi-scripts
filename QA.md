@@ -81,7 +81,7 @@ Glossary
 | it_hpro | Internal - Process order                 | ✓   | ✓    |       |       |
 | it_hfo  | Internal - Fill order                    | ✓   | ✓    |       |       |
 | it_hco  | Cancel order                             | ✓   | NA   |       |       |
-| it_hpco | Internal - Process cancel order          | ✓   | ✓    |       |       |
+| it_hpco | Internal - Process cancel order          | ✓   | NA   |       |       |
 | it_hrw  | Request Withdrawal                       | ✓   | NA   |       |       |
 | it_hpw  | Process withdrawal                       | ✓   | ✓    |       |       |
 | it_hcw  | Cancel Withdrawal                        | ✓   | NA   |       |       |

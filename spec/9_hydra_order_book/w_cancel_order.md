@@ -2,23 +2,21 @@
 
 ## Redeemer
 
-- CancelOrder
+- CancelOrder { account: UserAccount }
 
 ## User Action
 
 - Ref input with `dex_oracle_nft`
 - Categorize inputs into
-  - `II` - Intent Input
   - `OI` - Order Inputs
   - Other inputs
-- `II` with `CancelOrder {account, order_ids}` datum
 - Categorize outputs into
-  - `AO` - Account Output with `account` at intent
+  - `AO` - Account Outputs
   - Other outputs
 - No other inputs and outputs
 - For all `OI`, check
-  - `order_id` is included in `order_ids`
-  - `account` == `account` at intent
-- The input intent token is burnt
-- Value parity: `OI` == `AO` (to clear: is the check needed?)
+  - Return `account_payoff` - `AccountPayoff`
+  - Cummulate order value to the `account_payoff`
+- For all `account_payoff` - `<account, value>`
+  - Check output value to `account` equals `value`
 - Signed by `operating_key`

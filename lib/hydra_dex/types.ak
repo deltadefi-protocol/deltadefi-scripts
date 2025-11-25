@@ -243,7 +243,6 @@ pub type HydraAccountRedeemer {
 
 pub type HydraOrderBookIntent {
   PlaceOrderIntent { order: Order, authorized_account_value: MValue }
-  CancelOrderIntent { order_ids: List<ByteArray> }
   ModifyOrderIntent { new_order: Order, authorized_account_value: MValue }
 }
 

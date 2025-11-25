@@ -3,87 +3,65 @@ use cardano/address.{from_script}
 use cardano/assets.{PolicyId, match, without_lovelace}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  group_inputs_2, group_outputs, i_at, i_at_with_policy, input_inline_datum,
-  inputs_value, key_signed, outputs_value, policy_only_minted_token,
+  group_inputs, group_outputs, i_at, input_inline_datum, inputs_value,
+  key_signed, o_at, outputs_value,
 }
-use hydra_dex/account_utils.{create_account_outputs_filter}
-use hydra_dex/types.{
-  CancelOrderIntent, DexOrderBookDatum, HydraOrderBookIntent,
-  HydraUserIntentDatum, Order, TradeIntent,
+use hydra_dex/account_utils.{
+  AccountPayoff, add_to_payoff, payoff_output_settlement,
 }
+use hydra_dex/types.{DexOrderBookDatum, Order}
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
-  let Transaction {
-    inputs,
-    outputs,
-    reference_inputs,
-    extra_signatories,
-    mint,
-    ..
-  } = tx
+  let Transaction { inputs, outputs, reference_inputs, extra_signatories, .. } =
+    tx
 
   //  - Ref input with `dex_oracle_nft`
   let DexOrderBookDatum {
     operation_key,
-    hydra_user_intent_script_hash,
     hydra_account_script_hash,
     hydra_order_book_script_hash,
     ..
   }: DexOrderBookDatum =
     reference_inputs |> get_dex_order_book_datum(oracle_nft)
-  let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
+  let hydra_account_address = from_script(hydra_account_script_hash)
 
   //  - Categorize inputs into
-  //    - `II` - Intent Input
   //    - `OI` - Order Inputs
   //    - Other inputs
   let oi_filter = i_at(hydra_order_book_address)
-
-  let ii_filter =
-    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_script_hash)
-
-  let (order_inputs, intent_inputs, other_inputs) =
-    group_inputs_2(inputs, oi_filter, ii_filter)
-
-  expect [intent_input] = intent_inputs
-
-  //  - `II` with `CancelOrder {account, order_ids}` datum
-  expect TradeIntent { account, intent }: HydraUserIntentDatum =
-    input_inline_datum(intent_input)
-  expect CancelOrderIntent { order_ids }: HydraOrderBookIntent = intent
+  let (order_inputs, other_inputs) = group_inputs(inputs, oi_filter)
 
   //  - Categorize outputs into
-  //    - `AO` - Account Output with `account` at intent
+  //    - `AO` - Account Outputs
   //    - Other outputs
-  let ao_filter =
-    create_account_outputs_filter(account, hydra_account_script_hash)
-
+  let ao_filter = o_at(hydra_account_address)
   let (account_outputs, other_outputs) = group_outputs(outputs, ao_filter)
 
   // - No other inputs and outputs
   let no_other_inputs = other_inputs == []
   let no_other_outputs = other_outputs == []
 
-  //  - For all `OI`, check
-  //    - `order_id` is included in `order_ids`
-  //    - `account` == `account` at intent
-  let (all_approved_by_account, not_approved_cancels) =
+  // - For all `OI`, check
+  //   - Return `account_payoff` - `AccountPayoff`
+  //   - Cummulate order value to the `account_payoff`
+  let account_payoff: AccountPayoff =
     list.foldr(
       order_inputs,
-      (True, order_ids),
-      fn(order_input, acc) {
+      [],
+      fn(order_input, ap_acc) {
+        let order_value = order_input.output.value
         expect order_datum: Order = input_inline_datum(order_input)
-        let is_same_account = order_datum.account == account
-        (is_same_account && acc.1st, list.delete(acc.2nd, order_datum.order_id))
+        ap_acc |> add_to_payoff(order_datum.account, order_value)
       },
     )
-  let is_all_cancels_intented = not_approved_cancels == []
 
-  //  - The input intent token is burnt
-  let is_intent_token_burnt =
-    policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
+  // - For all `account_payoff` - `<account, value>`
+  //   - Check output value to `account` equals `value`
+  let payoff_after_settlement =
+    account_payoff |> payoff_output_settlement(account_outputs)
+  let is_payoff_settled = payoff_after_settlement == []
 
   //  - Value parity: `OI` == `AO` (to clear: is the check needed?)
   let input_value = order_inputs |> inputs_value |> without_lovelace
@@ -98,9 +76,7 @@ pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
   and {
     no_other_inputs?,
     no_other_outputs?,
-    all_approved_by_account?,
-    is_all_cancels_intented?,
-    is_intent_token_burnt?,
+    is_payoff_settled?,
     is_value_parity_holds?,
     is_cancel_order_authorized?,
   }

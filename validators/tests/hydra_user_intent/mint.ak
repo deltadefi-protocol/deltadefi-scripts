@@ -3,10 +3,9 @@ use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
-  CancelOrderIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
-  HydraUserIntentRedeemer, MasterIntent, MintMasterIntent, MintTradeIntent,
-  Order, PlaceOrderIntent, TradeIntent, TransferIntent, UserAccount,
-  WithdrawalIntent,
+  CancelWithdrawalIntent, HydraUserIntentDatum, HydraUserIntentRedeemer,
+  MasterIntent, MintMasterIntent, MintTradeIntent, Order, PlaceOrderIntent,
+  TradeIntent, TransferIntent, UserAccount, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent as hui
@@ -64,20 +63,6 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
       authorized_account_value: mock_usd(999_000_000)
         |> to_mvalue(),
     },
-  }
-}
-
-fn create_mock_mint_cancel_order_intent() -> HydraUserIntentRedeemer {
-  MintTradeIntent {
-    account: mock_user_account(mock_account),
-    intent: CancelOrderIntent { order_ids: [mock_order_id] },
-  }
-}
-
-fn create_mock_cancel_order_intent() -> HydraUserIntentDatum {
-  TradeIntent {
-    account: mock_user_account(mock_account),
-    intent: CancelOrderIntent { order_ids: [mock_order_id] },
   }
 }
 
@@ -214,13 +199,12 @@ fn mock_mint_place_order_intent_tx(
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
-  let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_master_keys(account)
+  let (master_key_hashes, withdrawal_script_hashes) = get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_required_signers(is_authed_by_master_key, master_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
@@ -384,203 +368,6 @@ test s7_mint_fail_place_order_intent_with_no_key_signed() {
   )
 }
 
-type CancelOrderIntentTestCase {
-  is_dex_order_book_inputed: Bool,
-  is_token_minted: Bool,
-  is_token_name_matched: Bool,
-  is_authed_by_master_key: Bool,
-  is_authed_by_trade_key: Bool,
-  is_output_correct: Bool,
-}
-
-fn mock_mint_cancel_order_intent_tx(
-  test_case: CancelOrderIntentTestCase,
-) -> Transaction {
-  let CancelOrderIntentTestCase {
-    is_dex_order_book_inputed,
-    is_token_minted,
-    is_token_name_matched,
-    is_authed_by_master_key,
-    is_authed_by_trade_key,
-    is_output_correct,
-  } = test_case
-
-  let account = mock_user_account(mock_account)
-  let output_datum = create_mock_cancel_order_intent()
-
-  let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
-
-  let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
-  let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_master_keys(account)
-
-  mocktail_tx()
-    |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
-    |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
-    |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
-    |> ref_tx_in(
-        is_dex_order_book_inputed,
-        mock_tx_hash(0),
-        0,
-        from_asset(mock_dex_order_book_token, "", 1),
-        mock_hydra_order_book_address,
-      )
-    |> ref_tx_in_inline_datum(
-        is_dex_order_book_inputed,
-        mock_dex_order_book_datum,
-      )
-    |> mint(
-        is_token_minted && is_token_name_matched,
-        1,
-        mock_hydra_user_intent_token,
-        if is_token_name_matched {
-          ""
-        } else {
-          "gg"
-        },
-      )
-    |> tx_out(
-        is_output_correct,
-        mock_hydra_user_intent_address,
-        correct_output_value,
-      )
-    |> tx_out_inline_datum(is_output_correct, output_datum)
-    |> complete()
-}
-
-test s7_mint_success_cancel_order_intent_with_withdraw_key_sign() {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: True,
-        is_token_minted: True,
-        is_token_name_matched: True,
-        is_authed_by_master_key: True,
-        is_authed_by_trade_key: False,
-        is_output_correct: True,
-      },
-    )
-
-  hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
-test s7_mint_success_cancel_order_intent_with_trade_key_sign() {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: True,
-        is_token_minted: True,
-        is_token_name_matched: True,
-        is_authed_by_master_key: False,
-        is_authed_by_trade_key: True,
-        is_output_correct: True,
-      },
-    )
-
-  hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
-test s7_mint_fail_cancel_order_intent_with_no_dex_oracle_inputed() fail {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: False,
-        is_token_minted: True,
-        is_token_name_matched: True,
-        is_authed_by_master_key: True,
-        is_authed_by_trade_key: False,
-        is_output_correct: True,
-      },
-    )
-
-  hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
-test s7_mint_fail_cancel_order_intent_with_no_token_minted() {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: True,
-        is_token_minted: False,
-        is_token_name_matched: True,
-        is_authed_by_master_key: True,
-        is_authed_by_trade_key: False,
-        is_output_correct: True,
-      },
-    )
-
-  !hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
-test s7_mint_fail_cancel_order_intent_with_wrong_token_name() {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: True,
-        is_token_minted: True,
-        is_token_name_matched: False,
-        is_authed_by_master_key: True,
-        is_authed_by_trade_key: False,
-        is_output_correct: True,
-      },
-    )
-
-  !hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
-test s7_mint_fail_cancel_order_intent_with_no_key_signed() {
-  let redeemer = create_mock_mint_cancel_order_intent()
-  let tx =
-    mock_mint_cancel_order_intent_tx(
-      CancelOrderIntentTestCase {
-        is_dex_order_book_inputed: True,
-        is_token_minted: True,
-        is_token_name_matched: True,
-        is_authed_by_master_key: False,
-        is_authed_by_trade_key: False,
-        is_output_correct: True,
-      },
-    )
-
-  !hui.hydra_user_intent.mint(
-    mock_dex_order_book_token,
-    redeemer,
-    mock_hydra_user_intent_token,
-    tx,
-  )
-}
-
 type WithdrawalIntentTestCase {
   is_dex_order_book_inputed: Bool,
   is_token_minted: Bool,
@@ -608,13 +395,12 @@ fn mock_mint_withdrawal_intent_tx(
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
-  let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_master_keys(account)
+  let (master_key_hashes, withdrawal_script_hashes) = get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_required_signers(is_authed_by_master_key, master_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
@@ -805,13 +591,12 @@ fn mock_mint_cancel_withdrawal_intent_tx(
   let correct_output_value = from_asset(mock_hydra_user_intent_token, "", 1)
 
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
-  let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_master_keys(account)
+  let (master_key_hashes, withdrawal_script_hashes) = get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_required_signers(is_authed_by_master_key, master_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,
@@ -1008,13 +793,12 @@ fn mock_mint_transfer_intent_tx(
     from_asset(mock_hydra_user_intent_token, "", 1)
       |> add("", "", 2_000_000)
   let (trade_key_hashes, trade_script_hashes) = get_trade_keys(account)
-  let (withdrawal_key_hashes, withdrawal_script_hashes) =
-    get_master_keys(account)
+  let (master_key_hashes, withdrawal_script_hashes) = get_master_keys(account)
 
   mocktail_tx()
     |> add_required_signers(is_authed_by_trade_key, trade_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_trade_key, trade_script_hashes)
-    |> add_required_signers(is_authed_by_master_key, withdrawal_key_hashes)
+    |> add_required_signers(is_authed_by_master_key, master_key_hashes)
     |> add_withdrawal_scripts(is_authed_by_master_key, withdrawal_script_hashes)
     |> ref_tx_in(
         is_dex_order_book_inputed,

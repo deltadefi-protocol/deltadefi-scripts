@@ -1,5 +1,4 @@
 use aiken/collection/list
-use aiken/collection/pairs
 use cardano/address.{from_script}
 use cardano/assets.{
   PolicyId, Value, from_asset, match, merge, negate, without_lovelace, zero,
@@ -10,7 +9,9 @@ use cocktail.{
   value_geq,
 }
 use cocktail/vodka_value.{inputs_value, outputs_value}
-use hydra_dex/account_utils.{compare_user_account}
+use hydra_dex/account_utils.{
+  AccountPayoff, add_to_payoff, payoff_output_settlement,
+}
 use hydra_dex/order_utils.{get_fee, get_min_order_value, get_min_payoff_value}
 use hydra_dex/types.{DexOrderBookDatum, Order, UserAccount}
 use hydra_dex/utils.{get_dex_order_book_datum}
@@ -212,15 +213,7 @@ pub fn fill_order(
   // - Loop through `AO`
   //   - Each has at least received the payoff value calculated above
   let payoff_after_settlement =
-    account_outputs
-      |> list.foldr(
-          final_account_payoff,
-          fn(account_output, acc) {
-            expect account: UserAccount = output_inline_datum(account_output)
-            let settlement_value = account_output.value
-            acc |> deduct_from_payoff(account, settlement_value)
-          },
-        )
+    final_account_payoff |> payoff_output_settlement(account_outputs)
 
   // - There is no negative payoff
   let is_no_negative_payoff = payoff_after_settlement == []
@@ -309,44 +302,6 @@ fn get_partial_filled_order_info(
   }
 }
 
-fn add_to_payoff(
-  payoff: Pairs<UserAccount, Value>,
-  user_account: UserAccount,
-  value: Value,
-) -> Pairs<UserAccount, Value> {
-  when payoff |> pairs.get_first(user_account) is {
-    Some(current_payoff) -> {
-      let post_merge_value = current_payoff |> merge(value)
-      if post_merge_value == zero {
-        payoff |> pairs.delete_first(user_account)
-      } else {
-        payoff
-          |> pairs.repsert_by_ascending_key(
-              user_account,
-              post_merge_value,
-              compare_user_account,
-            )
-      }
-    }
-    None ->
-      payoff
-        |> pairs.repsert_by_ascending_key(
-            user_account,
-            value,
-            compare_user_account,
-          )
-  }
-}
-
-fn deduct_from_payoff(
-  payoff: Pairs<UserAccount, Value>,
-  user_account: UserAccount,
-  value: Value,
-) -> Pairs<UserAccount, Value> {
-  let negate_value = negate(value)
-  add_to_payoff(payoff, user_account, negate_value)
-}
-
 fn get_fee_value(transacted_value: Value, fee_bp: Int) -> Value {
   transacted_value
     |> assets.reduce(
@@ -359,11 +314,11 @@ fn get_fee_value(transacted_value: Value, fee_bp: Int) -> Value {
 }
 
 fn handle_remaining_value(
-  payoff: Pairs<UserAccount, Value>,
+  payoff: AccountPayoff,
   taker: UserAccount,
   fee_account: UserAccount,
   remaining_value: Value,
-) -> Pairs<UserAccount, Value> {
+) -> AccountPayoff {
   remaining_value
     |> assets.reduce(
         payoff,

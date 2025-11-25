@@ -102,6 +102,64 @@ pub fn from_hydra_balance_to_value(
       )
 }
 
+// payoff
+
+pub type AccountPayoff =
+  Pairs<UserAccount, Value>
+
+pub fn add_to_payoff(
+  payoff: AccountPayoff,
+  user_account: UserAccount,
+  value: Value,
+) -> AccountPayoff {
+  when payoff |> pairs.get_first(user_account) is {
+    Some(current_payoff) -> {
+      let post_merge_value = current_payoff |> merge(value)
+      if post_merge_value == zero {
+        payoff |> pairs.delete_first(user_account)
+      } else {
+        payoff
+          |> pairs.repsert_by_ascending_key(
+              user_account,
+              post_merge_value,
+              compare_user_account,
+            )
+      }
+    }
+    None ->
+      payoff
+        |> pairs.repsert_by_ascending_key(
+            user_account,
+            value,
+            compare_user_account,
+          )
+  }
+}
+
+pub fn deduct_from_payoff(
+  payoff: AccountPayoff,
+  user_account: UserAccount,
+  value: Value,
+) -> AccountPayoff {
+  let negate_value = negate(value)
+  add_to_payoff(payoff, user_account, negate_value)
+}
+
+pub fn payoff_output_settlement(
+  payoff: AccountPayoff,
+  account_outputs: List<Output>,
+) -> AccountPayoff {
+  account_outputs
+    |> list.foldr(
+        payoff,
+        fn(account_output, acc) {
+          expect account: UserAccount = output_inline_datum(account_output)
+          let settlement_value = account_output.value
+          acc |> deduct_from_payoff(account, settlement_value)
+        },
+      )
+}
+
 //
 pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
   let a_account_id = get_account_id(a)
