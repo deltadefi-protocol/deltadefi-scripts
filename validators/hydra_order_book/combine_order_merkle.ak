@@ -5,7 +5,9 @@ use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use aiken/primitive/bytearray
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, quantity_of, without_lovelace}
+use cardano/assets.{
+  PolicyId, Value, merge, negate, quantity_of, without_lovelace, zero,
+}
 use cardano/transaction.{InlineDatum, Input, Output, Transaction}
 use cocktail.{inputs_at}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
@@ -24,7 +26,7 @@ pub fn combine_order_merkle(
   token_map: TokenMap,
   tx: Transaction,
 ) {
-  let Transaction { inputs, outputs, .. } = tx
+  let Transaction { inputs, outputs, mint, .. } = tx
   let oracle = inputs |> get_dex_order_book_datum(oracle_nft)
   let DexOrderBookDatum {
     dex_order_book_token,
@@ -35,6 +37,43 @@ pub fn combine_order_merkle(
   } = oracle
 
   let hydra_order_book_address = from_script(hydra_order_book_script_hash)
+
+  //  - For every single order input from `HydraOrderBook` combine it into merkle tree
+  //  - All `HydraTokens` locked in orders are burnt
+  let hydra_order_book_inputs: List<Input> =
+    inputs_at(inputs, hydra_order_book_address)
+  let (serialised_inputs, to_burn_value): (Pairs<ByteArray, ByteArray>, Value) =
+    hydra_order_book_inputs
+      |> list.foldr(
+          ([], zero),
+          fn(input: Input, acc) {
+            let order_value = without_lovelace(input.output.value)
+            expect InlineDatum(input_datum) = input.output.datum
+            expect order_book_datum: Order = input_datum
+            let merkle_datum =
+              MerklizedOrderDatum {
+                datum: order_book_datum,
+                value: order_value
+                  |> from_hydra_balance_to_value(
+                      hydra_token_policy_id,
+                      token_map,
+                    )
+                  |> to_mvalue,
+              }
+            (
+              acc.1st
+                |> list.push(
+                    Pair(
+                      order_book_datum.order_id,
+                      cbor.serialise(merkle_datum),
+                    ),
+                  ),
+              acc.2nd |> merge(order_value),
+            )
+          },
+        )
+
+  let is_all_hydra_tokens_burnt = negate(to_burn_value) == mint
 
   expect [dex_order_book_input] =
     inputs
@@ -49,29 +88,6 @@ pub fn combine_order_merkle(
         )
   expect InlineDatum(input_datum) = dex_order_book_input.output.datum
   expect input_dex_order_book_datum: DexOrderBookDatum = input_datum
-  let hydra_order_book_inputs: List<Input> =
-    inputs_at(inputs, hydra_order_book_address)
-
-  let serialised_inputs: List<Pair<ByteArray, ByteArray>> =
-    hydra_order_book_inputs
-      |> list.map(
-          fn(input: Input) {
-            expect InlineDatum(input_datum) = input.output.datum
-            expect order_book_datum: Order = input_datum
-            let merkle_datum =
-              MerklizedOrderDatum {
-                datum: order_book_datum,
-                value: input.output.value
-                  |> without_lovelace
-                  |> from_hydra_balance_to_value(
-                      hydra_token_policy_id,
-                      token_map,
-                    )
-                  |> to_mvalue,
-              }
-            Pair(order_book_datum.order_id, cbor.serialise(merkle_datum))
-          },
-        )
 
   expect [dex_order_book_output] =
     outputs
@@ -87,30 +103,36 @@ pub fn combine_order_merkle(
   expect InlineDatum(output_datum) = dex_order_book_output.datum
   expect output_dex_order_book_datum: DexOrderBookDatum = output_datum
 
-  when tree_or_proofs is {
-    FullTree { tree } -> {
-      let sorted_serialised_inputs: List<Pair<ByteArray, ByteArray>> =
-        serialised_inputs
-          |> list.sort(
-              fn(a: Pair<ByteArray, ByteArray>, b: Pair<ByteArray, ByteArray>) {
-                bytearray.compare(blake2b_256(a.1st), blake2b_256(b.1st))
-              },
-            )
-      and {
-        (input_dex_order_book_datum.limit_orders_merkle_root == null_hash)?,
-        (compute_tree_hash(tree) == output_dex_order_book_datum.limit_orders_merkle_root)?,
-        (extract_key_values(tree) == sorted_serialised_inputs)?,
+  let is_merkle_root_updated =
+    when tree_or_proofs is {
+      FullTree { tree } -> {
+        let sorted_serialised_inputs: List<Pair<ByteArray, ByteArray>> =
+          serialised_inputs
+            |> list.sort(
+                fn(a: Pair<ByteArray, ByteArray>, b: Pair<ByteArray, ByteArray>) {
+                  bytearray.compare(blake2b_256(a.1st), blake2b_256(b.1st))
+                },
+              )
+        and {
+          (input_dex_order_book_datum.limit_orders_merkle_root == null_hash)?,
+          (compute_tree_hash(tree) == output_dex_order_book_datum.limit_orders_merkle_root)?,
+          (extract_key_values(tree) == sorted_serialised_inputs)?,
+        }
+      }
+      Proofs { proofs } -> {
+        let old_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(input_dex_order_book_datum.limit_orders_merkle_root)
+        let new_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(output_dex_order_book_datum.limit_orders_merkle_root)
+        let computed_new_root: mpf.MerklePatriciaForestry =
+          recursive_insert(old_root, serialised_inputs, proofs)
+
+        mpf.root(new_root) == mpf.root(computed_new_root)
       }
     }
-    Proofs { proofs } -> {
-      let old_root: mpf.MerklePatriciaForestry =
-        mpf.from_root(input_dex_order_book_datum.limit_orders_merkle_root)
-      let new_root: mpf.MerklePatriciaForestry =
-        mpf.from_root(output_dex_order_book_datum.limit_orders_merkle_root)
-      let computed_new_root: mpf.MerklePatriciaForestry =
-        recursive_insert(old_root, serialised_inputs, proofs)
 
-      mpf.root(new_root) == mpf.root(computed_new_root)
-    }
+  and {
+    is_all_hydra_tokens_burnt?,
+    is_merkle_root_updated?,
   }
 }
