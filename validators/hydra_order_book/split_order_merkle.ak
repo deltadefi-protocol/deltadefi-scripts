@@ -3,7 +3,7 @@ use aiken/collection/list
 use aiken/merkle_patricia_forestry as mpf
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, quantity_of, without_lovelace}
+use cardano/assets.{PolicyId, Value, merge, quantity_of, without_lovelace, zero}
 use cardano/transaction.{InlineDatum, Output, Transaction}
 use cocktail.{outputs_at}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
@@ -22,8 +22,8 @@ pub fn split_order_merkle(
   token_map: TokenMap,
   tx: Transaction,
 ) {
-  let Transaction { outputs, .. } = tx
-  let oracle = tx.inputs |> get_dex_order_book_datum(oracle_nft)
+  let Transaction { inputs, outputs, mint, .. } = tx
+  let oracle = inputs |> get_dex_order_book_datum(oracle_nft)
   let DexOrderBookDatum {
     dex_order_book_token,
     dex_order_book_address,
@@ -38,26 +38,42 @@ pub fn split_order_merkle(
   // The way orders are placed into the tree is a little bit different to
   // how they are done in account balance merkle tree. The key is `order_id`
   // and the value is the entire `Order` datum serialised.
-  let output_serialised_datum_list: List<Pair<ByteArray, ByteArray>> =
+  let (output_serialised_datum_list, to_mint_value): (
+    Pairs<ByteArray, ByteArray>,
+    Value,
+  ) =
     filtered_outputs
-      |> list.map(
-          fn(output: Output) {
+      |> list.foldr(
+          ([], zero),
+          fn(output: Output, acc) {
+            let order_value = without_lovelace(output.value)
             expect InlineDatum(output_datum) = output.datum
             expect hydra_order_book_datum: Order = output_datum
             let merkle_datum =
               MerklizedOrderDatum {
                 datum: hydra_order_book_datum,
-                value: output.value
-                  |> without_lovelace
+                value: order_value
                   |> from_hydra_balance_to_value(
                       hydra_token_policy_id,
                       token_map,
                     )
                   |> to_mvalue,
               }
-            Pair(hydra_order_book_datum.order_id, cbor.serialise(merkle_datum))
+            (
+              acc.1st
+                |> list.push(
+                    Pair(
+                      hydra_order_book_datum.order_id,
+                      cbor.serialise(merkle_datum),
+                    ),
+                  ),
+              acc.2nd |> merge(order_value),
+            )
           },
         )
+
+  let is_hydra_tokens_minted = to_mint_value == mint
+
   expect [dex_order_book_output] =
     list.filter(
       outputs,
@@ -71,27 +87,33 @@ pub fn split_order_merkle(
     )
   expect InlineDatum(output_datum) = dex_order_book_output.datum
   expect output_dex_order_book_datum: DexOrderBookDatum = output_datum
-  when tree_or_proofs is {
-    FullTree { tree } -> {
-      let key_values = extract_key_values(tree)
-      and {
-        (compute_tree_hash(tree) == limit_orders_merkle_root)?,
-        (key_values == output_serialised_datum_list)?,
-        (output_dex_order_book_datum == DexOrderBookDatum {
-          ..oracle,
-          limit_orders_merkle_root: null_hash,
-        })?,
+  let is_merkle_root_updated =
+    when tree_or_proofs is {
+      FullTree { tree } -> {
+        let key_values = extract_key_values(tree)
+        and {
+          (compute_tree_hash(tree) == limit_orders_merkle_root)?,
+          (key_values == output_serialised_datum_list)?,
+          (output_dex_order_book_datum == DexOrderBookDatum {
+            ..oracle,
+            limit_orders_merkle_root: null_hash,
+          })?,
+        }
+      }
+      Proofs { proofs } -> {
+        let old_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(limit_orders_merkle_root)
+        let new_root: mpf.MerklePatriciaForestry =
+          mpf.from_root(output_dex_order_book_datum.limit_orders_merkle_root)
+        let computed_new_root: mpf.MerklePatriciaForestry =
+          recursive_delete(old_root, output_serialised_datum_list, proofs)
+
+        mpf.root(new_root) == mpf.root(computed_new_root)
       }
     }
-    Proofs { proofs } -> {
-      let old_root: mpf.MerklePatriciaForestry =
-        mpf.from_root(limit_orders_merkle_root)
-      let new_root: mpf.MerklePatriciaForestry =
-        mpf.from_root(output_dex_order_book_datum.limit_orders_merkle_root)
-      let computed_new_root: mpf.MerklePatriciaForestry =
-        recursive_delete(old_root, output_serialised_datum_list, proofs)
 
-      mpf.root(new_root) == mpf.root(computed_new_root)
-    }
+  and {
+    is_merkle_root_updated?,
+    is_hydra_tokens_minted?,
   }
 }

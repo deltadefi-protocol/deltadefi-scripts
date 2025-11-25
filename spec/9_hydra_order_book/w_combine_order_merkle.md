@@ -1,8 +1,8 @@
 # Specification - HydraOrderBook - CombineOrderMerkle
 
-## Parameter
+## Redeemer
 
-- `dex_oracle_nft`: The policy id of the token attached with `DexOrderBook`
+- CombineOrderMerkle { tree_or_proofs_with_token_map }
 
 ## User Action
 
