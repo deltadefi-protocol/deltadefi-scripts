@@ -225,8 +225,12 @@ pub type HydraAccountIntent {
 }
 
 pub type HydraAccountRedeemer {
-  Trade { trade_redeemer: Data }
+  HydraAccountTrade { trade_redeemer: Data }
+  HydraAccountOperate
   HydraAccountSpamPreventionWithdraw
+}
+
+pub type HydraAccountOperation {
   ProcessWithdrawal { mpf_action: MPFProof }
   ProcessCancelWithdrawal { mpf_action: MPFProof }
   ProcessSameAccountTransferal { account: UserAccount }

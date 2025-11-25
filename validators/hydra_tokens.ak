@@ -4,7 +4,7 @@ use cardano/transaction.{Transaction}
 use cocktail.{inputs_with_policy, withdrawal_redeemer}
 use hydra_dex/types.{
   BurnAtCombineOrderBook, BurnAtHydraClose, BurnAtWithdrawal, CombineOrderMerkle,
-  DexOrderBookDatum, HydraAccountRedeemer, HydraOrderBookRedeemer,
+  DexOrderBookDatum, HydraAccountOperation, HydraOrderBookRedeemer,
   HydraTokensRedeemer, MintAtCancelWithdrawal, MintAtHydraOpen,
   MintAtInitOrderBook, ProcessCancelWithdrawal, ProcessCombineUtxosAtClose,
   ProcessSplitUtxosAtOpen, ProcessWithdrawal, SplitOrderMerkle,
@@ -29,7 +29,7 @@ validator hydra_tokens(oracle_nft: PolicyId) {
       MintAtHydraOpen -> {
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessSplitUtxosAtOpen { .. } -> True
           _ -> False
@@ -38,7 +38,7 @@ validator hydra_tokens(oracle_nft: PolicyId) {
       BurnAtHydraClose -> {
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessCombineUtxosAtClose { .. } -> True
           _ -> False
@@ -47,7 +47,7 @@ validator hydra_tokens(oracle_nft: PolicyId) {
       MintAtCancelWithdrawal -> {
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessCancelWithdrawal { .. } -> True
           _ -> False
@@ -56,7 +56,7 @@ validator hydra_tokens(oracle_nft: PolicyId) {
       BurnAtWithdrawal -> {
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessWithdrawal { .. } -> True
           _ -> False

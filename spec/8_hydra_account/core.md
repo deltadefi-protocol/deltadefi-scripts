@@ -10,41 +10,18 @@
 
 ## User Action
 
-1. Update balance with user intent - place order
+1. Update balance for trade - `HydraAccountTrade { trade_redeemer }`
 
-   - Obtain the `HydraOrderBook - hydra_place_order` script hash from dex order book (also an oracle)
-   - Check if `HydraOrderBook - hydra_place_order` withdrawal script is run
+   - The withdrawal script with `trading_logic` in account datum is run with redeemer of `trade_redeemer`
 
-2. Update balance with fill order
+2. Hydra Account Operation - `HydraAccountOperate`
 
-   - Obtain the `HydraOrderBook - hydra_fill_order` script hash from dex order book (also an oracle)
-   - Check if `HydraOrderBook - hydra_fill_order` withdrawal script is run
+   - Find own input and obtain the `script_hash`
+   - The withdrawal script with `script_hash` is run
 
-3. Update balanace with cancel order
-
-   - Obtain the `HydraOrderBook - hydra_cancel_order` script hash from dex order book (also an oracle)
-   - Check if `HydraOrderBook - hydra_cancel_order` withdrawal script is run
-
-4. Spam withdrawal prevention
+3. Spam withdrawal prevention - `HydraAccountSpamPreventionWithdraw`
 
    - Operation key is signed
    - Either one of below
      - Empty balance - Check balance against value by removing lovelace - is empty
      - There is no datum
-
-5. Hydra Account Operation
-
-6. Update balance with user intent - withdrawal
-
-   - Obtain the `HydraOrderBook - hydra_withdrawal` script hash from dex order book (also an oracle)
-   - Check if `HydraOrderBook - hydra_withdrawal` withdrawal script is run
-
-7. Update balance with user intent - cancel withdrawal
-
-   - Obtain the `HydraOrderBook - hydra_cancel_withdrawal` script hash from dex order book (also an oracle)
-   - Check if `HydraOrderBook - hydra_cancel_withdrawal` withdrawal script is run
-
-8. Hydra combine utxos at close
-
-   - Obtain the `AccountOperationAuth - hydra_head_close` script hash from dex order book (also an oracle)
-   - Check if `AccountOperationAuth - hydra_head_close` withdrawal script is run

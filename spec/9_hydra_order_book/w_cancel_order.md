@@ -20,3 +20,7 @@
 - For all `account_payoff` - `<account, value>`
   - Check output value to `account` equals `value`
 - Signed by `operating_key`
+
+## Note
+
+In cancel order we removed the need for user authorization. This design due to in DeltaDeFi it is a known trade-off that the order flow will be controlled offchain. Given we can prevent users from filling orders offchain, it did not introduce extra trade-off for user controls when cancel order does not require user auth.

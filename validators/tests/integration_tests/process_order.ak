@@ -2,7 +2,9 @@ use cardano/address.{Script}
 use cardano/assets.{from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
-use hydra_dex/types.{BurnIntent, HydraUserIntentDatum, PlaceOrder, Trade}
+use hydra_dex/types.{
+  BurnIntent, HydraAccountTrade, HydraUserIntentDatum, PlaceOrder,
+}
 use hydra_order_book/core as ob
 use hydra_user_intent as hui
 use mocktail.{
@@ -199,7 +201,7 @@ fn check_all_scripts(test_case: TestCase) {
     ha.hydra_account.spend(
       mock_dex_order_book_token,
       Some(account),
-      Trade { trade_redeemer: PlaceOrder { account } },
+      HydraAccountTrade { trade_redeemer: PlaceOrder { account } },
       mock_utxo_ref(0, 2),
       tx,
     )

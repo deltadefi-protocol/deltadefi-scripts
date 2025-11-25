@@ -12,7 +12,7 @@ use hydra_dex/types.{
   AppDeposit, AppOracleDatum, AppWithdrawal, DABCombineMerkleTree,
   DABHydraCommit, DABHydraIncrementalDecommit, DABRemoveRegistry,
   DABSpamPreventionWithdraw, DABSplitMerkleTree, DexAccountBalanceDatum,
-  DexAccountBalanceRedeemer, DexOrderBookDatum, HydraAccountRedeemer,
+  DexAccountBalanceRedeemer, DexOrderBookDatum, HydraAccountOperation,
   HydraCancelWithdrawal, HydraWithdrawal, ProcessCancelWithdrawal,
   ProcessCombineUtxosAtClose, ProcessSplitUtxosAtOpen, ProcessWithdrawal,
 }
@@ -124,7 +124,7 @@ validator dex_account_balance(
           get_dex_order_book_datum(reference_inputs, dex_order_book_token)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessSplitUtxosAtOpen { .. } -> True
           _ -> False
@@ -135,7 +135,7 @@ validator dex_account_balance(
           get_dex_order_book_datum(reference_inputs, dex_order_book_token)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessCombineUtxosAtClose { .. } -> True
           _ -> False
@@ -146,7 +146,7 @@ validator dex_account_balance(
           get_dex_order_book_datum(reference_inputs, dex_order_book_token)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessWithdrawal { .. } -> True
           _ -> False
@@ -157,7 +157,7 @@ validator dex_account_balance(
           get_dex_order_book_datum(reference_inputs, dex_order_book_token)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
-        expect w_redeemer: HydraAccountRedeemer = w_redeemer
+        expect w_redeemer: HydraAccountOperation = w_redeemer
         when w_redeemer is {
           ProcessCancelWithdrawal { .. } -> True
           _ -> False

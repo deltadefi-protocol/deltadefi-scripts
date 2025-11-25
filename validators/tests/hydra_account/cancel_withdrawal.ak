@@ -5,7 +5,7 @@ use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{
-  CancelWithdrawalIntent, DexAccountBalanceDatum, HydraAccountRedeemer,
+  CancelWithdrawalIntent, DexAccountBalanceDatum, HydraAccountOperation,
   MPFUpdate, MasterIntent, ProcessCancelWithdrawal,
 }
 use hydra_dex/utils.{to_mvalue}
@@ -31,7 +31,7 @@ type TestCase {
   is_cancel_withdrawal_amount_minted: Bool,
 }
 
-fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountRedeemer) {
+fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountOperation) {
   let TestCase {
     is_operation_key_signed,
     is_single_dex_account_balance_input,
