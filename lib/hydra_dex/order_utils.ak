@@ -9,9 +9,9 @@ pub fn get_payoff_qty(
   is_long: Bool,
 ) -> Int {
   if is_long {
-    size * list_price_times_1bil / 1_000_000_000
-  } else {
     size * 1_000_000_000 / list_price_times_1bil
+  } else {
+    size * list_price_times_1bil / 1_000_000_000
   }
 }
 

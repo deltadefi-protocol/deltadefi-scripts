@@ -27,15 +27,15 @@ type TestCase {
   is_fill_order_authorized: Bool,
 }
 
-fn mk_base_order(order: Order) -> Pair<Order, Value> {
+pub fn mk_base_order(order: Order) -> Pair<Order, Value> {
   Pair(order, get_min_order_value(order, mock_hydra_token_policy_id))
 }
 
-fn mk_balance(account: Account, value: Value) -> Pair<UserAccount, Value> {
+pub fn mk_balance(account: Account, value: Value) -> Pair<UserAccount, Value> {
   Pair(mock_user_account(account), value)
 }
 
-fn add_order_inputs(
+pub fn add_order_inputs(
   mock_tx: MocktailTx,
   input_orders: Pairs<Order, Value>,
 ) -> MocktailTx {
@@ -50,7 +50,7 @@ fn add_order_inputs(
   )
 }
 
-fn add_order_output(
+pub fn add_order_output(
   mock_tx: MocktailTx,
   output_order: Option<Pair<Order, Value>>,
 ) -> MocktailTx {
@@ -63,7 +63,7 @@ fn add_order_output(
   }
 }
 
-fn add_output_balances(
+pub fn add_output_balances(
   mock_tx: MocktailTx,
   output_balances: Pairs<UserAccount, Value>,
 ) -> MocktailTx {
