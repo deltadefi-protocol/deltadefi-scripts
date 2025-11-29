@@ -18,30 +18,29 @@
 ### Backend Logics
 
 - Loop through `OI`
-  - Return `total_order_value`, `total_min_order_value`, `total_payoff_value`, `account_payoff`, `filler_order_opt`
+  - Return `total_order_value (TOV)`, `account_payoff (AP)`, `total_filled_order_value (TFOV)`, `total_order_payoff_value (TOPV)`, `filler_order_input_opt`
   - Skip the filler order for later process
   - Get `order_value (OV)`, `min_order_value (MOV)`, `min_payoff_value (MPV)`
     - Calculate the `excess_order_value (EOV)` (`OV` - `MOV`)
   - If the order is partially filled, with `filled_qty` = `start_qty` - `end_qty`, calculate:
     - If any order information other than `size` changed -> panic
-    - `Final OV` = `OV` - output `OV`
-    - `Final MOV` = `filled_qty`'s value
-    - `Final EOV` = `FOV` - `FMOV`
-    - `Final MPV` = convert `filled_qty` into pay off Int’s value
-    - Return `Final OV`, `Final EOV`, `Final MPV`
+    - `Spent OV (SOV)` = `OV` - output `order_value`
+    - `Filled OV (FOV)` = `MOV` - output `order_size`
+    - `Return OV (ROV)` = `SOV` - `ROV`
+    - `Final Order Payoff (FOP)` = calculate from `FOV`
   - Process the maker order
-    - Calculate settlement to maker
-      - payoff (i.e. `filled qty`)
-      - Excessive value `EOV`
-    - Calculate fee (`filled qty` \* 10bp round down)
+    - Calculate `fee` (`FOP` \* 10bp round down)
+    - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
+    - To fee collector `fee`
 - Handle filler order
-  - Use exactly the makers’ `Final MOV` as payoff
-  - Calculate fee (`Final MOV` \* 10bp round down)
-  - `order remaining value` = `start qty` - `to pay qty`
+  - Use exactly the makers’ `TFOV` as payoff
+  - Calculate `fee` (`TFOV` \* 10bp round down)
+  - Get `Maker OV`
+  - `order remaining value (ORV)` = `Maker OV` - `TOPV`
   - Handle unfilled order value
-    - Deduct `new order qty` from `order remaining value`
-  - Pay the `order remaining value` to taker
-    - If there is negative `order remaining value` → deduct from fee instead
+    - `ORV` = `ORV` - new order_size
+  - Pay the `ORV` to taker
+    - If there is negative `ORV` → deduct from fee instead
 
 ### Contract Guards
 

@@ -67,35 +67,23 @@ pub fn fill_order(
     }
 
   // - Loop through `OI` 
-  //   - Return `total_order_value`, `total_min_order_value`, `total_payoff_value`, `account_payoff`, `filler_order_opt`
-  let (
-    total_order_value,
-    total_min_order_value,
-    total_payoff_value,
-    account_payoff,
-    filler_order_input_opt,
-  ) =
+  // - Return `total_order_value (TOV)`, `account_payoff (AP)`, `total_filled_order_value (TFOV)`, `total_order_payoff_value (TOPV)`, 
+  let (tov, ap, tfov, topv, filler_order_input_opt) =
     order_inputs
       |> list.foldr(
-          (zero, zero, zero, [], None),
+          (zero, [], zero, zero, None),
           fn(
             order_input,
-            (
-              total_order_value_acc,
-              total_min_order_value_acc,
-              total_payoff_value_acc,
-              account_payoff_acc,
-              filler_order_acc,
-            ),
+            (tov_acc, account_payoff_acc, tfov_acc, topv_acc, filler_order_acc),
           ) {
             expect order: Order = input_inline_datum(order_input)
             //   - Skip the filler order for later process
             if order.order_id == filler_order_id {
               (
-                total_order_value_acc,
-                total_min_order_value_acc,
-                total_payoff_value_acc,
+                tov_acc,
                 account_payoff_acc,
+                tfov_acc,
+                topv_acc,
                 Some(order_input),
               )
             } else {
@@ -107,12 +95,12 @@ pub fn fill_order(
                 get_min_payoff_value(order, hydra_token_policy_id)
               //   - Calculate the `excess_order_value (EOV)` (`OV` - `MOV`)
               // - If the order is partially filled, with `filled_qty` = `start_qty` - `end_qty`, calculate:
-              //   - `Final OV` = `OV` - output `OV`
-              //   - `Final MOV` = `filled_qty`'s value
-              //   - `Final EOV` = `FOV` - `FMOV`
-              //   - `Final MPV` = convert `filled_qty` into pay off Int’s value
-              //   - Return `Final OV`, `Final EOV`, `Final MPV`
-              let (final_order_value, final_min_order_value, final_payoff_value) =
+              //   - If any order information other than `size` changed -> panic
+              //   - `Spent OV (SOV)` = `OV` - output `order_value`
+              //   - `Filled OV (FOV)` = `MOV` - output `order_size`
+              //   - `Return OV (ROV)` = `SOV` - `ROV`
+              //   - `Final Order Payoff (FOP)` = calculate from `FOV`
+              let (sov, fov, final_order_payoff) =
                 get_unfilled_order(order, new_order_opt)
                   |> get_partial_filled_order_info(
                       order,
@@ -121,47 +109,49 @@ pub fn fill_order(
                       min_order_value,
                       min_payoff_value,
                     )
-              let final_excess_value =
-                final_order_value |> merge(negate(final_min_order_value))
+              let rov = sov |> merge(negate(fov))
 
-              //   - Process the maker order
+              // - Process the maker order
               let fee_value =
-                get_fee_value(final_payoff_value, order.fee_amount_bp)
+                get_fee_value(final_order_payoff, order.fee_amount_bp)
               (
                 // - Cummulate the order value
-                total_order_value_acc |> merge(final_order_value),
-                total_min_order_value_acc |> merge(final_min_order_value),
-                total_payoff_value_acc |> merge(final_payoff_value),
+                tov_acc |> merge(sov),
                 account_payoff_acc
-                  //     - Calculate settlement to maker
-                  //       - payoff (i.e. `filled qty`)
-                  //       - Excessive value `EOV`
+                  //   - Calculate `fee` (`FOP` \* 10bp round down)
+                  //   - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
+                  //   - To fee collector `fee`
                   |> add_to_payoff(
                       order.account,
-                      merge(final_payoff_value, final_excess_value)
+                      merge(final_order_payoff, rov)
                         |> merge(negate(fee_value)),
                     )
                   //     - Calculate fee (`filled qty` \* 10bp round down)
                   |> add_to_payoff(fee_account, fee_value),
+                tfov_acc |> merge(fov),
+                topv_acc |> merge(final_order_payoff),
                 filler_order_acc,
               )
             }
           },
         )
 
-  // - Handle filler order
   let final_account_payoff =
     when filler_order_input_opt is {
       Some(filler_order_input) -> {
         expect order: Order = input_inline_datum(filler_order_input)
 
-        //   - Use exactly the makers’ `Final MOV` as payoff
-        let order_value = filler_order_input.output.value
+        //   - Use exactly the makers’ `TFOV` as payoff
         let min_order_value = get_min_order_value(order, hydra_token_policy_id)
-        let filler_payoff_value = total_min_order_value
 
+        //   - Calculate `fee` (`TFOV` \* 10bp round down)
+        let fee_value = get_fee_value(tfov, order.fee_amount_bp)
+
+        //   - Get `Maker OV`
+        let order_value = filler_order_input.output.value
         //   - Handle unfilled order value
-        //     - Deduct `new order qty` from `order remaining value`
+        //   - `order remaining value (ORV)` = `Maker OV` - `TOPV`
+        //     - `ORV` = `ORV` - new order_size
         let (final_order_value, _, final_payoff_value) =
           get_unfilled_order(order, new_order_opt)
             |> get_partial_filled_order_info(
@@ -169,26 +159,18 @@ pub fn fill_order(
                 hydra_token_policy_id,
                 order_value,
                 min_order_value,
-                filler_payoff_value,
+                tfov,
               )
 
-        //   - Calculate fee (`FQ` \* 10bp round down)
-        let fee_value = get_fee_value(filler_payoff_value, order.fee_amount_bp)
-
-        // - Pay the `order remaining value` to taker
-        //   - If there is negative `order remaining value` → deduct from fee instead
-        let total_order_value = total_order_value |> merge(final_order_value)
-        let total_payoff_value = total_payoff_value |> merge(final_payoff_value)
-        let order_remaining_value =
-          total_order_value |> merge(negate(total_payoff_value))
+        //   - Pay the `ORV` to taker
+        //     - If there is negative `ORV` → deduct from fee instead
+        let tov = tov |> merge(final_order_value)
+        let topv = topv |> merge(final_payoff_value)
+        let orv = tov |> merge(negate(topv))
 
         let final_account_payoff =
-          account_payoff
-            |> handle_remaining_value(
-                order.account,
-                fee_account,
-                order_remaining_value,
-              )
+          ap
+            |> handle_remaining_value(order.account, fee_account, orv)
             |> add_to_payoff(fee_account, fee_value)
             |> add_to_payoff(
                 order.account,
@@ -199,9 +181,8 @@ pub fn fill_order(
         final_account_payoff
       }
       None -> {
-        let excess_value =
-          total_order_value |> merge(negate(total_payoff_value))
-        account_payoff |> add_to_payoff(fee_account, excess_value)
+        let rov = tov |> merge(negate(topv))
+        ap |> add_to_payoff(fee_account, rov)
       }
     }
   // ### Contract Guards
