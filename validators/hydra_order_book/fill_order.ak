@@ -89,10 +89,6 @@ pub fn fill_order(
             } else {
               //   - Get `order_value (OV)`, `min_order_value (MOV)`, `min_payoff_value (MPV)`
               let order_value = order_input.output.value
-              let min_order_value =
-                get_min_order_value(order, hydra_token_policy_id)
-              let min_payoff_value =
-                get_min_payoff_value(order, hydra_token_policy_id)
               //   - Calculate the `excess_order_value (EOV)` (`OV` - `MOV`)
               // - If the order is partially filled, with `filled_qty` = `start_qty` - `end_qty`, calculate:
               //   - If any order information other than `size` changed -> panic
@@ -106,8 +102,6 @@ pub fn fill_order(
                       order,
                       hydra_token_policy_id,
                       order_value,
-                      min_order_value,
-                      min_payoff_value,
                     )
               let rov = sov |> merge(negate(fov))
 
@@ -140,10 +134,9 @@ pub fn fill_order(
     when filler_order_input_opt is {
       Some(filler_order_input) -> {
         expect order: Order = input_inline_datum(filler_order_input)
-
-        //   - Use exactly the makers’ `TFOV` as payoff
-        let min_order_value = get_min_order_value(order, hydra_token_policy_id)
-
+        // //   - Use exactly the makers’ `TFOV` as payoff
+        let final_payoff_value = tfov
+        // let min_order_value = get_min_order_value(order, hydra_token_policy_id)
         //   - Calculate `fee` (`TFOV` \* 10bp round down)
         let fee_value = get_fee_value(tfov, order.fee_amount_bp)
 
@@ -152,14 +145,12 @@ pub fn fill_order(
         //   - Handle unfilled order value
         //   - `order remaining value (ORV)` = `Maker OV` - `TOPV`
         //     - `ORV` = `ORV` - new order_size
-        let (final_order_value, _, final_payoff_value) =
+        let (final_order_value, _, _) =
           get_unfilled_order(order, new_order_opt)
             |> get_partial_filled_order_info(
                 order,
                 hydra_token_policy_id,
                 order_value,
-                min_order_value,
-                tfov,
               )
 
         //   - Pay the `ORV` to taker
@@ -260,24 +251,24 @@ fn get_partial_filled_order_info(
   order: Order,
   hydra_token_policy_id: ByteArray,
   order_value: Value,
-  min_order_value: Value,
-  min_payoff_value: Value,
 ) -> (Value, Value, Value) {
+  let min_order_value = get_min_order_value(order, hydra_token_policy_id)
+  let min_payoff_value = get_min_payoff_value(order, hydra_token_policy_id)
+
   when unfilled_order is {
     Some((new_order, new_order_value)) -> {
-      let filled_qty = order.size - new_order.size
-      let fov = order_value |> merge(negate(new_order_value))
-      let fmov =
-        get_min_order_value(
-          Order { ..order, size: filled_qty },
-          hydra_token_policy_id,
-        )
-      let fmpv =
-        get_min_payoff_value(
-          Order { ..order, size: filled_qty },
-          hydra_token_policy_id,
-        )
-      (fov, fmov, fmpv)
+      let sov = order_value |> merge(negate(new_order_value))
+      let new_mov = get_min_order_value(new_order, hydra_token_policy_id)
+      let new_mpv = get_min_payoff_value(new_order, hydra_token_policy_id)
+
+      let fov =
+        min_order_value
+          |> merge(negate(new_mov))
+      let fop =
+        min_payoff_value
+          |> merge(negate(new_mpv))
+
+      (sov, fov, fop)
     }
     _ -> (order_value, min_order_value, min_payoff_value)
   }
