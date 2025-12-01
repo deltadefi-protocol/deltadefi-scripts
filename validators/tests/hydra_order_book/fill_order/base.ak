@@ -1,21 +1,21 @@
-use aiken/collection/list
 use cardano/address.{Script}
 use cardano/assets.{Value, from_asset, merge, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/order_utils.{get_min_order_value}
-use hydra_dex/types.{Account, FillOrder, Order, UserAccount}
+use hydra_dex/types.{FillOrder, Order, UserAccount}
 use hydra_order_book/core as ob
 use mocktail.{
-  MocktailTx, complete, mock_pub_key_address, mock_tx_hash, mocktail_tx,
-  ref_tx_in, ref_tx_in_inline_datum, required_signer_hash, tx_in,
-  tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  complete, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_out,
 }
+use tests/hydra_order_book/fill_order/utils.{
+  add_order_inputs, add_order_output, add_output_balances, mk_balance,
+  mk_base_order,
+} as fill_order_utils
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token, mock_fee_account,
-  mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
-  mock_hydra_order_book_address, mock_hydra_token_policy_id, mock_hydra_usd,
-  mock_operation_key, mock_order, mock_user_account,
+  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_usd, mock_operation_key,
+  mock_order,
 }
 
 type TestCase {
@@ -25,57 +25,6 @@ type TestCase {
   without_other_inputs: Bool,
   without_other_outputs: Bool,
   is_fill_order_authorized: Bool,
-}
-
-pub fn mk_base_order(order: Order) -> Pair<Order, Value> {
-  Pair(order, get_min_order_value(order, mock_hydra_token_policy_id))
-}
-
-pub fn mk_balance(account: Account, value: Value) -> Pair<UserAccount, Value> {
-  Pair(mock_user_account(account), value)
-}
-
-pub fn add_order_inputs(
-  mock_tx: MocktailTx,
-  input_orders: Pairs<Order, Value>,
-) -> MocktailTx {
-  list.foldr(
-    input_orders,
-    mock_tx,
-    fn(Pair(order, value), tx) {
-      tx
-        |> tx_in(True, mock_tx_hash(0), 0, value, mock_hydra_order_book_address)
-        |> tx_in_inline_datum(True, order)
-    },
-  )
-}
-
-pub fn add_order_output(
-  mock_tx: MocktailTx,
-  output_order: Option<Pair<Order, Value>>,
-) -> MocktailTx {
-  when output_order is {
-    Some(Pair(order, value)) ->
-      mock_tx
-        |> tx_out(True, mock_hydra_order_book_address, value)
-        |> tx_out_inline_datum(True, order)
-    None -> mock_tx
-  }
-}
-
-pub fn add_output_balances(
-  mock_tx: MocktailTx,
-  output_balances: Pairs<UserAccount, Value>,
-) -> MocktailTx {
-  list.foldr(
-    output_balances,
-    mock_tx,
-    fn(Pair(account, value), tx) {
-      tx
-        |> tx_out(True, mock_hydra_account_address, value)
-        |> tx_out_inline_datum(True, account)
-    },
-  )
 }
 
 fn mock_tx(test_case: TestCase) -> Transaction {

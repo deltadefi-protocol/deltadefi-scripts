@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use hydra_dex/types.{FillOrder}
 use hydra_order_book/core as ob
 use tests/hydra_order_book/fill_order/utils.{
-  Balance, TestCase, TestOrder, fill_order_test,
+  Balance, LimitOrder, TestCase, fill_order_test,
 } as fill_utils
 use tests/utils.{mock_dex_order_book_token, mock_hydra_order_book}
 
@@ -19,7 +19,7 @@ fn run_test(test_case: TestCase) -> Bool {
 test s9_fill_order_1_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 100000000,
@@ -28,7 +28,7 @@ test s9_fill_order_1_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -49,7 +49,7 @@ test s9_fill_order_1_lo_simple() {
 test s9_fill_order_2_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 100000000,
@@ -58,7 +58,7 @@ test s9_fill_order_2_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 100000000,
@@ -79,7 +79,7 @@ test s9_fill_order_2_lo_simple() {
 test s9_fill_order_3_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 100000000,
@@ -88,7 +88,7 @@ test s9_fill_order_3_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -109,7 +109,7 @@ test s9_fill_order_3_lo_simple() {
 test s9_fill_order_4_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 100000000,
@@ -118,7 +118,7 @@ test s9_fill_order_4_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 120000000,
@@ -139,7 +139,7 @@ test s9_fill_order_4_lo_simple() {
 test s9_fill_order_5_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 120000000,
@@ -148,7 +148,7 @@ test s9_fill_order_5_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 200000000,
@@ -169,7 +169,7 @@ test s9_fill_order_5_lo_simple() {
 test s9_fill_order_6_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 100000000,
@@ -178,7 +178,7 @@ test s9_fill_order_6_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 240000000,
@@ -199,7 +199,7 @@ test s9_fill_order_6_lo_simple() {
 test s9_fill_order_7_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 240000000,
@@ -208,7 +208,7 @@ test s9_fill_order_7_lo_simple() {
         unfilled_size: 120000000,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -229,7 +229,7 @@ test s9_fill_order_7_lo_simple() {
 test s9_fill_order_8_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 200000000,
@@ -238,7 +238,7 @@ test s9_fill_order_8_lo_simple() {
         unfilled_size: 100000000,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 110000000,
@@ -259,7 +259,7 @@ test s9_fill_order_8_lo_simple() {
 test s9_fill_order_9_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 332578596,
@@ -268,7 +268,7 @@ test s9_fill_order_9_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 523523579,
@@ -289,7 +289,7 @@ test s9_fill_order_9_lo_simple() {
 test s9_fill_order_10_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 223578901,
@@ -298,7 +298,7 @@ test s9_fill_order_10_lo_simple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 582111037,
@@ -319,7 +319,7 @@ test s9_fill_order_10_lo_simple() {
 test s9_fill_order_11_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 340435886,
@@ -328,7 +328,7 @@ test s9_fill_order_11_lo_simple() {
         unfilled_size: 51781185,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 189517891,
@@ -349,7 +349,7 @@ test s9_fill_order_11_lo_simple() {
 test s9_fill_order_12_lo_simple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 223578915,
@@ -358,7 +358,7 @@ test s9_fill_order_12_lo_simple() {
         unfilled_size: 99813003,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 238336018,
