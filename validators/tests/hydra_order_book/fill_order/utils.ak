@@ -182,7 +182,52 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
                   }
                 (acc.1st |> list.push(order_input), unfilled_order)
               }
-              _ -> acc
+              MarketOrder {
+                account,
+                is_long,
+                size,
+                price_times_1bil,
+                fee_amount_bp,
+                unfilled_size,
+                base_balance,
+                quote_balance,
+              } -> {
+                let order_id =
+                  bytearray.concat("order_", convert_int_to_bytes(i + 1))
+
+                let order_input =
+                  mk_market_order(
+                    mock_order(
+                      order_id,
+                      is_long,
+                      size,
+                      price_times_1bil,
+                      fee_amount_bp,
+                      mk_fill_account(account),
+                    ),
+                    base_balance,
+                    quote_balance,
+                  )
+
+                let unfilled_order =
+                  if unfilled_size > 0 {
+                    Some(
+                      mk_base_order(
+                        mock_order(
+                          order_id,
+                          is_long,
+                          unfilled_size,
+                          price_times_1bil,
+                          fee_amount_bp,
+                          mk_fill_account(account),
+                        ),
+                      ),
+                    )
+                  } else {
+                    acc.2nd
+                  }
+                (acc.1st |> list.push(order_input), unfilled_order)
+              }
             }
           },
         )

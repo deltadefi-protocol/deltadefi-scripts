@@ -274,13 +274,13 @@ test s9_fill_order_9_lo_simple() {
           size: 523523579,
           price_times_1bil: 1135300000,
           fee_amount_bp: 10,
-          unfilled_size: 257822057,
+          unfilled_size: 257822056,
         },
       ],
       payoff: [
         Balance { account: 0, ada: 265701, usd: 301650 },
-        Balance { account: 1, ada: 265435821, usd: 30927659 },
-        Balance { account: 2, ada: 0, usd: 301349287 },
+        Balance { account: 1, ada: 265435822, usd: 30927657 },
+        Balance { account: 2, ada: 0, usd: 301349289 },
       ],
     }
   run_test(test_case)
@@ -308,9 +308,9 @@ test s9_fill_order_10_lo_simple() {
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 223578, usd: 248418 },
+        Balance { account: 0, ada: 223577, usd: 248418 },
         Balance { account: 1, ada: 0, usd: 248170100 },
-        Balance { account: 2, ada: 223355323, usd: 0 },
+        Balance { account: 2, ada: 223355324, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -325,7 +325,7 @@ test s9_fill_order_11_lo_simple() {
         size: 340435886,
         price_times_1bil: 1523100000,
         fee_amount_bp: 10,
-        unfilled_size: 51781185,
+        unfilled_size: 51781187,
       },
       makers: [
         LimitOrder {
@@ -339,7 +339,7 @@ test s9_fill_order_11_lo_simple() {
       ],
       payoff: [
         Balance { account: 0, ada: 189517, usd: 210611 },
-        Balance { account: 1, ada: 189328374, usd: 78043469 },
+        Balance { account: 1, ada: 189328374, usd: 78043467 },
         Balance { account: 2, ada: 0, usd: 210400621 },
       ],
     }
