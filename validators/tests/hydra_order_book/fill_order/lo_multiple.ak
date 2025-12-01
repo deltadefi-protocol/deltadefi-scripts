@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use hydra_dex/types.{FillOrder}
 use hydra_order_book/core as ob
 use tests/hydra_order_book/fill_order/utils.{
-  Balance, TestCase, TestOrder, fill_order_test,
+  Balance, LimitOrder, TestCase, fill_order_test,
 } as test_utils
 use tests/utils.{mock_dex_order_book_token, mock_hydra_order_book}
 
@@ -19,7 +19,7 @@ fn run_test(test_case: TestCase) -> Bool {
 test s9_fill_order_13_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 360000000,
@@ -28,7 +28,7 @@ test s9_fill_order_13_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -36,7 +36,7 @@ test s9_fill_order_13_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 100000000,
@@ -44,7 +44,7 @@ test s9_fill_order_13_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 100000000,
@@ -67,7 +67,7 @@ test s9_fill_order_13_lo_multiple() {
 test s9_fill_order_14_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 300000000,
@@ -76,7 +76,7 @@ test s9_fill_order_14_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 120000000,
@@ -84,7 +84,7 @@ test s9_fill_order_14_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 120000000,
@@ -92,7 +92,7 @@ test s9_fill_order_14_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 120000000,
@@ -115,7 +115,7 @@ test s9_fill_order_14_lo_multiple() {
 test s9_fill_order_15_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 450000000,
@@ -124,7 +124,7 @@ test s9_fill_order_15_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -132,7 +132,7 @@ test s9_fill_order_15_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 100000000,
@@ -140,7 +140,7 @@ test s9_fill_order_15_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 100000000,
@@ -163,7 +163,7 @@ test s9_fill_order_15_lo_multiple() {
 test s9_fill_order_16_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 300000000,
@@ -172,7 +172,7 @@ test s9_fill_order_16_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 150000000,
@@ -180,7 +180,7 @@ test s9_fill_order_16_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 140000000,
@@ -188,7 +188,7 @@ test s9_fill_order_16_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 130000000,
@@ -211,7 +211,7 @@ test s9_fill_order_16_lo_multiple() {
 test s9_fill_order_17_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 450000000,
@@ -220,7 +220,7 @@ test s9_fill_order_17_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 150000000,
@@ -228,7 +228,7 @@ test s9_fill_order_17_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 100000000,
@@ -236,7 +236,7 @@ test s9_fill_order_17_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 100000000,
@@ -259,7 +259,7 @@ test s9_fill_order_17_lo_multiple() {
 test s9_fill_order_18_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 300000000,
@@ -268,7 +268,7 @@ test s9_fill_order_18_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 225000000,
@@ -276,7 +276,7 @@ test s9_fill_order_18_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 140000000,
@@ -284,7 +284,7 @@ test s9_fill_order_18_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 130000000,
@@ -307,7 +307,7 @@ test s9_fill_order_18_lo_multiple() {
 test s9_fill_order_19_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 750000000,
@@ -316,7 +316,7 @@ test s9_fill_order_19_lo_multiple() {
         unfilled_size: 300000000,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 100000000,
@@ -324,7 +324,7 @@ test s9_fill_order_19_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 100000000,
@@ -332,7 +332,7 @@ test s9_fill_order_19_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 100000000,
@@ -355,7 +355,7 @@ test s9_fill_order_19_lo_multiple() {
 test s9_fill_order_20_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 500000000,
@@ -364,7 +364,7 @@ test s9_fill_order_20_lo_multiple() {
         unfilled_size: 200000000,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 150000000,
@@ -372,7 +372,7 @@ test s9_fill_order_20_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 140000000,
@@ -380,7 +380,7 @@ test s9_fill_order_20_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 130000000,
@@ -403,7 +403,7 @@ test s9_fill_order_20_lo_multiple() {
 test s9_fill_order_21_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 445429048,
@@ -412,7 +412,7 @@ test s9_fill_order_21_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 139061203,
@@ -420,7 +420,7 @@ test s9_fill_order_21_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 689329315,
@@ -428,7 +428,7 @@ test s9_fill_order_21_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 189528912,
@@ -451,7 +451,7 @@ test s9_fill_order_21_lo_multiple() {
 test s9_fill_order_22_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 1021589015,
@@ -460,7 +460,7 @@ test s9_fill_order_22_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 166850088,
@@ -468,7 +468,7 @@ test s9_fill_order_22_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 232321347,
@@ -476,7 +476,7 @@ test s9_fill_order_22_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 120838210,
@@ -499,7 +499,7 @@ test s9_fill_order_22_lo_multiple() {
 test s9_fill_order_23_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 540733901,
@@ -508,7 +508,7 @@ test s9_fill_order_23_lo_multiple() {
         unfilled_size: 100021657,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 258907125,
@@ -516,7 +516,7 @@ test s9_fill_order_23_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 510250913,
@@ -524,7 +524,7 @@ test s9_fill_order_23_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 123875891,
@@ -547,7 +547,7 @@ test s9_fill_order_23_lo_multiple() {
 test s9_fill_order_24_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 2903567801,
@@ -556,7 +556,7 @@ test s9_fill_order_24_lo_multiple() {
         unfilled_size: 598663484,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 621909385,
@@ -564,7 +564,7 @@ test s9_fill_order_24_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 1074478218,
@@ -572,7 +572,7 @@ test s9_fill_order_24_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 1069497577,
@@ -595,7 +595,7 @@ test s9_fill_order_24_lo_multiple() {
 test s9_fill_order_25_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: True,
         size: 445429048,
@@ -604,7 +604,7 @@ test s9_fill_order_25_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: False,
           size: 139061203,
@@ -612,7 +612,7 @@ test s9_fill_order_25_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: False,
           size: 689329315,
@@ -620,7 +620,7 @@ test s9_fill_order_25_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: False,
           size: 40739333,
@@ -643,7 +643,7 @@ test s9_fill_order_25_lo_multiple() {
 test s9_fill_order_26_lo_multiple() {
   let test_case =
     TestCase {
-      taker: TestOrder {
+      taker: LimitOrder {
         account: 1,
         is_long: False,
         size: 869129851,
@@ -652,7 +652,7 @@ test s9_fill_order_26_lo_multiple() {
         unfilled_size: 0,
       },
       makers: [
-        TestOrder {
+        LimitOrder {
           account: 2,
           is_long: True,
           size: 71268866,
@@ -660,7 +660,7 @@ test s9_fill_order_26_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 3,
           is_long: True,
           size: 353281273,
@@ -668,7 +668,7 @@ test s9_fill_order_26_lo_multiple() {
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
-        TestOrder {
+        LimitOrder {
           account: 4,
           is_long: True,
           size: 20878908,
