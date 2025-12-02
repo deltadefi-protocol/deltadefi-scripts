@@ -26,7 +26,7 @@
     - If any order information other than `size` changed -> panic
     - `Spent OV (SOV)` = `OV` - output `order_value`
     - `Filled OV (FOV)` = `MOV` - output `order_size`
-    - `Return OV (ROV)` = `SOV` - `ROV`
+    - `Return OV (ROV)` = `SOV` - `FOV`
     - `Final Order Payoff (FOP)` = calculate from `FOV`
   - Process the maker order
     - Calculate `fee` (`FOP` \* 10bp round down)

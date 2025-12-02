@@ -94,7 +94,7 @@ pub fn fill_order(
               //   - If any order information other than `size` changed -> panic
               //   - `Spent OV (SOV)` = `OV` - output `order_value`
               //   - `Filled OV (FOV)` = `MOV` - output `order_size`
-              //   - `Return OV (ROV)` = `SOV` - `ROV`
+              //   - `Return OV (ROV)` = `SOV` - `FOV`
               //   - `Final Order Payoff (FOP)` = calculate from `FOV`
               let (sov, fov, final_order_payoff) =
                 get_unfilled_order(order, new_order_opt)
