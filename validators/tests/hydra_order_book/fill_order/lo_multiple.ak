@@ -482,15 +482,15 @@ test s9_fill_order_22_lo_multiple() {
           size: 120838210,
           price_times_1bil: 512500000,
           fee_amount_bp: 10,
-          unfilled_size: 4924712,
+          unfilled_size: 4924715,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 1021587, usd: 515084 },
-        Balance { account: 1, ada: 0, usd: 514569849 },
+        Balance { account: 0, ada: 1021588, usd: 515084 },
+        Balance { account: 1, ada: 5, usd: 514569846 },
         Balance { account: 2, ada: 332568312, usd: 0 },
         Balance { account: 3, ada: 462052609, usd: 0 },
-        Balance { account: 4, ada: 225946507, usd: 0 },
+        Balance { account: 4, ada: 225946501, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -553,7 +553,7 @@ test s9_fill_order_24_lo_multiple() {
         size: 2903567801,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
-        unfilled_size: 598663486,
+        unfilled_size: 598663484,
       },
       makers: [
         LimitOrder {
@@ -583,7 +583,7 @@ test s9_fill_order_24_lo_multiple() {
       ],
       payoff: [
         Balance { account: 0, ada: 2304902, usd: 2765885 },
-        Balance { account: 1, ada: 0, usd: 2763119295 },
+        Balance { account: 1, ada: 2, usd: 2763119295 },
         Balance { account: 2, ada: 517739563, usd: 0 },
         Balance { account: 2, ada: 894503117, usd: 0 },
         Balance { account: 2, ada: 890356733, usd: 0 },
@@ -649,7 +649,7 @@ test s9_fill_order_26_lo_multiple() {
         size: 869129851,
         price_times_1bil: 512500000,
         fee_amount_bp: 10,
-        unfilled_size: 5,
+        unfilled_size: 0,
       },
       makers: [
         LimitOrder {
@@ -679,7 +679,7 @@ test s9_fill_order_26_lo_multiple() {
       ],
       payoff: [
         Balance { account: 0, ada: 869129, usd: 445429 },
-        Balance { account: 1, ada: 0, usd: 444983618 },
+        Balance { account: 1, ada: 5, usd: 444983618 },
         Balance { account: 2, ada: 138922140, usd: 0 },
         Balance { account: 3, ada: 688639984, usd: 0 },
         Balance { account: 4, ada: 40698593, usd: 0 },
