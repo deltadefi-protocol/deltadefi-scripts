@@ -16,18 +16,18 @@ fn run_test(test_case: TestCase) -> Bool {
   )
 }
 
-test s9_fill_order_47_mo_multiple_lq() {
+test s9_fill_order_57_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
         account: 1,
         is_long: True,
-        size: 390000000,
+        size: 300000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
         base_balance: 0,
-        quote_balance: 390000000,
+        quote_balance: 540000000,
       },
       makers: [
         LimitOrder {
@@ -57,7 +57,7 @@ test s9_fill_order_47_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 390000 },
-        Balance { account: 1, ada: 299700000, usd: 0 },
+        Balance { account: 1, ada: 299700000, usd: 150000000 },
         Balance { account: 2, ada: 0, usd: 119880000 },
         Balance { account: 3, ada: 0, usd: 129870000 },
         Balance { account: 4, ada: 0, usd: 139860000 },
@@ -66,17 +66,17 @@ test s9_fill_order_47_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_48_mo_multiple_lq() {
+test s9_fill_order_58_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
         account: 1,
         is_long: False,
-        size: 300000000,
+        size: 330000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
-        base_balance: 300000000,
+        base_balance: 550000000,
         quote_balance: 0,
       },
       makers: [
@@ -107,7 +107,7 @@ test s9_fill_order_48_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 330000 },
-        Balance { account: 1, ada: 0, usd: 329670000 },
+        Balance { account: 1, ada: 250000000, usd: 329670000 },
         Balance { account: 2, ada: 99900000, usd: 0 },
         Balance { account: 3, ada: 99900000, usd: 0 },
         Balance { account: 4, ada: 99900000, usd: 0 },
@@ -116,18 +116,18 @@ test s9_fill_order_48_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_49_mo_multiple_lq() {
+test s9_fill_order_59_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
         account: 1,
         is_long: True,
-        size: 390000000,
+        size: 300000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
         base_balance: 0,
-        quote_balance: 390000000,
+        quote_balance: 540000000,
       },
       makers: [
         LimitOrder {
@@ -157,7 +157,7 @@ test s9_fill_order_49_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 390000 },
-        Balance { account: 1, ada: 299700000, usd: 0 },
+        Balance { account: 1, ada: 299700000, usd: 150000000 },
         Balance { account: 2, ada: 0, usd: 119880000 },
         Balance { account: 3, ada: 0, usd: 129870000 },
         Balance { account: 4, ada: 0, usd: 139860000 },
@@ -166,17 +166,17 @@ test s9_fill_order_49_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_50_mo_multiple_lq() {
+test s9_fill_order_60_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
         account: 1,
         is_long: False,
-        size: 300000000,
+        size: 330000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
-        base_balance: 300000000,
+        base_balance: 550000000,
         quote_balance: 0,
       },
       makers: [
@@ -207,7 +207,7 @@ test s9_fill_order_50_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 330000 },
-        Balance { account: 1, ada: 0, usd: 329670000 },
+        Balance { account: 1, ada: 250000000, usd: 329670000 },
         Balance { account: 2, ada: 99900000, usd: 0 },
         Balance { account: 3, ada: 99900000, usd: 0 },
         Balance { account: 4, ada: 99900000, usd: 0 },
@@ -216,7 +216,7 @@ test s9_fill_order_50_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_51_mo_multiple_lq() {
+test s9_fill_order_61_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -225,9 +225,9 @@ test s9_fill_order_51_mo_multiple_lq() {
         size: 500000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
-        unfilled_size: 110000000,
+        unfilled_size: 240000000,
         base_balance: 0,
-        quote_balance: 500000000,
+        quote_balance: 900000000,
       },
       makers: [
         LimitOrder {
@@ -257,7 +257,7 @@ test s9_fill_order_51_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 390000 },
-        Balance { account: 1, ada: 299700000, usd: 0 },
+        Balance { account: 1, ada: 299700000, usd: 270000000 },
         Balance { account: 2, ada: 0, usd: 119880000 },
         Balance { account: 3, ada: 0, usd: 129870000 },
         Balance { account: 4, ada: 0, usd: 139860000 },
@@ -266,7 +266,7 @@ test s9_fill_order_51_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_52_mo_multiple_lq() {
+test s9_fill_order_62_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -275,8 +275,8 @@ test s9_fill_order_52_mo_multiple_lq() {
         size: 500000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
-        unfilled_size: 200000000,
-        base_balance: 500000000,
+        unfilled_size: 141666666,
+        base_balance: 833333333,
         quote_balance: 0,
       },
       makers: [
@@ -307,7 +307,7 @@ test s9_fill_order_52_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 300000, usd: 330000 },
-        Balance { account: 1, ada: 0, usd: 329670000 },
+        Balance { account: 1, ada: 391666667, usd: 329670000 },
         Balance { account: 2, ada: 99900000, usd: 0 },
         Balance { account: 3, ada: 99900000, usd: 0 },
         Balance { account: 4, ada: 99900000, usd: 0 },
@@ -316,7 +316,7 @@ test s9_fill_order_52_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_53_mo_multiple_lq() {
+test s9_fill_order_63_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -327,7 +327,7 @@ test s9_fill_order_53_mo_multiple_lq() {
         fee_amount_bp: 10,
         unfilled_size: 0,
         base_balance: 0,
-        quote_balance: 891250911,
+        quote_balance: 1620427843,
       },
       makers: [
         LimitOrder {
@@ -352,21 +352,21 @@ test s9_fill_order_53_mo_multiple_lq() {
           size: 1258921985,
           price_times_1bil: 1523500000,
           fee_amount_bp: 10,
-          unfilled_size: 1203785153,
+          unfilled_size: 1029275004,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 716740, usd: 891249 },
-        Balance { account: 1, ada: 716024022, usd: 1 },
+        Balance { account: 0, ada: 891250, usd: 1157116 },
+        Balance { account: 1, ada: 890359661, usd: 463310721 },
         Balance { account: 2, ada: 0, usd: 301770836 },
         Balance { account: 3, ada: 0, usd: 504671861 },
-        Balance { account: 4, ada: 0, usd: 83916964 },
+        Balance { account: 4, ada: 0, usd: 349517309 },
       ],
     }
   run_test(test_case)
 }
 
-test s9_fill_order_54_mo_multiple_lq() {
+test s9_fill_order_64_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -376,7 +376,7 @@ test s9_fill_order_54_mo_multiple_lq() {
         price_times_1bil: 512300000,
         fee_amount_bp: 10,
         unfilled_size: 0,
-        base_balance: 518501215,
+        base_balance: 2024209310,
         quote_balance: 0,
       },
       makers: [
@@ -399,24 +399,24 @@ test s9_fill_order_54_mo_multiple_lq() {
         LimitOrder {
           account: 4,
           is_long: True,
-          size: 311001943,
+          size: 811101943,
           price_times_1bil: 500100000,
           fee_amount_bp: 10,
-          unfilled_size: 243804539,
+          unfilled_size: 486544114,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 518499, usd: 261140 },
-        Balance { account: 1, ada: 2, usd: 260879649 },
+        Balance { account: 0, ada: 1033117, usd: 518501 },
+        Balance { account: 1, ada: 991090171, usd: 517982713 },
         Balance { account: 2, ada: 125090463, usd: 0 },
         Balance { account: 3, ada: 258658683, usd: 0 },
-        Balance { account: 4, ada: 134233568, usd: 0 },
+        Balance { account: 4, ada: 648336876, usd: 0 },
       ],
     }
   run_test(test_case)
 }
 
-test s9_fill_order_55_mo_multiple_lq() {
+test s9_fill_order_65_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -425,9 +425,9 @@ test s9_fill_order_55_mo_multiple_lq() {
         size: 1036981165,
         price_times_1bil: 521100000,
         fee_amount_bp: 10,
-        unfilled_size: 683595738,
+        unfilled_size: 187136580,
         base_balance: 0,
-        quote_balance: 1036981165,
+        quote_balance: 810556327,
       },
       makers: [
         LimitOrder {
@@ -457,7 +457,7 @@ test s9_fill_order_55_mo_multiple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 677862, usd: 353384 },
-        Balance { account: 1, ada: 677184937, usd: 0 },
+        Balance { account: 1, ada: 677184937, usd: 270034320 },
         Balance { account: 2, ada: 0, usd: 122414944 },
         Balance { account: 3, ada: 0, usd: 67599999 },
         Balance { account: 4, ada: 0, usd: 163017100 },
@@ -466,51 +466,51 @@ test s9_fill_order_55_mo_multiple_lq() {
   run_test(test_case)
 }
 
-test s9_fill_order_56_mo_multiple_lq() {
+test s9_fill_order_66_mo_multiple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
         account: 1,
         is_long: False,
-        size: 10369081089,
-        price_times_1bil: 1200000000,
+        size: 16123743813,
+        price_times_1bil: 492100000,
         fee_amount_bp: 10,
-        unfilled_size: 1880391208,
-        base_balance: 10369081089,
+        unfilled_size: 19374043015,
+        base_balance: 65530354858,
         quote_balance: 0,
       },
       makers: [
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 2809518162,
-          price_times_1bil: 1200000000,
+          size: 2555184528,
+          price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
         LimitOrder {
           account: 3,
           is_long: True,
-          size: 1381738739,
-          price_times_1bil: 1100000000,
+          size: 827011263,
+          price_times_1bil: 491900000,
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
         LimitOrder {
           account: 4,
           is_long: True,
-          size: 4891298619,
-          price_times_1bil: 1000000000,
+          size: 3207581454,
+          price_times_1bil: 491700000,
           fee_amount_bp: 10,
           unfilled_size: 0,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 8488689, usd: 9082555 },
-        Balance { account: 1, ada: 1, usd: 9073472965 },
-        Balance { account: 2, ada: 2338923870, usd: 0 },
-        Balance { account: 3, ada: 1254870000, usd: 0 },
-        Balance { account: 4, ada: 4886407321, usd: 0 },
+        Balance { account: 0, ada: 13397119, usd: 6589777 },
+        Balance { account: 1, ada: 32759191589, usd: 6583187468 },
+        Balance { account: 2, ada: 5187216711, usd: 0 },
+        Balance { account: 3, ada: 1679577662, usd: 0 },
+        Balance { account: 4, ada: 6516928762, usd: 0 },
       ],
     }
   run_test(test_case)
