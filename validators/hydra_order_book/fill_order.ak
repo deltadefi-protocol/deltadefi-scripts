@@ -134,8 +134,6 @@ pub fn fill_order(
     when filler_order_input_opt is {
       Some(filler_order_input) -> {
         expect order: Order = input_inline_datum(filler_order_input)
-        // //   - Use exactly the makers’ `TFOV` as payoff
-        let final_payoff_value = tfov
         // let min_order_value = get_min_order_value(order, hydra_token_policy_id)
         //   - Calculate `fee` (`TFOV` \* 10bp round down)
         let fee_value = get_fee_value(tfov, order.fee_amount_bp)
@@ -143,9 +141,8 @@ pub fn fill_order(
         //   - Get `Maker OV`
         let order_value = filler_order_input.output.value
         //   - Handle unfilled order value
-        //   - `order remaining value (ORV)` = `Maker OV` - `TOPV`
-        //     - `ORV` = `ORV` - new order_size
-        let (final_order_value, _, _) =
+        //     - Get `SOV` for filler order
+        let (sov, _, _) =
           get_unfilled_order(order, new_order_opt)
             |> get_partial_filled_order_info(
                 order,
@@ -153,21 +150,27 @@ pub fn fill_order(
                 order_value,
               )
 
-        //   - Pay the `ORV` to taker
-        //     - If there is negative `ORV` → deduct from fee instead
-        let tov = tov |> merge(final_order_value)
-        let topv = topv |> merge(final_payoff_value)
+        //     - `TOV` = `TOV` + `SOV`
+        let tov = tov |> merge(sov)
+
+        //     - `TOPV` = `TOPV` + `TFOV`
+        let topv = topv |> merge(tfov)
+
+        //     - `order remaining value (ORV)` = `TOV` - `TOPV`
         let orv = tov |> merge(negate(topv))
+
+        //
+        let taker_fp =
+          tfov
+            |> merge(negate(fee_value))
 
         let final_account_payoff =
           ap
+            //   - Pay the `ORV` to taker
+            //     - If there is negative `ORV` → deduct from fee instead
             |> handle_remaining_value(order.account, fee_account, orv)
             |> add_to_payoff(fee_account, fee_value)
-            |> add_to_payoff(
-                order.account,
-                final_payoff_value
-                  |> merge(negate(fee_value)),
-              )
+            |> add_to_payoff(order.account, taker_fp)
 
         final_account_payoff
       }

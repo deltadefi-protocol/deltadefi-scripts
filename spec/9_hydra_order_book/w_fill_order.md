@@ -33,14 +33,18 @@
     - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
     - To fee collector `fee`
 - Handle filler order
-  - Use exactly the makers’ `TFOV` as payoff
   - Calculate `fee` (`TFOV` \* 10bp round down)
   - Get `Maker OV`
-  - `order remaining value (ORV)` = `Maker OV` - `TOPV`
   - Handle unfilled order value
-    - `ORV` = `ORV` - new order_size
-  - Pay the `ORV` to taker
+    - Get `SOV` for filler order
+    - `TOV` = `TOV` + `SOV`
+    - `TOPV` = `TOPV` + `TFOV`
+  - `order remaining value (ORV)` = `TOV` - `TOPV`
+  - Process the taker order
+    - Pay the `ORV` to taker
     - If there is negative `ORV` → deduct from fee instead
+    - To taker `Final Payoff (Taker FP)` = `tfov` - `fee`
+    - To fee collector `fee`
 
 ### Contract Guards
 
