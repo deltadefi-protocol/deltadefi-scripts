@@ -16,7 +16,7 @@ fn run_test(test_case: TestCase) -> Bool {
   )
 }
 
-test s9_fill_order_67_mo_db() {
+test s9_fill_order_71_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -48,7 +48,7 @@ test s9_fill_order_67_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_68_mo_db() {
+test s9_fill_order_72_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -80,7 +80,7 @@ test s9_fill_order_68_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_69_mo_db() {
+test s9_fill_order_73_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -112,7 +112,7 @@ test s9_fill_order_69_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_70_mo_db() {
+test s9_fill_order_74_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -144,7 +144,7 @@ test s9_fill_order_70_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_71_mo_db() {
+test s9_fill_order_75_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -176,7 +176,7 @@ test s9_fill_order_71_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_72_mo_db() {
+test s9_fill_order_76_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -193,22 +193,22 @@ test s9_fill_order_72_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 760000000,
+          size: 750000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
-          unfilled_size: 429999999,
+          unfilled_size: 420000000,
         },
       ],
       payoff: [
         Balance { account: 0, ada: 275000, usd: 330000 },
-        Balance { account: 1, ada: 274999999, usd: 329670001 },
-        Balance { account: 2, ada: 274725001, usd: 0 },
+        Balance { account: 1, ada: 275000000, usd: 329670000 },
+        Balance { account: 2, ada: 274725000, usd: 0 },
       ],
     }
   run_test(test_case)
 }
 
-test s9_fill_order_73_mo_db() {
+test s9_fill_order_77_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -240,7 +240,7 @@ test s9_fill_order_73_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_74_mo_db() {
+test s9_fill_order_78_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -272,7 +272,7 @@ test s9_fill_order_74_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_75_mo_db() {
+test s9_fill_order_79_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -304,7 +304,7 @@ test s9_fill_order_75_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_76_mo_db() {
+test s9_fill_order_80_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -336,7 +336,7 @@ test s9_fill_order_76_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_77_mo_db() {
+test s9_fill_order_81_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -368,7 +368,7 @@ test s9_fill_order_77_mo_db() {
   run_test(test_case)
 }
 
-test s9_fill_order_78_mo_db() {
+test s9_fill_order_82_mo_db() {
   let test_case =
     TestCase {
       taker: MarketOrder {
