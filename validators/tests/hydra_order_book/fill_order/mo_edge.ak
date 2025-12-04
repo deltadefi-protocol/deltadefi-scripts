@@ -16,7 +16,7 @@ fn run_test(test_case: TestCase) -> Bool {
   )
 }
 
-test s9_fill_order_79_mo_edge() {
+test s9_fill_order_83_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -47,7 +47,7 @@ test s9_fill_order_79_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_80_mo_edge() {
+test s9_fill_order_84_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -78,7 +78,7 @@ test s9_fill_order_80_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_81_mo_edge() {
+test s9_fill_order_85_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -126,7 +126,7 @@ test s9_fill_order_81_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_82_mo_edge() {
+test s9_fill_order_86_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -174,7 +174,7 @@ test s9_fill_order_82_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_83_mo_edge() {
+test s9_fill_order_87_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -205,7 +205,7 @@ test s9_fill_order_83_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_84_mo_edge() {
+test s9_fill_order_88_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -236,7 +236,7 @@ test s9_fill_order_84_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_85_mo_edge() {
+test s9_fill_order_89_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -284,7 +284,7 @@ test s9_fill_order_85_mo_edge() {
   run_test(test_case)
 }
 
-test s9_fill_order_86_mo_edge() {
+test s9_fill_order_90_mo_edge() {
   let test_case =
     TestCase {
       taker: MarketOrder {

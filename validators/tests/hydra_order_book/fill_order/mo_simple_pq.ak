@@ -16,7 +16,7 @@ fn run_test(test_case: TestCase) -> Bool {
   )
 }
 
-test s9_fill_order_37_mo_simple_pq() {
+test s9_fill_order_39_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -48,7 +48,7 @@ test s9_fill_order_37_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_38_mo_simple_pq() {
+test s9_fill_order_40_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -80,7 +80,7 @@ test s9_fill_order_38_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_39_mo_simple_pq() {
+test s9_fill_order_41_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -112,7 +112,7 @@ test s9_fill_order_39_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_40_mo_simple_pq() {
+test s9_fill_order_42_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -144,7 +144,7 @@ test s9_fill_order_40_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_41_mo_simple_pq() {
+test s9_fill_order_43_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -176,7 +176,7 @@ test s9_fill_order_41_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_42_mo_simple_pq() {
+test s9_fill_order_44_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -208,7 +208,7 @@ test s9_fill_order_42_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_43_mo_simple_pq() {
+test s9_fill_order_45_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -240,7 +240,7 @@ test s9_fill_order_43_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_44_mo_simple_pq() {
+test s9_fill_order_46_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -272,7 +272,7 @@ test s9_fill_order_44_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_45_mo_simple_pq() {
+test s9_fill_order_47_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -304,7 +304,7 @@ test s9_fill_order_45_mo_simple_pq() {
   run_test(test_case)
 }
 
-test s9_fill_order_46_mo_simple_pq() {
+test s9_fill_order_48_mo_simple_pq() {
   let test_case =
     TestCase {
       taker: MarketOrder {
@@ -330,6 +330,70 @@ test s9_fill_order_46_mo_simple_pq() {
       payoff: [
         Balance { account: 0, ada: 351340, usd: 109723 },
         Balance { account: 1, ada: 4031418684, usd: 109613790 },
+        Balance { account: 2, ada: 350988759, usd: 0 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_49_mo_simple_pq() {
+  let test_case =
+    TestCase {
+      taker: MarketOrder {
+        account: 1,
+        is_long: True,
+        size: 1298519100,
+        price_times_1bil: 621500000,
+        fee_amount_bp: 10,
+        unfilled_size: 583797821,
+        base_balance: 0,
+        quote_balance: 1210544430,
+      },
+      makers: [
+        LimitOrder {
+          account: 2,
+          is_long: False,
+          size: 359182300,
+          price_times_1bil: 621500000,
+          fee_amount_bp: 10,
+          unfilled_size: 0,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 359182, usd: 223231 },
+        Balance { account: 1, ada: 358823118, usd: 403514810 },
+        Balance { account: 2, ada: 0, usd: 223008568 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_50_mo_simple_pq() {
+  let test_case =
+    TestCase {
+      taker: MarketOrder {
+        account: 1,
+        is_long: False,
+        size: 1259012700,
+        price_times_1bil: 312300000,
+        fee_amount_bp: 10,
+        unfilled_size: 3680080650,
+        base_balance: 8062841498,
+        quote_balance: 0,
+      },
+      makers: [
+        LimitOrder {
+          account: 2,
+          is_long: True,
+          size: 109723513,
+          price_times_1bil: 312300000,
+          fee_amount_bp: 10,
+          unfilled_size: 0,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 351340, usd: 109723 },
+        Balance { account: 1, ada: 4031420749, usd: 109613790 },
         Balance { account: 2, ada: 350988759, usd: 0 },
       ],
     }
