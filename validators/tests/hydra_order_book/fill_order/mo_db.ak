@@ -129,16 +129,16 @@ test s9_fill_order_70_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 720000000,
+          size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 600000000,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 100000, usd: 120000 },
-        Balance { account: 1, ada: 200000000, usd: 119880000 },
-        Balance { account: 2, ada: 99900000, usd: 0 },
+        Balance { account: 0, ada: 300000, usd: 360000 },
+        Balance { account: 1, ada: 0, usd: 359640000 },
+        Balance { account: 2, ada: 299700000, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -161,16 +161,16 @@ test s9_fill_order_71_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 1200000000,
+          size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 564000000,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: -199470000, usd: 636000 },
-        Balance { account: 1, ada: 0, usd: 635364000 },
-        Balance { account: 2, ada: 529470000, usd: 0 },
+        Balance { account: 0, ada: 330000, usd: 396000 },
+        Balance { account: 1, ada: 0, usd: 395604000 },
+        Balance { account: 2, ada: 329670000, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -193,16 +193,16 @@ test s9_fill_order_72_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 400000000,
+          size: 760000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 429999999,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: -25000, usd: -30000 },
-        Balance { account: 1, ada: 574999999, usd: -29969999 },
-        Balance { account: 2, ada: -24974999, usd: 0 },
+        Balance { account: 0, ada: 275000, usd: 330000 },
+        Balance { account: 1, ada: 274999999, usd: 329670001 },
+        Balance { account: 2, ada: 274725001, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -321,16 +321,16 @@ test s9_fill_order_76_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 720000000,
+          size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 660000000,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 50000, usd: 60000 },
-        Balance { account: 1, ada: 450000000, usd: 59940000 },
-        Balance { account: 2, ada: 49950000, usd: 0 },
+        Balance { account: 0, ada: 250000, usd: 300000 },
+        Balance { account: 1, ada: 250000000, usd: 299700000 },
+        Balance { account: 2, ada: 249750000, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -353,16 +353,16 @@ test s9_fill_order_77_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 1200000000,
+          size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 630000000,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 475000, usd: 570000 },
-        Balance { account: 1, ada: 75000000, usd: 569430000 },
-        Balance { account: 2, ada: 474525000, usd: 0 },
+        Balance { account: 0, ada: 275000, usd: 330000 },
+        Balance { account: 1, ada: 275000000, usd: 329670000 },
+        Balance { account: 2, ada: 274725000, usd: 0 },
       ],
     }
   run_test(test_case)
@@ -385,16 +385,16 @@ test s9_fill_order_78_mo_db() {
         LimitOrder {
           account: 2,
           is_long: True,
-          size: 400000000,
+          size: 760000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 429999999,
         },
       ],
       payoff: [
-        Balance { account: 0, ada: -25000, usd: -30000 },
-        Balance { account: 1, ada: 574999999, usd: -29969999 },
-        Balance { account: 2, ada: -24974999, usd: 0 },
+        Balance { account: 0, ada: 275000, usd: 330000 },
+        Balance { account: 1, ada: 274999999, usd: 329670001 },
+        Balance { account: 2, ada: 274725001, usd: 0 },
       ],
     }
   run_test(test_case)
