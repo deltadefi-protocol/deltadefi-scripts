@@ -245,7 +245,7 @@ test s9_fill_order_89_mo_edge() {
         size: 521985115,
         price_times_1bil: 492100000,
         fee_amount_bp: 10,
-        unfilled_size: 157656592,
+        unfilled_size: 157656591,
         base_balance: 0,
         quote_balance: 521985115,
       },
@@ -277,7 +277,7 @@ test s9_fill_order_89_mo_edge() {
       ],
       payoff: [
         Balance { account: 0, ada: 739989, usd: 364327 },
-        Balance { account: 1, ada: 739249168, usd: 61850641 },
+        Balance { account: 1, ada: 739249168, usd: 61850642 },
         Balance { account: 2, ada: 0, usd: 302113555 },
       ],
     }

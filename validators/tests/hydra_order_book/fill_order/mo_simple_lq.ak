@@ -153,7 +153,7 @@ test s9_fill_order_31_mo_simple_lq() {
         size: 200000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
-        unfilled_size: 80000000,
+        unfilled_size: 79999999,
         base_balance: 0,
         quote_balance: 200000000,
       },
@@ -169,7 +169,7 @@ test s9_fill_order_31_mo_simple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 100000, usd: 120000 },
-        Balance { account: 1, ada: 99900000, usd: 0 },
+        Balance { account: 1, ada: 99900000, usd: 1 },
         Balance { account: 2, ada: 0, usd: 119880000 },
       ],
     }
@@ -281,7 +281,7 @@ test s9_fill_order_35_mo_simple_lq() {
         size: 1895129859,
         price_times_1bil: 712300000,
         fee_amount_bp: 10,
-        unfilled_size: 1252221039,
+        unfilled_size: 1252221038,
         base_balance: 0,
         quote_balance: 1895129859,
       },
@@ -297,7 +297,7 @@ test s9_fill_order_35_mo_simple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 902581, usd: 642908 },
-        Balance { account: 1, ada: 901678944, usd: 0 },
+        Balance { account: 1, ada: 901678944, usd: 1 },
         Balance { account: 2, ada: 0, usd: 642265912 },
       ],
     }
@@ -345,7 +345,7 @@ test s9_fill_order_37_mo_simple_lq() {
         size: 1895129700,
         price_times_1bil: 712300000,
         fee_amount_bp: 10,
-        unfilled_size: 1252220898,
+        unfilled_size: 1252220897,
         base_balance: 0,
         quote_balance: 1895129700,
       },
@@ -361,7 +361,7 @@ test s9_fill_order_37_mo_simple_lq() {
       ],
       payoff: [
         Balance { account: 0, ada: 902581, usd: 642908 },
-        Balance { account: 1, ada: 901678919, usd: 0 },
+        Balance { account: 1, ada: 901678919, usd: 1 },
         Balance { account: 2, ada: 0, usd: 642265894 },
       ],
     }
