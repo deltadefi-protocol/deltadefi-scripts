@@ -3,15 +3,23 @@ use cardano/assets.{PolicyId, Value, flatten, from_asset, merge, zero}
 use hydra_dex/account_utils.{from_value_to_hydra_balance}
 use hydra_dex/types.{Order}
 
+pub fn base_to_quote_qty(base_qty: Int, list_price_times_1bil: Int) -> Int {
+  base_qty * list_price_times_1bil / 1_000_000_000
+}
+
+pub fn quote_to_base_qty(quote_qty: Int, list_price_times_1bil: Int) -> Int {
+  quote_qty * 1_000_000_000 / list_price_times_1bil
+}
+
 pub fn get_payoff_qty(
   size: Int,
   list_price_times_1bil: Int,
   is_long: Bool,
 ) -> Int {
   if is_long {
-    size * 1_000_000_000 / list_price_times_1bil
+    quote_to_base_qty(size, list_price_times_1bil)
   } else {
-    size * list_price_times_1bil / 1_000_000_000
+    base_to_quote_qty(size, list_price_times_1bil)
   }
 }
 

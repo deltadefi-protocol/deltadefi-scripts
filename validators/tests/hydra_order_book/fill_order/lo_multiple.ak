@@ -536,9 +536,7 @@ test s9_fill_order_23_lo_multiple() {
       payoff: [
         Balance { account: 0, ada: 893033, usd: 428668 },
         Balance { account: 1, ada: 892140896, usd: 12043212 },
-        Balance { account: 2, ada: 0, usd: 124125280 },
-        Balance { account: 2, ada: 0, usd: 244726492 },
-        Balance { account: 2, ada: 0, usd: 59388592 },
+        Balance { account: 2, ada: 0, usd: 428240364 },
       ],
     }
   run_test(test_case)
@@ -584,9 +582,7 @@ test s9_fill_order_24_lo_multiple() {
       payoff: [
         Balance { account: 0, ada: 2304902, usd: 2765885 },
         Balance { account: 1, ada: 2, usd: 2763119295 },
-        Balance { account: 2, ada: 517739563, usd: 0 },
-        Balance { account: 2, ada: 894503117, usd: 0 },
-        Balance { account: 2, ada: 890356733, usd: 0 },
+        Balance { account: 2, ada: 2302599413, usd: 0 },
       ],
     }
   run_test(test_case)
