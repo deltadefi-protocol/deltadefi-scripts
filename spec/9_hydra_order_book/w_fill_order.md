@@ -38,8 +38,7 @@
   - Handle unfilled order value
     - Get `SOV` for filler order
     - `TOV` = `TOV` + `SOV`
-    - `TOPV` = `TOPV` + `TFOV`
-  - `order remaining value (ORV)` = `TOV` - `TOPV`
+  - `order remaining value (ORV)` = `TOV` - `TPV`
   - Process the taker order
     - Pay the `ORV` to taker
     - If there is negative `ORV` → deduct from fee instead

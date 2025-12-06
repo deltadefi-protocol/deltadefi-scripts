@@ -68,19 +68,27 @@ pub fn fill_order(
 
   // - Loop through `OI` 
   // - Return `total_order_value (TOV)`, `account_payoff (AP)`, `total_filled_order_value (TFOV)`, `total_order_payoff_value (TOPV)`, 
-  let (tov, ap, tfov, topv, filler_order_input_opt) =
+  let (tov, tpv, ap, tfov, topv, filler_order_input_opt) =
     order_inputs
       |> list.foldr(
-          (zero, [], zero, zero, None),
+          (zero, zero, [], zero, zero, None),
           fn(
             order_input,
-            (tov_acc, account_payoff_acc, tfov_acc, topv_acc, filler_order_acc),
+            (
+              tov_acc,
+              tpv_acc,
+              account_payoff_acc,
+              tfov_acc,
+              topv_acc,
+              filler_order_acc,
+            ),
           ) {
             expect order: Order = input_inline_datum(order_input)
             //   - Skip the filler order for later process
             if order.order_id == filler_order_id {
               (
                 tov_acc,
+                tpv_acc,
                 account_payoff_acc,
                 tfov_acc,
                 topv_acc,
@@ -111,6 +119,7 @@ pub fn fill_order(
               (
                 // - Cummulate the order value
                 tov_acc |> merge(sov),
+                tpv_acc |> merge(fov) |> merge(rov),
                 account_payoff_acc
                   //   - Calculate `fee` (`FOP` \* 10bp round down)
                   //   - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
@@ -153,13 +162,10 @@ pub fn fill_order(
         //     - `TOV` = `TOV` + `SOV`
         let tov = tov |> merge(sov)
 
-        //     - `TOPV` = `TOPV` + `TFOV`
-        let topv = topv |> merge(tfov)
+        //     - `order remaining value (ORV)` = `TOV` - `TOPV - `TPV`
+        let orv = tov |> merge(negate(topv)) |> merge(negate(tpv))
 
-        //     - `order remaining value (ORV)` = `TOV` - `TOPV`
-        let orv = tov |> merge(negate(topv))
-
-        //
+        //     - To taker Final Payoff (Taker FP) = tfov - fee
         let taker_fp =
           tfov
             |> merge(negate(fee_value))

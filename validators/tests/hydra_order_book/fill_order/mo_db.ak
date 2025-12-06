@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use hydra_dex/types.{FillOrder}
 use hydra_order_book/core as ob
 use tests/hydra_order_book/fill_order/utils.{
-  Balance, LimitOrder, MarketOrder, TestCase, fill_order_test,
+  Balance, TestCase, TestOrder, fill_order_test,
 } as test_utils
 use tests/utils.{mock_dex_order_book_token, mock_hydra_order_book}
 
@@ -19,7 +19,7 @@ fn run_test(test_case: TestCase) -> Bool {
 test s9_fill_order_71_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 300000000,
@@ -30,13 +30,15 @@ test s9_fill_order_71_mo_db() {
         quote_balance: 540000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 800000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 500000000,
+          base_balance: 800000000,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -51,7 +53,7 @@ test s9_fill_order_71_mo_db() {
 test s9_fill_order_72_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 330000000,
@@ -62,13 +64,15 @@ test s9_fill_order_72_mo_db() {
         quote_balance: 594000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 300000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 300000000,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -83,7 +87,7 @@ test s9_fill_order_72_mo_db() {
 test s9_fill_order_73_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 330000000,
@@ -94,13 +98,15 @@ test s9_fill_order_73_mo_db() {
         quote_balance: 330000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 633333333,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 358333333,
+          base_balance: 633333333,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -115,7 +121,7 @@ test s9_fill_order_73_mo_db() {
 test s9_fill_order_74_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 300000000,
@@ -126,13 +132,15 @@ test s9_fill_order_74_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 600000000,
+          base_balance: 0,
+          quote_balance: 960000000,
         },
       ],
       payoff: [
@@ -147,7 +155,7 @@ test s9_fill_order_74_mo_db() {
 test s9_fill_order_75_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 330000000,
@@ -158,13 +166,15 @@ test s9_fill_order_75_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 564000000,
+          base_balance: 0,
+          quote_balance: 960000000,
         },
       ],
       payoff: [
@@ -179,7 +189,7 @@ test s9_fill_order_75_mo_db() {
 test s9_fill_order_76_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 330000000,
@@ -190,13 +200,15 @@ test s9_fill_order_76_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 750000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 420000000,
+          base_balance: 0,
+          quote_balance: 750000000,
         },
       ],
       payoff: [
@@ -211,7 +223,7 @@ test s9_fill_order_76_mo_db() {
 test s9_fill_order_77_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 300000000,
@@ -222,13 +234,15 @@ test s9_fill_order_77_mo_db() {
         quote_balance: 300000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 800000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 550000000,
+          base_balance: 800000000,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -243,7 +257,7 @@ test s9_fill_order_77_mo_db() {
 test s9_fill_order_78_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 330000000,
@@ -254,13 +268,15 @@ test s9_fill_order_78_mo_db() {
         quote_balance: 330000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 300000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 25000000,
+          base_balance: 300000000,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -275,7 +291,7 @@ test s9_fill_order_78_mo_db() {
 test s9_fill_order_79_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 330000000,
@@ -286,13 +302,15 @@ test s9_fill_order_79_mo_db() {
         quote_balance: 330000000,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 633333333,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 358333333,
+          base_balance: 633333333,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -307,7 +325,7 @@ test s9_fill_order_79_mo_db() {
 test s9_fill_order_80_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 300000000,
@@ -318,13 +336,15 @@ test s9_fill_order_80_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 660000000,
+          base_balance: 0,
+          quote_balance: 960000000,
         },
       ],
       payoff: [
@@ -339,7 +359,7 @@ test s9_fill_order_80_mo_db() {
 test s9_fill_order_81_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 330000000,
@@ -350,13 +370,15 @@ test s9_fill_order_81_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 960000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 630000000,
+          base_balance: 0,
+          quote_balance: 960000000,
         },
       ],
       payoff: [
@@ -371,7 +393,7 @@ test s9_fill_order_81_mo_db() {
 test s9_fill_order_82_mo_db() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 330000000,
@@ -382,19 +404,21 @@ test s9_fill_order_82_mo_db() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
-          size: 760000000,
+          size: 759999999,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
           unfilled_size: 429999999,
+          base_balance: 0,
+          quote_balance: 760000000,
         },
       ],
       payoff: [
         Balance { account: 0, ada: 275000, usd: 330000 },
-        Balance { account: 1, ada: 274999999, usd: 329670001 },
-        Balance { account: 2, ada: 274725001, usd: 0 },
+        Balance { account: 1, ada: 275000000, usd: 329670000 },
+        Balance { account: 2, ada: 274725000, usd: 1 },
       ],
     }
   run_test(test_case)

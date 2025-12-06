@@ -2,7 +2,7 @@ use cardano/address.{Script}
 use hydra_dex/types.{FillOrder}
 use hydra_order_book/core as ob
 use tests/hydra_order_book/fill_order/utils.{
-  Balance, LimitOrder, MarketOrder, TestCase, fill_order_test,
+  Balance, TestCase, TestOrder, fill_order_test,
 } as test_utils
 use tests/utils.{mock_dex_order_book_token, mock_hydra_order_book}
 
@@ -19,7 +19,7 @@ fn run_test(test_case: TestCase) -> Bool {
 test s9_fill_order_83_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 521985115,
@@ -30,13 +30,15 @@ test s9_fill_order_83_mo_edge() {
         quote_balance: 385303312,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: False,
           size: 1125812951,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 603827836,
+          base_balance: 1125812951,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -50,7 +52,7 @@ test s9_fill_order_83_mo_edge() {
 test s9_fill_order_84_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 521985115,
@@ -61,13 +63,15 @@ test s9_fill_order_84_mo_edge() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: True,
           size: 554012553,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 297143678,
+          base_balance: 0,
+          quote_balance: 554012553,
         },
       ],
       payoff: [
@@ -81,7 +85,7 @@ test s9_fill_order_84_mo_edge() {
 test s9_fill_order_85_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 521985115,
@@ -92,29 +96,35 @@ test s9_fill_order_85_mo_edge() {
         quote_balance: 385303312,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: False,
           size: 125812951,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 125812951,
+          quote_balance: 0,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 329051011,
           price_times_1bil: 492300000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 329051011,
+          quote_balance: 0,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 285125195,
           price_times_1bil: 492500000,
           fee_amount_bp: 10,
           unfilled_size: 218004042,
+          base_balance: 285125195,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -129,7 +139,7 @@ test s9_fill_order_85_mo_edge() {
 test s9_fill_order_86_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 521985115,
@@ -140,29 +150,35 @@ test s9_fill_order_86_mo_edge() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: True,
           size: 61912553,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 61912553,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 161991812,
           price_times_1bil: 492300000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 161991812,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 140424158,
           price_times_1bil: 492500000,
           fee_amount_bp: 10,
           unfilled_size: 107366990,
+          base_balance: 0,
+          quote_balance: 140424158,
         },
       ],
       payoff: [
@@ -177,7 +193,7 @@ test s9_fill_order_86_mo_edge() {
 test s9_fill_order_87_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 521985115,
@@ -188,13 +204,15 @@ test s9_fill_order_87_mo_edge() {
         quote_balance: 521985115,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: False,
           size: 1125812951,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 65083191,
+          base_balance: 1125812951,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -208,7 +226,7 @@ test s9_fill_order_87_mo_edge() {
 test s9_fill_order_88_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 521985115,
@@ -219,13 +237,15 @@ test s9_fill_order_88_mo_edge() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: True,
           size: 554012553,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 32027438,
+          base_balance: 0,
+          quote_balance: 554012553,
         },
       ],
       payoff: [
@@ -239,7 +259,7 @@ test s9_fill_order_88_mo_edge() {
 test s9_fill_order_89_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: True,
         size: 521985115,
@@ -250,29 +270,35 @@ test s9_fill_order_89_mo_edge() {
         quote_balance: 521985115,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: False,
           size: 125812951,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 125812951,
+          quote_balance: 0,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 329051011,
           price_times_1bil: 492300000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 329051011,
+          quote_balance: 0,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: False,
           size: 285125195,
           price_times_1bil: 492500000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 285125195,
+          quote_balance: 0,
         },
       ],
       payoff: [
@@ -287,7 +313,7 @@ test s9_fill_order_89_mo_edge() {
 test s9_fill_order_90_mo_edge() {
   let test_case =
     TestCase {
-      taker: MarketOrder {
+      taker: TestOrder {
         account: 1,
         is_long: False,
         size: 521985115,
@@ -298,29 +324,35 @@ test s9_fill_order_90_mo_edge() {
         quote_balance: 0,
       },
       makers: [
-        LimitOrder {
+        TestOrder {
           account: 1,
           is_long: True,
           size: 61912553,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 61912553,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 161991812,
           price_times_1bil: 492300000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 161991812,
         },
-        LimitOrder {
+        TestOrder {
           account: 2,
           is_long: True,
           size: 140424158,
           price_times_1bil: 492500000,
           fee_amount_bp: 10,
           unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 140424158,
         },
       ],
       payoff: [

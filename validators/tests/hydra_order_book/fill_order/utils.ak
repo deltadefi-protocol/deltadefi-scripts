@@ -19,24 +19,14 @@ use tests/utils.{
 }
 
 pub type TestOrder {
-  MarketOrder {
-    account: Int,
-    is_long: Bool,
-    size: Int,
-    price_times_1bil: Int,
-    fee_amount_bp: Int,
-    unfilled_size: Int,
-    base_balance: Int,
-    quote_balance: Int,
-  }
-  LimitOrder {
-    account: Int,
-    is_long: Bool,
-    size: Int,
-    price_times_1bil: Int,
-    fee_amount_bp: Int,
-    unfilled_size: Int,
-  }
+  account: Int,
+  is_long: Bool,
+  size: Int,
+  price_times_1bil: Int,
+  fee_amount_bp: Int,
+  unfilled_size: Int,
+  base_balance: Int,
+  quote_balance: Int,
 }
 
 pub type OrderConfig {
@@ -147,88 +137,50 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
       |> list.indexed_foldr(
           ([], None),
           fn(i: Int, order: TestOrder, acc) {
-            when order is {
-              LimitOrder {
-                account,
-                is_long,
-                size,
-                price_times_1bil,
-                fee_amount_bp,
-                unfilled_size,
-              } -> {
-                let order_id =
-                  bytearray.concat("order_", convert_int_to_bytes(i + 1))
-                let process_order =
-                  fn(size: Int) {
-                    mk_base_order(
-                      mock_order(
-                        order_id,
-                        is_long,
-                        size,
-                        price_times_1bil,
-                        fee_amount_bp,
-                        mk_fill_account(account),
-                      ),
-                    )
-                  }
-
-                let order_input = process_order(size)
-
-                let unfilled_order =
-                  if unfilled_size > 0 {
-                    Some(process_order(unfilled_size))
-                  } else {
-                    acc.2nd
-                  }
-                (acc.1st |> list.push(order_input), unfilled_order)
-              }
-              MarketOrder {
-                account,
-                is_long,
-                size,
-                price_times_1bil,
-                fee_amount_bp,
-                unfilled_size,
+            let TestOrder {
+              account,
+              is_long,
+              size,
+              price_times_1bil,
+              fee_amount_bp,
+              unfilled_size,
+              base_balance,
+              quote_balance,
+            } = order
+            let order_id =
+              bytearray.concat("order_", convert_int_to_bytes(i + 1))
+            let order_input =
+              mk_market_order(
+                mock_order(
+                  order_id,
+                  is_long,
+                  size,
+                  price_times_1bil,
+                  fee_amount_bp,
+                  mk_fill_account(account),
+                ),
                 base_balance,
                 quote_balance,
-              } -> {
-                let order_id =
-                  bytearray.concat("order_", convert_int_to_bytes(i + 1))
+              )
 
-                let order_input =
-                  mk_market_order(
+            let unfilled_order =
+              if unfilled_size > 0 {
+                Some(
+                  mk_base_order(
                     mock_order(
                       order_id,
                       is_long,
-                      size,
+                      unfilled_size,
                       price_times_1bil,
                       fee_amount_bp,
                       mk_fill_account(account),
                     ),
-                    base_balance,
-                    quote_balance,
-                  )
-
-                let unfilled_order =
-                  if unfilled_size > 0 {
-                    Some(
-                      mk_base_order(
-                        mock_order(
-                          order_id,
-                          is_long,
-                          unfilled_size,
-                          price_times_1bil,
-                          fee_amount_bp,
-                          mk_fill_account(account),
-                        ),
-                      ),
-                    )
-                  } else {
-                    acc.2nd
-                  }
-                (acc.1st |> list.push(order_input), unfilled_order)
+                  ),
+                )
+              } else {
+                acc.2nd
               }
-            }
+            (acc.1st |> list.push(order_input), unfilled_order)
           },
         )
 
