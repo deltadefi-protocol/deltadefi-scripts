@@ -481,19 +481,20 @@ test s9_fill_order_94_mo_edge() {
       },
       makers: [
         TestOrder {
-          account: 1,
+          account: 2,
           is_long: True,
-          size: 590520000,
+          size: 554012553,
           price_times_1bil: 492100000,
           fee_amount_bp: 10,
-          unfilled_size: 68534885,
+          unfilled_size: 32027438,
           base_balance: 0,
-          quote_balance: 554012553,
+          quote_balance: 600000000,
         },
       ],
       payoff: [
         Balance { account: 0, ada: 1060729, usd: 521985 },
-        Balance { account: 1, ada: 2120398791, usd: 484955683 },
+        Balance { account: 1, ada: 1060729760, usd: 521463130 },
+        Balance { account: 2, ada: 1059669031, usd: 45987447 },
       ],
     }
   run_test(test_case)
