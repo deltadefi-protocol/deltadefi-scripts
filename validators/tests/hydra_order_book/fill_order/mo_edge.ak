@@ -363,3 +363,138 @@ test s9_fill_order_90_mo_edge() {
     }
   run_test(test_case)
 }
+
+test s9_fill_order_91_mo_edge() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_long: True,
+        size: 521985115,
+        price_times_1bil: 492100000,
+        fee_amount_bp: 10,
+        unfilled_size: 0,
+        base_balance: 0,
+        quote_balance: 385303312,
+      },
+      makers: [
+        TestOrder {
+          account: 2,
+          is_long: False,
+          size: 1125812951,
+          price_times_1bil: 492100000,
+          fee_amount_bp: 10,
+          unfilled_size: 603827836,
+          base_balance: 1200000000,
+          quote_balance: 0,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 521985, usd: 256868 },
+        Balance { account: 1, ada: 521463130, usd: 128434437 },
+        Balance { account: 2, ada: 74187049, usd: 256612007 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_92_mo_edge() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_long: False,
+        size: 521985115,
+        price_times_1bil: 492100000,
+        fee_amount_bp: 10,
+        unfilled_size: 0,
+        base_balance: 521985115,
+        quote_balance: 0,
+      },
+      makers: [
+        TestOrder {
+          account: 2,
+          is_long: True,
+          size: 554012553,
+          price_times_1bil: 492100000,
+          fee_amount_bp: 10,
+          unfilled_size: 297143678,
+          base_balance: 0,
+          quote_balance: 600000000,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 521985, usd: 256868 },
+        Balance { account: 1, ada: 0, usd: 256612007 },
+        Balance { account: 2, ada: 521463130, usd: 45987447 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_93_mo_edge() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_long: True,
+        size: 521985115,
+        price_times_1bil: 492100000,
+        fee_amount_bp: 10,
+        unfilled_size: 0,
+        base_balance: 0,
+        quote_balance: 521985115,
+      },
+      makers: [
+        TestOrder {
+          account: 2,
+          is_long: False,
+          size: 1125812951,
+          price_times_1bil: 492100000,
+          fee_amount_bp: 10,
+          unfilled_size: 65083191,
+          base_balance: 1200000000,
+          quote_balance: 0,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 1060729, usd: 521985 },
+        Balance { account: 1, ada: 1059669031, usd: 0 },
+        Balance { account: 2, ada: 74187049, usd: 521463130 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_94_mo_edge() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_long: False,
+        size: 521985115,
+        price_times_1bil: 492100000,
+        fee_amount_bp: 10,
+        unfilled_size: 0,
+        base_balance: 2121459520,
+        quote_balance: 0,
+      },
+      makers: [
+        TestOrder {
+          account: 1,
+          is_long: True,
+          size: 590520000,
+          price_times_1bil: 492100000,
+          fee_amount_bp: 10,
+          unfilled_size: 68534885,
+          base_balance: 0,
+          quote_balance: 554012553,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 1060729, usd: 521985 },
+        Balance { account: 1, ada: 2120398791, usd: 484955683 },
+      ],
+    }
+  run_test(test_case)
+}
