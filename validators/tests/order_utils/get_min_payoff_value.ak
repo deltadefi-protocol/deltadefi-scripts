@@ -2,8 +2,7 @@ use hydra_dex/order_utils.{
   base_to_quote_qty, get_min_payoff_value, get_payoff_qty, quote_to_base_qty,
 }
 use tests/utils.{
-  mock_account, mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
-  mock_order, mock_order_id,
+  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_order, mock_order_id,
 }
 
 test ou_gmpv_1() {
@@ -24,7 +23,7 @@ test ou_gmpv_1() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   order_payoff == mock_hydra_usd(quote_qty)
 }
 
@@ -46,7 +45,7 @@ test ou_gmpv_2() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   order_payoff == mock_hydra_lovelace(base_qty)
 }
 
@@ -68,7 +67,7 @@ test ou_gmpv_3() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   order_payoff == mock_hydra_lovelace(base_qty)
 }
 
@@ -92,7 +91,7 @@ test ou_gmpv_4() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 891250910, expectedQuoteQty: 0
   // Since is_buy=True, we expect base (lovelace), and the payoff should equal size-1
   order_payoff == mock_hydra_lovelace(891_250_910)
@@ -117,7 +116,7 @@ test ou_gmpv_5() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 1036981164, expectedQuoteQty: 0
   order_payoff == mock_hydra_lovelace(1_036_981_164)
 }
@@ -141,7 +140,7 @@ test ou_gmpv_6() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 518501214
   order_payoff == mock_hydra_usd(518_501_214)
 }
@@ -165,7 +164,7 @@ test ou_gmpv_7() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 16123743812
   order_payoff == mock_hydra_usd(16_123_743_812)
 }
@@ -189,7 +188,7 @@ test ou_gmpv_8() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 4251261360
   order_payoff == mock_hydra_usd(4_251_261_360)
 }
@@ -211,7 +210,7 @@ test ou_gmpv_9() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 735294869, expectedQuoteQty: 0
   order_payoff == mock_hydra_lovelace(735_294_869)
 }
@@ -233,7 +232,7 @@ test ou_gmpv_10() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 1989984964, expectedQuoteQty: 0
   order_payoff == mock_hydra_lovelace(1_989_984_964)
 }
@@ -255,7 +254,7 @@ test ou_gmpv_11() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 265628172
   order_payoff == mock_hydra_usd(265_628_172)
 }
@@ -277,7 +276,7 @@ test ou_gmpv_12() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 7934494330
   order_payoff == mock_hydra_usd(7_934_494_330)
 }
@@ -299,7 +298,7 @@ test ou_gmpv_13() {
       mock_account,
     )
 
-  let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
+  let order_payoff = get_min_payoff_value(order)
   // expectedBaseQty: 0, expectedQuoteQty: 5753231999
   order_payoff == mock_hydra_usd(5_753_231_999)
 }

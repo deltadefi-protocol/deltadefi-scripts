@@ -15,8 +15,8 @@ use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token, mock_fee_account,
   mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
-  mock_hydra_order_book_address, mock_hydra_token_policy_id, mock_hydra_usd,
-  mock_operation_key, mock_order, mock_user_account,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_operation_key, mock_order,
+  mock_user_account,
 }
 
 type TestCase {
@@ -30,7 +30,7 @@ type TestCase {
 }
 
 fn mk_base_order(order: Order) -> Pair<Order, Value> {
-  Pair(order, get_min_order_value(order, mock_hydra_token_policy_id))
+  Pair(order, get_min_order_value(order))
 }
 
 fn mk_balance(account: Account, value: Value) -> Pair<UserAccount, Value> {

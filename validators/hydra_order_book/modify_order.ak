@@ -91,10 +91,7 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   // - `is_buy` == True -> at least `size` of quote token
   // - `is_buy` == False -> at least `size` of base token
   let is_order_value_sufficient =
-    value_geq(
-      order_output.value,
-      get_min_order_value(new_order_datum, hydra_token_policy_id),
-    )
+    value_geq(order_output.value, get_min_order_value(new_order_datum))
 
   // - The input intent token is burnt
   let is_intent_token_burnt =

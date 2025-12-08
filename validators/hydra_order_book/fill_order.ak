@@ -28,7 +28,6 @@ pub fn fill_order(
     fee_account,
     hydra_order_book_script_hash,
     hydra_account_script_hash,
-    hydra_token_policy_id,
     ..
   }: DexOrderBookDatum =
     reference_inputs |> get_dex_order_book_datum(oracle_nft)
@@ -106,11 +105,7 @@ pub fn fill_order(
               //   - `Final Order Payoff (FOP)` = calculate from `FOV`
               let (sov, fov, final_order_payoff) =
                 get_unfilled_order(order, new_order_opt)
-                  |> get_partial_filled_order_info(
-                      order,
-                      hydra_token_policy_id,
-                      order_value,
-                    )
+                  |> get_partial_filled_order_info(order, order_value)
               let rov = sov |> merge(negate(fov))
 
               // - Process the maker order
@@ -153,11 +148,7 @@ pub fn fill_order(
         //     - Get `SOV` for filler order
         let (sov, _, _) =
           get_unfilled_order(order, new_order_opt)
-            |> get_partial_filled_order_info(
-                order,
-                hydra_token_policy_id,
-                order_value,
-              )
+            |> get_partial_filled_order_info(order, order_value)
 
         //     - `TOV` = `TOV` + `SOV`
         let tov = tov |> merge(sov)
@@ -206,10 +197,7 @@ pub fn fill_order(
     when new_order_opt is {
       Some((new_order, new_order_value)) ->
         (
-          value_geq(
-            new_order_value,
-            get_min_order_value(new_order, hydra_token_policy_id),
-          ),
+          value_geq(new_order_value, get_min_order_value(new_order)),
           new_order_value,
         )
       _ -> (True, zero)
@@ -258,17 +246,16 @@ fn get_unfilled_order(
 fn get_partial_filled_order_info(
   unfilled_order: Option<(Order, Value)>,
   order: Order,
-  hydra_token_policy_id: ByteArray,
   order_value: Value,
 ) -> (Value, Value, Value) {
-  let min_order_value = get_min_order_value(order, hydra_token_policy_id)
-  let min_payoff_value = get_min_payoff_value(order, hydra_token_policy_id)
+  let min_order_value = get_min_order_value(order)
+  let min_payoff_value = get_min_payoff_value(order)
 
   when unfilled_order is {
     Some((new_order, new_order_value)) -> {
       let sov = order_value |> merge(negate(new_order_value))
-      let new_mov = get_min_order_value(new_order, hydra_token_policy_id)
-      let new_mpv = get_min_payoff_value(new_order, hydra_token_policy_id)
+      let new_mov = get_min_order_value(new_order)
+      let new_mpv = get_min_payoff_value(new_order)
 
       let fov =
         min_order_value

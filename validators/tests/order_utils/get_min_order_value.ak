@@ -1,7 +1,6 @@
 use hydra_dex/order_utils.{get_min_order_value}
 use tests/utils.{
-  mock_account, mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
-  mock_order, mock_order_id,
+  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_order, mock_order_id,
 }
 
 test ou_gmov_1() {
@@ -20,7 +19,7 @@ test ou_gmov_1() {
       mock_account,
     )
 
-  let min_order_value = get_min_order_value(order, mock_hydra_token_policy_id)
+  let min_order_value = get_min_order_value(order)
   min_order_value == mock_hydra_lovelace(size)
 }
 
@@ -39,7 +38,7 @@ test ou_gmov_2() {
       fee_amount_bp,
       mock_account,
     )
-  let min_order_value = get_min_order_value(order, mock_hydra_token_policy_id)
+  let min_order_value = get_min_order_value(order)
   min_order_value == mock_hydra_usd(size)
 }
 
@@ -57,6 +56,6 @@ test ou_gmov_3() {
       fee_amount_bp,
       mock_account,
     )
-  let min_order_value = get_min_order_value(order, mock_hydra_token_policy_id)
+  let min_order_value = get_min_order_value(order)
   min_order_value == mock_hydra_usd(size)
 }

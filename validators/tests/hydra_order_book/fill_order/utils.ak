@@ -14,8 +14,8 @@ use tests/utils.{
   mock_account, mock_account_2, mock_account_3, mock_account_4,
   mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_fee_account, mock_hydra_account_address,
-  mock_hydra_lovelace, mock_hydra_order_book_address, mock_hydra_token_policy_id,
-  mock_hydra_usd, mock_operation_key, mock_order, mock_user_account,
+  mock_hydra_lovelace, mock_hydra_order_book_address, mock_hydra_usd,
+  mock_operation_key, mock_order, mock_user_account,
 }
 
 pub type TestOrder {
@@ -51,7 +51,7 @@ pub type TestCase {
 }
 
 pub fn mk_base_order(order: Order) -> Pair<Order, Value> {
-  Pair(order, get_min_order_value(order, mock_hydra_token_policy_id))
+  Pair(order, get_min_order_value(order))
 }
 
 pub fn mk_market_order(

@@ -1,7 +1,8 @@
 use aiken/collection/list
+use aiken/collection/pairs
 use cardano/assets.{PolicyId, Value, flatten, from_asset, merge, zero}
-use hydra_dex/account_utils.{from_value_to_hydra_balance}
-use hydra_dex/types.{Order}
+use hydra_dex/account_utils.{hash_token}
+use hydra_dex/types.{Order, TokenMap}
 
 pub fn base_to_quote_qty(base_qty: Int, list_price_times_1bil: Int) -> Int {
   base_qty * list_price_times_1bil / 1_000_000_000
@@ -23,10 +24,7 @@ pub fn get_payoff_qty(
   }
 }
 
-pub fn get_min_order_value(
-  order: Order,
-  hydra_token_policy_id: PolicyId,
-) -> Value {
+pub fn get_min_order_value(order: Order) -> Value {
   let (policy, name) =
     if order.is_buy {
       order.quote_token
@@ -34,13 +32,9 @@ pub fn get_min_order_value(
       order.base_token
     }
   from_asset(policy, name, order.size)
-    |> from_value_to_hydra_balance(hydra_token_policy_id)
 }
 
-pub fn get_min_payoff_value(
-  order: Order,
-  hydra_token_policy_id: PolicyId,
-) -> Value {
+pub fn get_min_payoff_value(order: Order) -> Value {
   let (policy, name) =
     if order.is_buy {
       order.base_token
@@ -52,7 +46,6 @@ pub fn get_min_payoff_value(
     name,
     get_payoff_qty(order.size, order.list_price_times_1bil, order.is_buy),
   )
-    |> from_value_to_hydra_balance(hydra_token_policy_id)
 }
 
 pub fn get_fee(transacted_value: Int, fee_bp: Int) -> Int {
@@ -72,4 +65,24 @@ pub fn split_order_fee(payoff: Value, fee_bp: Int) -> (Value, Value) {
       )
     },
   )
+}
+
+// Hydra Open / Close
+pub fn order_datum_to_merkle_datum(order: Order, token_map: TokenMap) -> Order {
+  let (base_token, quote_token) =
+    when
+      (
+        pairs.get_first(token_map, order.base_token.2nd),
+        pairs.get_first(token_map, order.quote_token.2nd),
+      )
+    is {
+      (
+        Some((base_policy_id, base_asset_name)),
+        Some((quote_policy_id, quote_asset_name)),
+      ) ->
+        ((base_policy_id, base_asset_name), (quote_policy_id, quote_asset_name))
+      _ -> fail @"Token hash not found in token map"
+    }
+
+  Order { ..order, base_token: base_token, quote_token: quote_token }
 }

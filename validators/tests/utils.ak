@@ -248,10 +248,10 @@ pub fn mock_order(
 ) {
   Order {
     order_id,
-    base_token: ("", ""),
+    base_token: (mock_hydra_token_policy_id, ""),
     quote_token: (
-      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-      #"55534458",
+      mock_hydra_token_policy_id,
+      #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960",
     ),
     is_buy,
     list_price_times_1bil,
@@ -273,10 +273,10 @@ pub fn mock_order_intent(
     intent: PlaceOrderIntent {
       order: Order {
         order_id: mock_order_id,
-        base_token: ("", ""),
+        base_token: (mock_hydra_token_policy_id, ""),
         quote_token: (
-          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-          #"55534458",
+          mock_hydra_token_policy_id,
+          #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960",
         ),
         is_buy,
         list_price_times_1bil,
@@ -302,10 +302,10 @@ pub fn mock_modify_order_intent(
     intent: ModifyOrderIntent {
       new_order: Order {
         order_id: mock_order_id,
-        base_token: ("", ""),
+        base_token: (mock_hydra_token_policy_id, ""),
         quote_token: (
-          #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
-          #"55534458",
+          mock_hydra_token_policy_id,
+          #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960",
         ),
         is_buy,
         list_price_times_1bil,

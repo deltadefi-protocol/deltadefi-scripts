@@ -14,6 +14,7 @@ use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{
   compute_tree_hash, extract_key_values, recursive_insert,
 }
+use hydra_dex/order_utils.{order_datum_to_merkle_datum}
 use hydra_dex/types.{
   DexOrderBookDatum, FullTree, MerklizedOrderDatum, Order, Proofs, TokenMap,
   TreeOrProofs,
@@ -52,7 +53,8 @@ pub fn combine_order_merkle(
             expect order_book_datum: Order = input_datum
             let merkle_datum =
               MerklizedOrderDatum {
-                datum: order_book_datum,
+                datum: order_book_datum
+                  |> order_datum_to_merkle_datum(token_map),
                 value: order_value
                   |> from_hydra_balance_to_value(
                       hydra_token_policy_id,
