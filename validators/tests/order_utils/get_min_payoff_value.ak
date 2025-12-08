@@ -12,7 +12,7 @@ test ou_gmpv_1() {
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
 
-  let short_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let quote_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
     mock_order(
@@ -25,7 +25,7 @@ test ou_gmpv_1() {
     )
 
   let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
-  order_payoff == mock_hydra_usd(short_qty)
+  order_payoff == mock_hydra_usd(quote_qty)
 }
 
 test ou_gmpv_2() {
@@ -34,7 +34,7 @@ test ou_gmpv_2() {
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
 
-  let long_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
     mock_order(
@@ -47,7 +47,7 @@ test ou_gmpv_2() {
     )
 
   let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
-  order_payoff == mock_hydra_lovelace(long_qty)
+  order_payoff == mock_hydra_lovelace(base_qty)
 }
 
 test ou_gmpv_3() {
@@ -56,7 +56,7 @@ test ou_gmpv_3() {
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
 
-  let long_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
     mock_order(
@@ -69,7 +69,7 @@ test ou_gmpv_3() {
     )
 
   let order_payoff = get_min_payoff_value(order, mock_hydra_token_policy_id)
-  order_payoff == mock_hydra_lovelace(long_qty)
+  order_payoff == mock_hydra_lovelace(base_qty)
 }
 
 // Buy Market - base qty specified (price 1.2121)

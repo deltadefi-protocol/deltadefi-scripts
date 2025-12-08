@@ -1,34 +1,34 @@
 use hydra_dex/order_utils.{get_fee, get_payoff_qty}
 
 // Test cases obtained from schema test
-test ou_gpq_long_1() {
-  let short_qty = get_payoff_qty(100_000_000, 1_200_000_000, True)
-  short_qty == 120_000_000
+test ou_gpq_base_1() {
+  let quote_qty = get_payoff_qty(100_000_000, 1_200_000_000, True)
+  quote_qty == 120_000_000
 }
 
-test ou_gpq_long_2() {
-  let short_qty = get_payoff_qty(161_362_473, 1_411_000_000, True)
-  short_qty == 227_682_449
+test ou_gpq_base_2() {
+  let quote_qty = get_payoff_qty(161_362_473, 1_411_000_000, True)
+  quote_qty == 227_682_449
 }
 
-test ou_gpq_long_3() {
-  let short_qty = get_payoff_qty(161_362_473 - 60_245_192, 1_411_000_000, True)
-  short_qty == 142_676_483
+test ou_gpq_base_3() {
+  let quote_qty = get_payoff_qty(161_362_473 - 60_245_192, 1_411_000_000, True)
+  quote_qty == 142_676_483
 }
 
-// test ou_gpq_short_1() {
-//   let short_qty = get_payoff_qty(100_000_000, 1_200_000_000, True)
-//   short_qty == 120_000_000
+// test ou_gpq_quote_1() {
+//   let quote_qty = get_payoff_qty(100_000_000, 1_200_000_000, True)
+//   quote_qty == 120_000_000
 // }
 
-// test ou_gpq_short_2() {
-//   let short_qty = get_payoff_qty(161_362_473, 1_411_000_000, True)
-//   short_qty == 227_682_449
+// test ou_gpq_quote_2() {
+//   let quote_qty = get_payoff_qty(161_362_473, 1_411_000_000, True)
+//   quote_qty == 227_682_449
 // }
 
-// test ou_gpq_short_3() {
-//   let short_qty = get_payoff_qty(161_362_473 - 60_245_192, 1_411_000_000, True)
-//   short_qty == 142_676_483
+// test ou_gpq_quote_3() {
+//   let quote_qty = get_payoff_qty(161_362_473 - 60_245_192, 1_411_000_000, True)
+//   quote_qty == 142_676_483
 // }
 
 test ou_gf_1() {

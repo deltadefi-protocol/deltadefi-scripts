@@ -22,8 +22,8 @@
 - `OO` with exactly datum `II`
 - `OI` & `OO` has same `order_id`
 - `OO` has at least value
-  - `is_buy` == True -> at least short qty of short token
-  - `is_buy` == False -> at least `size` of long token
+  - `is_buy` == True -> at least `size` of quote token
+  - `is_buy` == False -> at least `size` of base token
 - The input intent token is burnt
 - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
 - Value parity: `AI` + `OI` == `AO` + `OO` (to clear: is the check needed?)

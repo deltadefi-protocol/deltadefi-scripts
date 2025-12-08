@@ -82,8 +82,8 @@ pub fn place_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction) 
   let is_order_correctly_placed = intent_order == order_datum
 
   //  - `OO` has at least value
-  //    - `is_buy` == True -> at least short qty of short token
-  //    - `is_buy` == False -> at least `size` of long token
+  // - `is_buy` == True -> at least `size` of quote token
+  // - `is_buy` == False -> at least `size` of base token
   let is_order_value_sufficient =
     value_geq(
       order_output.value,

@@ -200,8 +200,8 @@ pub fn fill_order(
   let is_no_negative_payoff = payoff_after_settlement == []
 
   // - `OO` has at least value
-  //   - `is_buy` == True -> at least short qty of short token
-  //   - `is_buy` == False -> at least `size` of long token
+  // - `is_buy` == True -> at least `size` of quote token
+  // - `is_buy` == False -> at least `size` of base token
   let (is_order_value_sufficient, order_output_value) =
     when new_order_opt is {
       Some((new_order, new_order_value)) ->
