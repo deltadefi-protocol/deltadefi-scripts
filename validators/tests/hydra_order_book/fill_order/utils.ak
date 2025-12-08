@@ -20,7 +20,7 @@ use tests/utils.{
 
 pub type TestOrder {
   account: Int,
-  is_long: Bool,
+  is_buy: Bool,
   size: Int,
   price_times_1bil: Int,
   fee_amount_bp: Int,
@@ -31,7 +31,7 @@ pub type TestOrder {
 
 pub type OrderConfig {
   account: Int,
-  is_long: Bool,
+  is_buy: Bool,
   size: Int,
   price_times_1bil: Int,
   fee_amount_bp: Int,
@@ -139,7 +139,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
           fn(i: Int, order: TestOrder, acc) {
             let TestOrder {
               account,
-              is_long,
+              is_buy,
               size,
               price_times_1bil,
               fee_amount_bp,
@@ -153,7 +153,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
               mk_market_order(
                 mock_order(
                   order_id,
-                  is_long,
+                  is_buy,
                   size,
                   price_times_1bil,
                   fee_amount_bp,
@@ -169,7 +169,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
                   mk_base_order(
                     mock_order(
                       order_id,
-                      is_long,
+                      is_buy,
                       unfilled_size,
                       price_times_1bil,
                       fee_amount_bp,

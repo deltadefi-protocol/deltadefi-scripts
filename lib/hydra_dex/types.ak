@@ -261,11 +261,11 @@ pub type HydraOrderBookRedeemer {
 
 pub type Order {
   order_id: ByteArray,
-  long_token: (PolicyId, AssetName),
-  short_token: (PolicyId, AssetName),
-  is_long: Bool,
+  base_token: (PolicyId, AssetName),
+  quote_token: (PolicyId, AssetName),
+  is_buy: Bool,
   list_price_times_1bil: Int,
-  // if is_long: `size` in short_token, else `size` in long_token
+  // if is_buy: `size` in quote_token, else `size` in base_token
   size: Int,
   fee_amount_bp: Int,
   account: UserAccount,

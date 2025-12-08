@@ -240,7 +240,7 @@ pub const mock_order_id_2 = "order_id_2"
 
 pub fn mock_order(
   order_id: ByteArray,
-  is_long: Bool,
+  is_buy: Bool,
   size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
@@ -248,12 +248,12 @@ pub fn mock_order(
 ) {
   Order {
     order_id,
-    long_token: ("", ""),
-    short_token: (
+    base_token: ("", ""),
+    quote_token: (
       #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
       #"55534458",
     ),
-    is_long,
+    is_buy,
     list_price_times_1bil,
     size,
     fee_amount_bp,
@@ -262,7 +262,7 @@ pub fn mock_order(
 }
 
 pub fn mock_order_intent(
-  is_long: Bool,
+  is_buy: Bool,
   size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
@@ -273,12 +273,12 @@ pub fn mock_order_intent(
     intent: PlaceOrderIntent {
       order: Order {
         order_id: mock_order_id,
-        long_token: ("", ""),
-        short_token: (
+        base_token: ("", ""),
+        quote_token: (
           #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
           #"55534458",
         ),
-        is_long,
+        is_buy,
         list_price_times_1bil,
         size,
         fee_amount_bp,
@@ -290,7 +290,7 @@ pub fn mock_order_intent(
 }
 
 pub fn mock_modify_order_intent(
-  is_long: Bool,
+  is_buy: Bool,
   size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
@@ -302,12 +302,12 @@ pub fn mock_modify_order_intent(
     intent: ModifyOrderIntent {
       new_order: Order {
         order_id: mock_order_id,
-        long_token: ("", ""),
-        short_token: (
+        base_token: ("", ""),
+        quote_token: (
           #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
           #"55534458",
         ),
-        is_long,
+        is_buy,
         list_price_times_1bil,
         size,
         fee_amount_bp,

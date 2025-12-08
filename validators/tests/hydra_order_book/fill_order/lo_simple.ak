@@ -21,7 +21,7 @@ test s9_fill_order_1_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 100000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -32,7 +32,7 @@ test s9_fill_order_1_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 100000000,
           price_times_1bil: 1000000000,
           fee_amount_bp: 10,
@@ -55,7 +55,7 @@ test s9_fill_order_2_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 100000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -66,7 +66,7 @@ test s9_fill_order_2_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 100000000,
           price_times_1bil: 1000000000,
           fee_amount_bp: 10,
@@ -89,7 +89,7 @@ test s9_fill_order_3_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 100000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -100,7 +100,7 @@ test s9_fill_order_3_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 100000000,
           price_times_1bil: 800000000,
           fee_amount_bp: 10,
@@ -123,7 +123,7 @@ test s9_fill_order_4_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 100000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -134,7 +134,7 @@ test s9_fill_order_4_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 120000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
@@ -157,7 +157,7 @@ test s9_fill_order_5_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 120000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
@@ -168,7 +168,7 @@ test s9_fill_order_5_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 200000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
@@ -191,7 +191,7 @@ test s9_fill_order_6_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 100000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -202,7 +202,7 @@ test s9_fill_order_6_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 240000000,
           price_times_1bil: 1200000000,
           fee_amount_bp: 10,
@@ -225,7 +225,7 @@ test s9_fill_order_7_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 240000000,
         price_times_1bil: 1200000000,
         fee_amount_bp: 10,
@@ -236,7 +236,7 @@ test s9_fill_order_7_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 100000000,
           price_times_1bil: 1100000000,
           fee_amount_bp: 10,
@@ -259,7 +259,7 @@ test s9_fill_order_8_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 200000000,
         price_times_1bil: 1000000000,
         fee_amount_bp: 10,
@@ -270,7 +270,7 @@ test s9_fill_order_8_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 110000000,
           price_times_1bil: 1100000000,
           fee_amount_bp: 10,
@@ -293,7 +293,7 @@ test s9_fill_order_9_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 332578596,
         price_times_1bil: 1251700000,
         fee_amount_bp: 10,
@@ -304,7 +304,7 @@ test s9_fill_order_9_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 523523579,
           price_times_1bil: 1135300000,
           fee_amount_bp: 10,
@@ -327,7 +327,7 @@ test s9_fill_order_10_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 223578901,
         price_times_1bil: 1025900000,
         fee_amount_bp: 10,
@@ -338,7 +338,7 @@ test s9_fill_order_10_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 582111037,
           price_times_1bil: 1111100000,
           fee_amount_bp: 10,
@@ -361,7 +361,7 @@ test s9_fill_order_11_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: True,
+        is_buy: True,
         size: 340435886,
         price_times_1bil: 1523100000,
         fee_amount_bp: 10,
@@ -372,7 +372,7 @@ test s9_fill_order_11_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: False,
+          is_buy: False,
           size: 189517891,
           price_times_1bil: 1111300000,
           fee_amount_bp: 10,
@@ -395,7 +395,7 @@ test s9_fill_order_12_lo_simple() {
     TestCase {
       taker: TestOrder {
         account: 1,
-        is_long: False,
+        is_buy: False,
         size: 223578915,
         price_times_1bil: 1512100000,
         fee_amount_bp: 10,
@@ -406,7 +406,7 @@ test s9_fill_order_12_lo_simple() {
       makers: [
         TestOrder {
           account: 2,
-          is_long: True,
+          is_buy: True,
           size: 238336018,
           price_times_1bil: 1925700000,
           fee_amount_bp: 10,

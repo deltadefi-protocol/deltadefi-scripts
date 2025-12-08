@@ -5,7 +5,7 @@ use tests/utils.{
 }
 
 test ou_gmov_1() {
-  let is_long = False
+  let is_buy = False
   let size = 250_000_000
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
@@ -13,7 +13,7 @@ test ou_gmov_1() {
   let order =
     mock_order(
       mock_order_id,
-      is_long,
+      is_buy,
       size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -25,7 +25,7 @@ test ou_gmov_1() {
 }
 
 test ou_gmov_2() {
-  let is_long = True
+  let is_buy = True
   let size = 250_000_000
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
@@ -33,7 +33,7 @@ test ou_gmov_2() {
   let order =
     mock_order(
       mock_order_id,
-      is_long,
+      is_buy,
       size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -44,14 +44,14 @@ test ou_gmov_2() {
 }
 
 test ou_gmov_3() {
-  let is_long = True
+  let is_buy = True
   let size = 250_000_000
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
   let order =
     mock_order(
       mock_order_id,
-      is_long,
+      is_buy,
       size,
       list_price_times_1bil,
       fee_amount_bp,

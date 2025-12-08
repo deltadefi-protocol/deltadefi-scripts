@@ -44,14 +44,14 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
 
   let account = mock_user_account(mock_account)
 
-  let is_long = False
+  let is_buy = False
   let size = 250_000_000
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
 
   let intent_datum =
     mock_order_intent(
-      is_long,
+      is_buy,
       size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -61,7 +61,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
     if is_datum_correct {
       mock_order(
         mock_order_id,
-        is_long,
+        is_buy,
         size,
         list_price_times_1bil,
         fee_amount_bp,
@@ -70,7 +70,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
     } else {
       mock_order(
         mock_order_id,
-        is_long,
+        is_buy,
         123_456_789,
         list_price_times_1bil,
         fee_amount_bp,

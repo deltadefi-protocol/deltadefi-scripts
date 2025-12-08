@@ -53,7 +53,7 @@
   - Each has at least received the payoff value calculated above
 - There is no negative payoff
 - `OO` has at least value
-  - `is_long` == True -> at least short qty of short token
-  - `is_long` == False -> at least `size` of long token
+  - `is_buy` == True -> at least short qty of short token
+  - `is_buy` == False -> at least `size` of long token
 - Value parity: `OI` == `AO` + `OO` (to clear: is the check needed?)
 - Signed by `operating_key`

@@ -213,12 +213,12 @@ fn mock_process_withdrawal_tx(
       order: MerklizedOrderDatum {
         datum: Order {
           order_id,
-          long_token: ("", ""),
-          short_token: (
+          base_token: ("", ""),
+          quote_token: (
             #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
             #"55534458",
           ),
-          is_long: False,
+          is_buy: False,
           list_price_times_1bil: 1_350_000_000,
           size: 250_000_000,
           fee_amount_bp: 10,

@@ -44,7 +44,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
   let account = mock_user_account(mock_account)
 
-  let is_long = False
+  let is_buy = False
   let size =
     if no_account_output_case {
       500_000_000
@@ -56,7 +56,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
   let intent_datum =
     mock_order_intent(
-      is_long,
+      is_buy,
       size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -66,7 +66,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     if is_datum_correct {
       mock_order(
         mock_order_id,
-        is_long,
+        is_buy,
         size,
         list_price_times_1bil,
         fee_amount_bp,
@@ -75,7 +75,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     } else {
       mock_order(
         mock_order_id,
-        is_long,
+        is_buy,
         123_456_789,
         list_price_times_1bil,
         fee_amount_bp,

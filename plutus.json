@@ -2099,15 +2099,15 @@
               "$ref": "#/definitions/ByteArray"
             },
             {
-              "title": "long_token",
+              "title": "base_token",
               "$ref": "#/definitions/Tuple$cardano~1assets~1PolicyId_cardano~1assets~1AssetName"
             },
             {
-              "title": "short_token",
+              "title": "quote_token",
               "$ref": "#/definitions/Tuple$cardano~1assets~1PolicyId_cardano~1assets~1AssetName"
             },
             {
-              "title": "is_long",
+              "title": "is_buy",
               "$ref": "#/definitions/Bool"
             },
             {

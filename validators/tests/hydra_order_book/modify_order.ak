@@ -48,7 +48,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
   let account = mock_user_account(mock_account)
 
-  let is_long = False
+  let is_buy = False
   let old_size = 500_000_000
   let new_size =
     if modify_add_value_to_order_case {
@@ -68,7 +68,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
   let intent_datum =
     mock_modify_order_intent(
-      is_long,
+      is_buy,
       new_size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -82,7 +82,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let old_order_datum =
     mock_order(
       mock_order_id,
-      is_long,
+      is_buy,
       old_size,
       list_price_times_1bil,
       fee_amount_bp,
@@ -91,7 +91,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let new_order_datum =
     mock_order(
       mock_order_id,
-      is_long,
+      is_buy,
       new_size,
       list_price_times_1bil,
       fee_amount_bp,

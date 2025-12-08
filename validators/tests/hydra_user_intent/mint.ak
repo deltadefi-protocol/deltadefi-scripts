@@ -26,9 +26,9 @@ const mock_order_id = "mock_order_id"
 fn create_mock_limit_order() -> Order {
   Order {
     order_id: mock_order_id,
-    long_token: (mock_account_id, mock_hydra_user_intent_token),
-    short_token: (mock_account_id, mock_hydra_user_intent_token),
-    is_long: True,
+    base_token: (mock_account_id, mock_hydra_user_intent_token),
+    quote_token: (mock_account_id, mock_hydra_user_intent_token),
+    is_buy: True,
     list_price_times_1bil: 1_000_000_000,
     size: 999,
     fee_amount_bp: 999,
@@ -52,9 +52,9 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
     intent: PlaceOrderIntent {
       order: Order {
         order_id: mock_order_id,
-        long_token: (mock_account_id, mock_hydra_user_intent_token),
-        short_token: (mock_account_id, mock_hydra_user_intent_token),
-        is_long: True,
+        base_token: (mock_account_id, mock_hydra_user_intent_token),
+        quote_token: (mock_account_id, mock_hydra_user_intent_token),
+        is_buy: True,
         list_price_times_1bil: 1_000_000_000,
         size: 999,
         fee_amount_bp: 999,

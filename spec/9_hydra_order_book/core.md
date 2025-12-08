@@ -9,9 +9,9 @@
 ### Datum - LimitOrder
 
 - `order_id`: The order id without hyphens
-- `long_token`: The long token unit
-- `short_token`: The short token unit
-- `is_long`: Long or short
+- `base_token`: The long token unit
+- `quote_token`: The short token unit
+- `is_buy`: Long or short
 - `list_price_times_1bil`: Price \* 1,000,000,000
 - `size`: The amount of long token trading
 - `fee_amount_bp`: The basis point of fee to be charged

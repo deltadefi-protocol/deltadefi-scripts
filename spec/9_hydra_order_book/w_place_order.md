@@ -20,8 +20,8 @@
 - `II` with `account` as account
 - `OO` with exactly datum `II`
 - `OO` has at least value
-  - `is_long` == True -> at least short qty of short token
-  - `is_long` == False -> at least `size` of long token
+  - `is_buy` == True -> at least short qty of short token
+  - `is_buy` == False -> at least `size` of long token
 - The input intent token is burnt
 - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
 - Value parity: `AI` == `AO` + `OO` (to clear: is the check needed?)

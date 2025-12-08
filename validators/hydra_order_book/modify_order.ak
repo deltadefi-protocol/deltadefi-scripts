@@ -88,8 +88,8 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
     old_order_datum.order_id == new_order_datum.order_id
 
   // - `OO` has at least value
-  //   - `is_long` == True -> at least short qty of short token
-  //   - `is_long` == False -> at least `size` of long token
+  //   - `is_buy` == True -> at least short qty of short token
+  //   - `is_buy` == False -> at least `size` of long token
   let is_order_value_sufficient =
     value_geq(
       order_output.value,
