@@ -1,7 +1,6 @@
 use aiken/collection/list
 use aiken/collection/pairs
-use cardano/assets.{PolicyId, Value, flatten, from_asset, merge, zero}
-use hydra_dex/account_utils.{hash_token}
+use cardano/assets.{Value, flatten, from_asset, merge, zero}
 use hydra_dex/types.{Order, TokenMap}
 
 pub fn base_to_quote_qty(base_qty: Int, list_price_times_1bil: Int) -> Int {

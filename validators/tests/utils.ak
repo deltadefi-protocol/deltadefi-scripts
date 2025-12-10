@@ -63,8 +63,6 @@ pub const mock_withdrawal_script_hashes: WithdrawalScriptHashes =
 
 pub const mock_hydra_token_policy_id = mock_script_hash(1000)
 
-pub const mock_hydra_initial_hash = mock_script_hash(999)
-
 pub const mock_hydra_script_address = mock_script_address(999, None)
 
 pub const mock_hydra_signer_1 = mock_pub_key_hash(100)
@@ -95,10 +93,7 @@ pub const mock_input_oracle_datum: AppOracleDatum =
     emergency_withdrawal_request_token: mock_emergency_withdrawal_request_token,
     emergency_withdrawal_request_address: mock_emergency_withdrawal_request_address,
     all_withdrawal_script_hashes: mock_withdrawal_script_hashes,
-    hydra_info: HydraInfo {
-      hydra_initial_hash: mock_hydra_initial_hash,
-      hydra_signers: mock_hydra_signers,
-    },
+    hydra_info: HydraInfo { hydra_signers: mock_hydra_signers },
   }
 
 pub const mock_new_operation_key = mock_pub_key_hash(10)

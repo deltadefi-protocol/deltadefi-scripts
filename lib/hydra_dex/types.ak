@@ -79,7 +79,6 @@ pub type AppOracleDatum {
 }
 
 pub type HydraInfo {
-  hydra_initial_hash: ScriptHash,
   hydra_signers: List<VerificationKeyHash>,
 }
 
