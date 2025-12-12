@@ -62,7 +62,7 @@ fn mock_same_account_transferal_tx(
     |> complete()
 }
 
-test s8_w_sat_success() {
+test s8_wsat_success() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,
@@ -80,7 +80,7 @@ test s8_w_sat_success() {
   )
 }
 
-test s8_w_sat_failed_without_operation_key_signed() {
+test s8_wsat_failed_without_operation_key_signed() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: False,
@@ -98,7 +98,7 @@ test s8_w_sat_failed_without_operation_key_signed() {
   )
 }
 
-test s8_w_sat_failed_with_different_account() {
+test s8_wsat_failed_with_different_account() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,
@@ -116,7 +116,7 @@ test s8_w_sat_failed_with_different_account() {
   )
 }
 
-test s8_w_sat_failed_with_balance_not_combined() {
+test s8_wsat_failed_with_balance_not_combined() {
   let test_case =
     HydraCombineBalanceTestCase {
       is_operation_key_signed: True,

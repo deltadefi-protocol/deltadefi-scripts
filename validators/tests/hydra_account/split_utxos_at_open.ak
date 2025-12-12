@@ -173,7 +173,7 @@ fn mock_hydra_open_tx(test_case: HydraOpenTestCase) -> Transaction {
     |> complete()
 }
 
-test s8_w_suao_spend_success_hydra_open() {
+test s8_wsuao_spend_success_hydra_open() {
   let test_case =
     HydraOpenTestCase {
       is_tree_valid: True,
@@ -196,7 +196,7 @@ test s8_w_suao_spend_success_hydra_open() {
   )
 }
 
-test s8_w_suao_spend_fail_hydra_open_tree_invalid() {
+test s8_wsuao_spend_fail_hydra_open_tree_invalid() {
   let test_case =
     HydraOpenTestCase {
       is_tree_valid: False,
@@ -219,7 +219,7 @@ test s8_w_suao_spend_fail_hydra_open_tree_invalid() {
   )
 }
 
-test s8_w_suao_spend_fail_hydra_open_output_root_hash_invalid() {
+test s8_wsuao_spend_fail_hydra_open_output_root_hash_invalid() {
   let test_case =
     HydraOpenTestCase {
       is_tree_valid: True,
@@ -242,7 +242,7 @@ test s8_w_suao_spend_fail_hydra_open_output_root_hash_invalid() {
   )
 }
 
-test s8_w_suao_spend_fail_without_hydra_value_minted() {
+test s8_wsuao_spend_fail_without_hydra_value_minted() {
   let test_case =
     HydraOpenTestCase {
       is_tree_valid: True,
@@ -265,7 +265,7 @@ test s8_w_suao_spend_fail_without_hydra_value_minted() {
   )
 }
 
-test s8_w_suao_spend_fail_without_operation_key_signed() {
+test s8_wsuao_spend_fail_without_operation_key_signed() {
   let test_case =
     HydraOpenTestCase {
       is_tree_valid: True,

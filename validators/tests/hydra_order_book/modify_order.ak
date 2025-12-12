@@ -201,7 +201,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s9_w_mo_success_decrease_order_value_case() {
+test s9_wmo_success_decrease_order_value_case() {
   let tx =
     mock_tx(
       TestCase {
@@ -226,7 +226,7 @@ test s9_w_mo_success_decrease_order_value_case() {
   )
 }
 
-test s9_w_mo_success_increase_order_value_case() {
+test s9_wmo_success_increase_order_value_case() {
   let tx =
     mock_tx(
       TestCase {
@@ -251,7 +251,7 @@ test s9_w_mo_success_increase_order_value_case() {
   )
 }
 
-test s9_w_mo_fail_with_multiple_intent_input() fail {
+test s9_wmo_fail_with_multiple_intent_input() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -276,7 +276,7 @@ test s9_w_mo_fail_with_multiple_intent_input() fail {
   )
 }
 
-test s9_w_mo_fail_with_multiple_order_output() fail {
+test s9_wmo_fail_with_multiple_order_output() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -301,7 +301,7 @@ test s9_w_mo_fail_with_multiple_order_output() fail {
   )
 }
 
-test s9_w_mo_fail_with_random_input() fail {
+test s9_wmo_fail_with_random_input() fail {
   let tx =
     mock_tx(
       TestCase {
@@ -326,7 +326,7 @@ test s9_w_mo_fail_with_random_input() fail {
   )
 }
 
-test s9_w_mo_fail_with_random_output() {
+test s9_wmo_fail_with_random_output() {
   let tx =
     mock_tx(
       TestCase {
@@ -351,7 +351,7 @@ test s9_w_mo_fail_with_random_output() {
   )
 }
 
-test s9_w_mo_fail_with_incorrect_intent_account() {
+test s9_wmo_fail_with_incorrect_intent_account() {
   let tx =
     mock_tx(
       TestCase {
@@ -376,7 +376,7 @@ test s9_w_mo_fail_with_incorrect_intent_account() {
   )
 }
 
-test s9_w_mo_fail_without_following_intent() {
+test s9_wmo_fail_without_following_intent() {
   let tx =
     mock_tx(
       TestCase {
@@ -401,7 +401,7 @@ test s9_w_mo_fail_without_following_intent() {
   )
 }
 
-test s9_w_mo_fail_without_order_id_matched() {
+test s9_wmo_fail_without_order_id_matched() {
   let tx =
     mock_tx(
       TestCase {
@@ -426,7 +426,7 @@ test s9_w_mo_fail_without_order_id_matched() {
   )
 }
 
-test s9_w_mo_fail_without_intent_token_burnt() {
+test s9_wmo_fail_without_intent_token_burnt() {
   let tx =
     mock_tx(
       TestCase {
@@ -451,7 +451,7 @@ test s9_w_mo_fail_without_intent_token_burnt() {
   )
 }
 
-test s9_w_mo_fail_without_balance_updated() {
+test s9_wmo_fail_without_balance_updated() {
   let tx =
     mock_tx(
       TestCase {
@@ -476,7 +476,7 @@ test s9_w_mo_fail_without_balance_updated() {
   )
 }
 
-test s9_w_mo_fail_without_operation_key_signed() {
+test s9_wmo_fail_without_operation_key_signed() {
   let tx =
     mock_tx(
       TestCase {

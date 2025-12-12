@@ -117,7 +117,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s5_w_spend_success_app_deposit() {
+test s5_spend_w_success_app_deposit() {
   let redeemer = AppDeposit
   let tx =
     mock_tx(
@@ -143,7 +143,7 @@ test s5_w_spend_success_app_deposit() {
   )
 }
 
-test s5_w_spend_fail_app_deposit_with_no_app_oracle_inputed() fail {
+test s5_spend_w_fail_app_deposit_with_no_app_oracle_inputed() fail {
   let redeemer = AppDeposit
 
   let tx =
@@ -170,7 +170,7 @@ test s5_w_spend_fail_app_deposit_with_no_app_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_success_app_deposit_with_no_dex_oracle_inputed() {
+test s5_spend_w_success_app_deposit_with_no_dex_oracle_inputed() {
   let redeemer = AppDeposit
 
   let tx =
@@ -196,7 +196,7 @@ test s5_w_spend_success_app_deposit_with_no_dex_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_app_deposit_without_script() {
+test s5_spend_w_fail_app_deposit_without_script() {
   let redeemer = AppDeposit
 
   let tx =
@@ -223,7 +223,7 @@ test s5_w_spend_fail_app_deposit_without_script() {
   )
 }
 
-test s5_w_spend_success_app_withdrawal() {
+test s5_spend_w_success_app_withdrawal() {
   let redeemer = AppWithdrawal
   let tx =
     mock_tx(
@@ -249,7 +249,7 @@ test s5_w_spend_success_app_withdrawal() {
   )
 }
 
-test s5_w_spend_fail_app_withdrawal_with_no_app_oracle_inputed() fail {
+test s5_spend_w_fail_app_withdrawal_with_no_app_oracle_inputed() fail {
   let redeemer = AppWithdrawal
 
   let tx =
@@ -276,7 +276,7 @@ test s5_w_spend_fail_app_withdrawal_with_no_app_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_success_app_withdrawal_with_no_dex_oracle_inputed() {
+test s5_spend_w_success_app_withdrawal_with_no_dex_oracle_inputed() {
   let redeemer = AppWithdrawal
 
   let tx =
@@ -302,7 +302,7 @@ test s5_w_spend_success_app_withdrawal_with_no_dex_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_app_withdrawal_without_script() {
+test s5_spend_w_fail_app_withdrawal_without_script() {
   let redeemer = AppWithdrawal
 
   let tx =
@@ -329,7 +329,7 @@ test s5_w_spend_fail_app_withdrawal_without_script() {
   )
 }
 
-test s5_w_spend_success_hydra_withdrawal() {
+test s5_spend_w_success_hydra_withdrawal() {
   let redeemer = HydraWithdrawal
   let tx =
     mock_tx(
@@ -355,7 +355,7 @@ test s5_w_spend_success_hydra_withdrawal() {
   )
 }
 
-test s5_w_spend_success_hydra_withdrawal_with_no_app_oracle_inputed() {
+test s5_spend_w_success_hydra_withdrawal_with_no_app_oracle_inputed() {
   let redeemer = HydraWithdrawal
 
   let tx =
@@ -382,7 +382,7 @@ test s5_w_spend_success_hydra_withdrawal_with_no_app_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_hydra_withdrawal_with_no_dex_oracle_inputed() fail {
+test s5_spend_w_fail_hydra_withdrawal_with_no_dex_oracle_inputed() fail {
   let redeemer = HydraWithdrawal
 
   let tx =
@@ -408,7 +408,7 @@ test s5_w_spend_fail_hydra_withdrawal_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_fail_hydra_withdrawal_without_script() fail {
+test s5_spend_w_fail_hydra_withdrawal_without_script() fail {
   let redeemer = HydraWithdrawal
 
   let tx =
@@ -435,7 +435,7 @@ test s5_w_spend_fail_hydra_withdrawal_without_script() fail {
   )
 }
 
-test s5_w_spend_success_hydra_cancel_withdrawal() {
+test s5_spend_w_success_hydra_cancel_withdrawal() {
   let redeemer = HydraCancelWithdrawal
   let tx =
     mock_tx(
@@ -461,7 +461,7 @@ test s5_w_spend_success_hydra_cancel_withdrawal() {
   )
 }
 
-test s5_w_spend_success_hydra_cancel_withdrawal_with_no_app_oracle_inputed() {
+test s5_spend_w_success_hydra_cancel_withdrawal_with_no_app_oracle_inputed() {
   let redeemer = HydraCancelWithdrawal
 
   let tx =
@@ -488,7 +488,7 @@ test s5_w_spend_success_hydra_cancel_withdrawal_with_no_app_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_hydra_cancel_withdrawal_with_no_dex_oracle_inputed() fail {
+test s5_spend_w_fail_hydra_cancel_withdrawal_with_no_dex_oracle_inputed() fail {
   let redeemer = HydraCancelWithdrawal
 
   let tx =
@@ -514,7 +514,7 @@ test s5_w_spend_fail_hydra_cancel_withdrawal_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_fail_hydra_cancel_withdrawal_without_script() fail {
+test s5_spend_w_fail_hydra_cancel_withdrawal_without_script() fail {
   let redeemer = HydraCancelWithdrawal
 
   let tx =
@@ -541,7 +541,7 @@ test s5_w_spend_fail_hydra_cancel_withdrawal_without_script() fail {
   )
 }
 
-test s5_w_spend_success_split_merkle_tree() {
+test s5_spend_w_success_split_merkle_tree() {
   let redeemer = DABSplitMerkleTree
   let tx =
     mock_tx(
@@ -567,7 +567,7 @@ test s5_w_spend_success_split_merkle_tree() {
   )
 }
 
-test s5_w_spend_success_split_merkle_tree_with_no_app_oracle_inputed() {
+test s5_spend_w_success_split_merkle_tree_with_no_app_oracle_inputed() {
   let redeemer = DABSplitMerkleTree
 
   let tx =
@@ -594,7 +594,7 @@ test s5_w_spend_success_split_merkle_tree_with_no_app_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
+test s5_spend_w_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
   let redeemer = DABSplitMerkleTree
 
   let tx =
@@ -621,7 +621,7 @@ test s5_w_spend_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_fail_split_merkle_tree_with_no_script() fail {
+test s5_spend_w_fail_split_merkle_tree_with_no_script() fail {
   let redeemer = DABSplitMerkleTree
 
   let tx =
@@ -648,7 +648,7 @@ test s5_w_spend_fail_split_merkle_tree_with_no_script() fail {
   )
 }
 
-test s5_w_spend_success_combine_merkle_tree() {
+test s5_spend_w_success_combine_merkle_tree() {
   let redeemer = DABCombineMerkleTree
   let tx =
     mock_tx(
@@ -674,7 +674,7 @@ test s5_w_spend_success_combine_merkle_tree() {
   )
 }
 
-test s5_w_spend_success_combine_merkle_tree_with_no_app_oracle_inputed() {
+test s5_spend_w_success_combine_merkle_tree_with_no_app_oracle_inputed() {
   let redeemer = DABCombineMerkleTree
 
   let tx =
@@ -701,7 +701,7 @@ test s5_w_spend_success_combine_merkle_tree_with_no_app_oracle_inputed() {
   )
 }
 
-test s5_w_spend_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
+test s5_spend_w_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
   let redeemer = DABSplitMerkleTree
 
   let tx =
@@ -728,7 +728,7 @@ test s5_w_spend_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_w_spend_fail_combine_merkle_tree_with_no_script() fail {
+test s5_spend_w_fail_combine_merkle_tree_with_no_script() fail {
   let redeemer = DABCombineMerkleTree
 
   let tx =

@@ -23,40 +23,41 @@ Glossary
 | `ou_gpq` - get_payoff_quantity              |      |
 | `ou_gf` - get_fee                           | ✓    |
 
-| **Scripts** | `I` | `SC` | `UT` | `PBT` |
-| ----------- | --- | ---- | ---- | ----- |
-| s1_mint     | ✓   | ✓    | ✓    |       |
-| s1_spend    | ✓   | ✓    | ✓    |       |
-| s2_spend    | ✓   | ✓    | ✓    |       |
-| s2_w_aw     | ✓   | ✓    | ✓    |       |
-| s3_mint     | ✓   | ✓    | ✓    |       |
-| s3_spend    | ✓   | ✓    | ✓    |       |
-| s3_w_ad     | ✓   | ✓    | ✓    |       |
-| s4_c_mint   | ✓   | ✓    | ✓    |       |
-| s4_c_spend  | ✓   | ✓    | ✓    |       |
-| s4_w_mint   | ✓   | ✓    | ✓    |       |
-| s4_w_spend  | ✓   | ✓    | ✓    |       |
-| s5_mint     | ✓   | ✓    | ✓    |       |
-| s5_spend    | ✓   | ✓    | ✓    |       |
-| s6_spend    | ✓   | ✓    | ✓    |       |
-| s6_wec      | ✓   | ✓    | ✓    |       |
-| s7_mint     | ✓   | ✓    | ✓    |       |
-| s7_spend    | ✓   | ✓    | ✓    |       |
-| s8_mint     | ✓   | ✓    | ✓    |       |
-| s8_spend    | ✓   | ✓    | ✓    |       |
-| s8_w_w      | ✓   | ✓    | ✓    |       |
-| s8_w_cw     | ✓   | ✓    | ✓    |       |
-| s8_w_t      | ✓   | ✓    | ✓    |       |
-| s8_w_sat    | ✓   | ✓    | ✓    |       |
-| s8_w_suao   | ✓   | ✓    |      |       |
-| s8_w_cuac   | ✓   | ✓    |      |       |
-| s9_spend    | ✓   | ✓    | NA   |       |
-| s9_w_po     | ✓   | ✓    | ✓    |       |
-| s9_w_co     | ✓   | ✓    | ✓    |       |
-| s9_w_fo     | ✓   | ✓    | ✓    |       |
-| s9_w_mo     | ✓   | ✓    | ✓    |       |
-| s9_w_som    | ✓   | ✓    | ✓    |       |
-| s9_w_com    | ✓   | ✓    | ✓    |       |
+| **Scripts** | `I` | `SC` | `UT`           | `PBT` |
+| ----------- | --- | ---- | -------------- | ----- |
+| s1_mint     | ✓   | ✓    | ✓              |       |
+| s1_spend    | ✓   | ✓    | ✓              |       |
+| s2_spend    | ✓   | ✓    | ✓              |       |
+| s2_waw      | ✓   | ✓    | To update root |       |
+| s3_mint     | ✓   | ✓    | ✓              |       |
+| s3_spend    | ✓   | ✓    | ✓              |       |
+| s3_wad      | ✓   | ✓    | To update root |       |
+| s4_c_mint   | ✓   | ✓    | ✓              |       |
+| s4_c_spend  | ✓   | ✓    | ✓              |       |
+| s4_w_mint   | ✓   | ✓    | ✓              |       |
+| s4_w_spend  | ✓   | ✓    | ✓              |       |
+| s5_mint     | ✓   | ✓    | ✓              |       |
+| s5_spend    | ✓   | ✓    | ✓              |       |
+| s6_spend    | ✓   | ✓    | ✓              |       |
+| s6_wec      | ✓   | ✓    | To update root |       |
+| s7_mint     | ✓   | ✓    | ✓              |       |
+| s7_spend    | ✓   | ✓    | ✓              |       |
+| s8_mint     | ✓   | ✓    | ✓              |       |
+| s8_spend    | ✓   | ✓    | ✓              |       |
+| s8_wcw      | ✓   | ✓    | To update root |       |
+| s8_wcuac    | ✓   | ✓    | To update root |       |
+| s8_wsat     | ✓   | ✓    | ✓              |       |
+| s8_wsuao    | ✓   | ✓    | To update root |       |
+| s8_ww       | ✓   | ✓    | To update root |       |
+| s8_wt       | ✓   | ✓    | ✓              |       |
+| s9_spend    | ✓   | ✓    | NA             |       |
+| s9_wpo      | ✓   | ✓    | ✓              |       |
+| s9_wco      | ✓   | ✓    | ✓              |       |
+| s9_wfo      | ✓   | ✓    | ✓              |       |
+| s9_wmo      | ✓   | ✓    | ✓              |       |
+| s9_wsom     | ✓   | ✓    | To update root |       |
+| s9_wcom     | ✓   | ✓    | To update root |       |
+| s10         | ✓   | ✓    |                |       |
 
 | **Setup**                     | `I` | `IT` | `PBT` | `E2E` |
 | ----------------------------- | --- | ---- | ----- | ----- |

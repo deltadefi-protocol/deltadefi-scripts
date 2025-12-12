@@ -1,31 +1,32 @@
 # DeltaDeFi Hydra DEX
 
-In the hydra dex design, it is hugely rely on datum serving assets ownership information. Therefore, apart from `AppVault`, the actual script storing meaningful asset value, the rest of the scripts will come in pairs, where the `Token` script provides validity to datum serving in address.
+Below we give the reference indices to relevant scripts in tests and documentation purposes.
 
-## 0. AppOracle
+In tests, we can run tests for example in `HydraOrderBook` by:
+
+```sh
+aiken check -m s9
+```
+
+Likewise fill order script logics:
+
+```sh
+aiken check -m s9_wfo
+```
+
+## 1. AppOracle
 
 The address serving static app information like app operation key etc
 
-- `s0_mint` - `oracle_nft`
-- `s0_spend` - `spend`
-
-## 1. AccountOperation
-
-Organising all the withdrawal scripts validating account balance transfer operation
-
-- `s1_wad` - `app_deposit` - The script for checking app deposit (process deposit)
-- `s1_waw` - `app_withdrawal` - The script for checking app withdrawal at L1 (withdrawal)
-- `s1_whw` - `hydra_withdrawal` - The script for checking processing withdrawal request
-- `s1_whcw` - `hydra_cancel_withdrawal` - The script for checking processing withdrawal request
-- `s1_whit` - `hydra_internal_transfer` - The script for checking transferal of value between 2 accounts
-- `s1_who` - `hydra_head_open` - The script for checking account balance splitting at hydra open
-- `s1_whc` - `hydra_head_close` - The script for checking account balance combining at hydra close
+- `s1_mint` - `oracle_nft`
+- `s1_spend` - `spend`
 
 ## 2. AppVault
 
 The address storing all value deposit into the DEX.
 
 - `s2_spend` - `spend`
+- `s2_waw` - `app_withdrawal` - The script for checking app withdrawal at L1 (withdrawal)
 
 ## 3. AppDepositRequest
 
@@ -33,6 +34,7 @@ The address storing incoming deposit request, to be batched into the deposit inf
 
 - `s3_mint` - `mint`
 - `s3_spend` - `spend`
+- `s3_wad` - `app_deposit` - The script for checking app deposit (process deposit)
 
 ## 4. EmergencyRequest
 
@@ -55,8 +57,6 @@ The single utxo to be committed into hydra head, serving user account balance in
 The single utxo to be committed into hydra head, serving orders information (limit orders).
 
 - `s6_spend` - `spend`
-- `s6_wso` - `split_order_merkle`
-- `s6_wco` - `combine_order_merkle`
 - `s6_wec` - `emergency_cancel`
 
 ## 7. HydraTradeIntent
@@ -77,8 +77,14 @@ The address serves only inside hydra head.
 - Active: Serving trade and withdrawal requests.
 - Close, all info will be combined into `DexAccountBalance` utxos.
 
-- `s8_mint` - `mint`
 - `s8_spend` - `spend`
+- `s8_w` - The hydra account withdrawal script, with sub-logics:
+  - `s8_whw` - `withdrawal` - The script for checking processing withdrawal request
+  - `s8_wcw` - `cancel_withdrawal` - The script for checking processing withdrawal request
+  - `s8_wt` - `transferal` - The script for checking transferal of value between 2 accounts
+  - `s8_wsat` - `same_account_transferal` - The script for checking transferal of value between 2 accounts
+  - `s8_wsuao` - `split_utxos_at_open` - The script for checking account balance splitting at hydra open
+  - `s8_wcuac` - `combine_utxos_at_close` - The script for checking account balance combining at hydra close
 
 ## 9. HydraOrderBook
 
@@ -88,12 +94,15 @@ The address serves only inside hydra head.
 - Active: Serving trades, the address hosting limit orders.
 - Close, all info will be combined into `DexOrderBook` utxos.
 
-- `s9_mint` - `mint`
 - `s9_spend` - `spend`
-- `s9_wpo` - `place_order`
-- `s9_wco` - `cancel_order`
-- `s9_wfo` - `fill_order`
-- `s9_wrev` - `release_extra_value`
+- `s9_w` - The hydra order book withdrawal script, with sub-logics:
+  - `s9_wpo` - `place_order`
+  - `s9_wco` - `cancel_order`
+  - `s9_wmo` - `modify_order`
+  - `s9_wfo` - `fill_order`
+  - Specific tests on fill orders numbers: `s9_fill_order`
+  - `s9_wcom` - `combine_order_merkle`
+  - `s9_wsom` - `split_order_merkle`
 
 ## Param Dependency Graph
 

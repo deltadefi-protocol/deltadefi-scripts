@@ -184,7 +184,7 @@ fn mock_hydra_close_tx(test_case: HydraCloseTestCase) -> Transaction {
     |> complete()
 }
 
-test s8_w_cuac_spend_success_hydra_head_close() {
+test s8_wcuac_spend_success_hydra_head_close() {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,
@@ -208,7 +208,7 @@ test s8_w_cuac_spend_success_hydra_head_close() {
   )
 }
 
-test s8_w_cuac_spend_fail_hydra_head_close_invalid_tree() fail {
+test s8_wcuac_spend_fail_hydra_head_close_invalid_tree() fail {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: False,
@@ -232,7 +232,7 @@ test s8_w_cuac_spend_fail_hydra_head_close_invalid_tree() fail {
   )
 }
 
-test s8_w_cuac_spend_fail_hydra_head_close_invalid_inputs() fail {
+test s8_wcuac_spend_fail_hydra_head_close_invalid_inputs() fail {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,
@@ -256,7 +256,7 @@ test s8_w_cuac_spend_fail_hydra_head_close_invalid_inputs() fail {
   )
 }
 
-test s8_w_cuac_spend_fail_hydra_head_close_invalid_input_root_hash() fail {
+test s8_wcuac_spend_fail_hydra_head_close_invalid_input_root_hash() fail {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,
@@ -280,7 +280,7 @@ test s8_w_cuac_spend_fail_hydra_head_close_invalid_input_root_hash() fail {
   )
 }
 
-test s8_w_cuac_spend_fail_hydra_head_close_hydra_tokens_not_burnt() {
+test s8_wcuac_spend_fail_hydra_head_close_hydra_tokens_not_burnt() {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,
@@ -304,7 +304,7 @@ test s8_w_cuac_spend_fail_hydra_head_close_hydra_tokens_not_burnt() {
   )
 }
 
-test s8_w_cuac_spend_fail_hydra_head_close_no_operation_key_signed() {
+test s8_wcuac_spend_fail_hydra_head_close_no_operation_key_signed() {
   let test_case =
     HydraCloseTestCase {
       is_tree_valid: True,

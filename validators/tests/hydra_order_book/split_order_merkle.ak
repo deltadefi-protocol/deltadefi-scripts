@@ -157,7 +157,7 @@ fn mock_dex_order_book_split_order_merkle_tx(
 // TODO: Fix
 // │ · with traces
 // │ | key_values == output_serialised_datum_list ? False
-test s9_w_som_success_split_order_merkle() {
+test s9_wsom_success_split_order_merkle() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {
       is_tree_valid: True,
@@ -179,7 +179,7 @@ test s9_w_som_success_split_order_merkle() {
   )
 }
 
-test s9_w_som_fail_split_order_merkle_tree_invalid() {
+test s9_wsom_fail_split_order_merkle_tree_invalid() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {
       is_tree_valid: False,
@@ -201,7 +201,7 @@ test s9_w_som_fail_split_order_merkle_tree_invalid() {
   )
 }
 
-test s9_w_som_fail_split_order_merkle_outputs_invalid() {
+test s9_wsom_fail_split_order_merkle_outputs_invalid() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {
       is_tree_valid: True,
@@ -223,7 +223,7 @@ test s9_w_som_fail_split_order_merkle_outputs_invalid() {
   )
 }
 
-test s9_w_som_fail_split_order_merkle_output_root_hash_invalid() {
+test s9_wsom_fail_split_order_merkle_output_root_hash_invalid() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {
       is_tree_valid: True,
@@ -245,7 +245,7 @@ test s9_w_som_fail_split_order_merkle_output_root_hash_invalid() {
   )
 }
 
-test s9_w_som_fail_split_order_merkle_without_hydra_tokens_minted() {
+test s9_wsom_fail_split_order_merkle_without_hydra_tokens_minted() {
   let test_case =
     DexOrderBookSplitOrderMerkleTestCase {
       is_tree_valid: True,

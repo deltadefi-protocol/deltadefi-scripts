@@ -172,7 +172,7 @@ fn mock_combine_order_merkle_tx(
 // TODO: Fix
 // │ · with traces
 // │ | extract_key_values(tree) == sorted_serialised_inputs ? False
-test s9_w_com_success_combine_order_merkle() {
+test s9_wcom_success_combine_order_merkle() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -195,7 +195,7 @@ test s9_w_com_success_combine_order_merkle() {
   )
 }
 
-test s9_w_com_fail_combine_order_merkle_invalid_tree() fail {
+test s9_wcom_fail_combine_order_merkle_invalid_tree() fail {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: False,
@@ -218,7 +218,7 @@ test s9_w_com_fail_combine_order_merkle_invalid_tree() fail {
   )
 }
 
-test s9_w_com_fail_combine_order_merkle_invalid_inputs() {
+test s9_wcom_fail_combine_order_merkle_invalid_inputs() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -241,7 +241,7 @@ test s9_w_com_fail_combine_order_merkle_invalid_inputs() {
   )
 }
 
-test s9_w_com_fail_combine_order_merkle_invalid_input_root_hash() {
+test s9_wcom_fail_combine_order_merkle_invalid_input_root_hash() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,
@@ -264,7 +264,7 @@ test s9_w_com_fail_combine_order_merkle_invalid_input_root_hash() {
   )
 }
 
-test s9_w_com_fail_combine_order_merkle_without_burning_hydra_tokens() {
+test s9_wcom_fail_combine_order_merkle_without_burning_hydra_tokens() {
   let test_case =
     DexOrderBookCombineMerkleTestCase {
       is_tree_valid: True,

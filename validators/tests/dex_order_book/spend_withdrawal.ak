@@ -2,19 +2,22 @@ use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
 use dex_order_book/spend as dex_order_book_spend
 use hydra_dex/types.{
-  DexOrderBookCombineMerkleTree, DexOrderBookEmergencyCancelOrder,
-  DexOrderBookSplitMerkleTree,
+  CombineOrderMerkle, DexOrderBookCombineMerkleTree,
+  DexOrderBookEmergencyCancelOrder, DexOrderBookSplitMerkleTree, FullTree,
+  SplitOrderMerkle, Tree, TreeBranch, TreeOrProofsWithTokenMap,
 }
 use mocktail.{
   complete, mock_policy_id, mock_script_address, mock_tx_hash, mock_utxo_ref,
   mocktail_tx, ref_tx_in, ref_tx_in_inline_datum, script_withdrawal, tx_in,
-  tx_out,
+  tx_out, withdrawal_redeemer_value,
 }
 use tests/utils.{
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_emergency_cancel_order, mock_hydra_order_book, mock_input_oracle_datum,
-  mock_oracle_address, mock_oracle_nft,
+  mock_oracle_address, mock_oracle_nft, mock_token_map,
 }
+
+const tree: Tree = TreeBranch { nibble: #"", nodes: [] }
 
 type TestCase {
   is_app_oracle_inputed: Bool,
@@ -52,14 +55,27 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       )
     |> tx_out(True, mock_script_address(999, None), input_value)
     |> script_withdrawal(
-        is_split_order_merkle_script_attached,
+        is_split_order_merkle_script_attached || is_combine_order_merkle_script_attached,
         mock_hydra_order_book,
         0,
       )
-    |> script_withdrawal(
+    |> withdrawal_redeemer_value(
+        is_split_order_merkle_script_attached,
+        SplitOrderMerkle {
+          tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+            proof: FullTree { tree },
+            token_map: mock_token_map,
+          },
+        },
+      )
+    |> withdrawal_redeemer_value(
         is_combine_order_merkle_script_attached,
-        mock_hydra_order_book,
-        0,
+        CombineOrderMerkle {
+          tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+            proof: FullTree { tree },
+            token_map: mock_token_map,
+          },
+        },
       )
     |> script_withdrawal(
         is_emergency_cancel_order_script_attached,

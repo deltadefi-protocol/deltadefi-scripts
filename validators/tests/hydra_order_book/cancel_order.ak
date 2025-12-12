@@ -141,7 +141,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     |> complete()
 }
 
-test s9_w_co_success() {
+test s9_wco_success() {
   let tx =
     mock_tx(
       TestCase {
@@ -160,7 +160,7 @@ test s9_w_co_success() {
   )
 }
 
-test s9_w_co_fail_with_random_input() {
+test s9_wco_fail_with_random_input() {
   let tx =
     mock_tx(
       TestCase {
@@ -179,7 +179,7 @@ test s9_w_co_fail_with_random_input() {
   )
 }
 
-test s9_w_co_fail_with_random_output() {
+test s9_wco_fail_with_random_output() {
   let tx =
     mock_tx(
       TestCase {
@@ -198,7 +198,7 @@ test s9_w_co_fail_with_random_output() {
   )
 }
 
-test s9_w_co_fail_with_mixed_accounts() {
+test s9_wco_fail_with_mixed_accounts() {
   let tx =
     mock_tx(
       TestCase {
@@ -217,7 +217,7 @@ test s9_w_co_fail_with_mixed_accounts() {
   )
 }
 
-test s9_w_co_fail_without_balance_settlement_correct() {
+test s9_wco_fail_without_balance_settlement_correct() {
   let tx =
     mock_tx(
       TestCase {
@@ -236,7 +236,7 @@ test s9_w_co_fail_without_balance_settlement_correct() {
   )
 }
 
-test s9_w_co_fail_without_operation_key_signed() {
+test s9_wco_fail_without_operation_key_signed() {
   let tx =
     mock_tx(
       TestCase {
