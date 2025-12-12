@@ -20,7 +20,7 @@ use hydra_dex/utils.{get_app_oracle_datum, get_dex_order_book_datum}
 
 validator dex_account_balance(
   oracle_nft: PolicyId,
-  dex_order_book_token: PolicyId,
+  dex_order_book_nft: PolicyId,
 ) {
   spend(
     _datum_opt: Option<DexAccountBalanceDatum>,
@@ -59,7 +59,7 @@ validator dex_account_balance(
       DABHydraIncrementalDecommit -> {
         let dex_order_book_input_datum: DexOrderBookDatum =
           reference_inputs
-            |> get_dex_order_book_datum(dex_order_book_token)
+            |> get_dex_order_book_datum(dex_order_book_nft)
         expect Some(own_input) = find_input(inputs, utxo)
         let is_input_equal_output =
           list.any(outputs, fn(output: Output) { output == own_input.output })
@@ -121,7 +121,7 @@ validator dex_account_balance(
       }
       DABSplitMerkleTree -> {
         let oracle: DexOrderBookDatum =
-          get_dex_order_book_datum(reference_inputs, dex_order_book_token)
+          get_dex_order_book_datum(reference_inputs, dex_order_book_nft)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
         expect w_redeemer: HydraAccountOperation = w_redeemer
@@ -132,7 +132,7 @@ validator dex_account_balance(
       }
       DABCombineMerkleTree -> {
         let oracle: DexOrderBookDatum =
-          get_dex_order_book_datum(reference_inputs, dex_order_book_token)
+          get_dex_order_book_datum(reference_inputs, dex_order_book_nft)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
         expect w_redeemer: HydraAccountOperation = w_redeemer
@@ -143,7 +143,7 @@ validator dex_account_balance(
       }
       HydraWithdrawal -> {
         let oracle: DexOrderBookDatum =
-          get_dex_order_book_datum(reference_inputs, dex_order_book_token)
+          get_dex_order_book_datum(reference_inputs, dex_order_book_nft)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
         expect w_redeemer: HydraAccountOperation = w_redeemer
@@ -154,7 +154,7 @@ validator dex_account_balance(
       }
       HydraCancelWithdrawal -> {
         let oracle: DexOrderBookDatum =
-          get_dex_order_book_datum(reference_inputs, dex_order_book_token)
+          get_dex_order_book_datum(reference_inputs, dex_order_book_nft)
         expect Some(w_redeemer) =
           withdrawal_redeemer(redeemers, oracle.hydra_account_script_hash)
         expect w_redeemer: HydraAccountOperation = w_redeemer

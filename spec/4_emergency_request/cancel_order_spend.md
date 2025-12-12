@@ -1,4 +1,6 @@
-# Specification - AppWithdrawalRequest## Parameter
+# Specification - EmergencyRequest - Cancel Order - Spend
+
+## Parameter
 
 - `oracle_nft`: The policy id of `OracleNFT`
 

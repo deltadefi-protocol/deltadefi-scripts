@@ -108,8 +108,8 @@ The address serves only inside hydra head.
 
 1. First layer
 
-   - 0.mint `OracleNFT` (param: `utxo_ref`)
-   - 0.spend `AppOracle` (no param)
+   - `s1_mint` - `OracleNFT` (param: `utxo_ref`)
+   - `s1_spend` - `AppOracle` (no param)
 
 2. Second layer
 

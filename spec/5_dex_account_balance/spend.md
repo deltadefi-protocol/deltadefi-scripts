@@ -3,7 +3,7 @@
 ## Parameter
 
 - `oracle_nft`: The policy id of `OracleNFT`
-- `dex_order_book_nft`: The policy id of `DexOrderBookNFT`
+- `dex_order_book_nft`: The policy id of `OracleNFT` locked in `DexOrderBook`
 
 ## Datum
 

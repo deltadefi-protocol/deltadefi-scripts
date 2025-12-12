@@ -63,29 +63,28 @@ Glossary
 | ----------------------------- | --- | ---- | ----- | ----- |
 | Mint Oracle NFTs              | ✓   | NA   | NA    |       |
 | Setup App oracle              | ✓   | NA   | NA    |       |
-| Setup DexOrderBook utxo       | ✓   | NA   | NA    |       |
-| Setup DexAccountBalance utxo  | ✓   | NA   | NA    |       |
-| Setup DexAccountBalance utxos | ✓   | NA   | NA    |       |
+| Setup DexOrderBook oracle     | ✓   | NA   | NA    |       |
+| Setup empty DexAccountBalance | ✓   | NA   | NA    |       |
 | Register all stake certs      | ✓   | NA   | NA    |       |
 
-| Ref   | **App User Actions**       | `I` | `IT` | `PBT` | `E2E` |
-| ----- | -------------------------- | --- | ---- | ----- | ----- |
-|       | Deposit                    | ✓   | NA   |       |       |
-| it_pd | Internal - process deposit | ✓   | ✓    |       |       |
-| it_w  | Withdraw                   | ✓   | ✓    |       |       |
+| Ref   | **App User Actions**       | `I` | `IT`           | `PBT` | `E2E` |
+| ----- | -------------------------- | --- | -------------- | ----- | ----- |
+|       | Deposit                    | ✓   | NA             |       |       |
+| it_pd | Internal - process deposit | ✓   | To update root |       |       |
+| it_w  | Withdraw                   | ✓   | To update root |       |       |
 
 | Ref     | **Active Order Book User Actions**       | `I` | `IT` | `PBT` | `E2E` |
 | ------- | ---------------------------------------- | --- | ---- | ----- | ----- |
-| it_pobu | Internal - prepare order book utxos      |     |      |       |       |
-| it_pabu | Internal - prepare account balance utxos |     |      |       |       |
-| it_hplo | Place order                              | ✓   | NA   |       |       |
-| it_hpro | Internal - Process order                 | ✓   | ✓    |       |       |
+|         | Internal - prepare order book utxos      |     |      |       |       |
+|         | Internal - prepare account balance utxos |     |      |       |       |
+|         | Place order                              | ✓   | NA   |       |       |
+| it_hpo  | Internal - Process order                 | ✓   | ✓    |       |       |
 | it_hfo  | Internal - Fill order                    | ✓   | ✓    |       |       |
-| it_hco  | Cancel order                             | ✓   | NA   |       |       |
-| it_hpco | Internal - Process cancel order          | ✓   | NA   |       |       |
-| it_hrw  | Request Withdrawal                       | ✓   | NA   |       |       |
-| it_hpw  | Process withdrawal                       | ✓   | ✓    |       |       |
-| it_hcw  | Cancel Withdrawal                        | ✓   | NA   |       |       |
-| it_hpcw | Process cancel withdrawal                | ✓   | ✓    |       |       |
-| it_cobu | Combine utxos for HydraOrderBook         |     |      |       |       |
-| it_cabu | Combine utxos for HydraAccount           |     |      |       |       |
+|         | Cancel order                             | ✓   | NA   |       |       |
+|         | Internal - Process cancel order          | ✓   | NA   |       |       |
+|         | Request Withdrawal                       | ✓   | NA   |       |       |
+| it_hpw  | Process withdrawal                       | ✓   |      |       |       |
+|         | Cancel Withdrawal                        | ✓   | NA   |       |       |
+| it_hpcw | Process cancel withdrawal                | ✓   |      |       |       |
+|         | Combine utxos for HydraOrderBook         |     |      |       |       |
+|         | Combine utxos for HydraAccount           |     |      |       |       |

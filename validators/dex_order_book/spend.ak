@@ -11,7 +11,7 @@ use hydra_dex/types.{
 }
 use hydra_dex/utils.{get_app_oracle_datum}
 
-validator dex_order_book(oracle_nft: PolicyId, dex_order_book_token: PolicyId) {
+validator dex_order_book(oracle_nft: PolicyId, dex_order_book_nft: PolicyId) {
   spend(
     datum_opt: Option<DexOrderBookDatum>,
     redeemer: DexOrderBookRedeemer,
@@ -70,7 +70,7 @@ validator dex_order_book(oracle_nft: PolicyId, dex_order_book_token: PolicyId) {
           reference_inputs |> get_app_oracle_datum(oracle_nft)
         expect Some(own_input) = find_input(inputs, utxo)
         let no_auth_token_check =
-          tokens(own_input.output.value, dex_order_book_token)
+          tokens(own_input.output.value, dex_order_book_nft)
             |> is_empty()
         let is_operation_key_signed =
           key_signed(extra_signatories, oracle_input_datum.operation_key)

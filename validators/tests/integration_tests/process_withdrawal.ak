@@ -20,11 +20,10 @@
 // use tests/utils.{
 //   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
 //   mock_dex_order_book_address, mock_dex_order_book_datum,
-//   mock_dex_order_book_token, mock_hydra_account_address,
-//   mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
-//   mock_hydra_usd_token_name, mock_hydra_user_intent_address,
-//   mock_hydra_user_intent_token, mock_hydra_withdrawal, mock_operation_key,
-//   mock_oracle_nft,
+//   mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
+//   mock_hydra_token_policy_id, mock_hydra_usd, mock_hydra_usd_token_name,
+//   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
+//   mock_hydra_withdrawal, mock_operation_key, mock_oracle_nft,
 // } as test_utils
 
 // type TestCase {
@@ -148,11 +147,7 @@
 //           mock_hydra_account_address,
 //         )
 //       |> tx_in_inline_datum(True, account)
-//       |> tx_out(
-//           True,
-//           mock_hydra_account_address,
-//           hydra_account_end,
-//         )
+//       |> tx_out(True, mock_hydra_account_address, hydra_account_end)
 //       |> tx_out_inline_datum(True, account)
 //       |> script_withdrawal(
 //           is_withdrawal_script_validated,
