@@ -73,18 +73,18 @@ Glossary
 | it_pd | Internal - process deposit | ✓   | To update root |       |       |
 | it_w  | Withdraw                   | ✓   | To update root |       |       |
 
-| Ref     | **Active Order Book User Actions**       | `I` | `IT` | `PBT` | `E2E` |
-| ------- | ---------------------------------------- | --- | ---- | ----- | ----- |
-|         | Internal - prepare order book utxos      |     |      |       |       |
-|         | Internal - prepare account balance utxos |     |      |       |       |
-|         | Place order                              | ✓   | NA   |       |       |
-| it_hpo  | Internal - Process order                 | ✓   | ✓    |       |       |
-| it_hfo  | Internal - Fill order                    | ✓   | ✓    |       |       |
-|         | Cancel order                             | ✓   | NA   |       |       |
-|         | Internal - Process cancel order          | ✓   | NA   |       |       |
-|         | Request Withdrawal                       | ✓   | NA   |       |       |
-| it_hpw  | Process withdrawal                       | ✓   |      |       |       |
-|         | Cancel Withdrawal                        | ✓   | NA   |       |       |
-| it_hpcw | Process cancel withdrawal                | ✓   |      |       |       |
-|         | Combine utxos for HydraOrderBook         |     |      |       |       |
-|         | Combine utxos for HydraAccount           |     |      |       |       |
+| Ref     | **Active Order Book User Actions**       | `I` | `IT`           | `PBT` | `E2E` |
+| ------- | ---------------------------------------- | --- | -------------- | ----- | ----- |
+|         | Internal - prepare order book utxos      |     |                |       |       |
+|         | Internal - prepare account balance utxos |     |                |       |       |
+|         | Place order                              | ✓   | NA             |       |       |
+| it_hpo  | Internal - Process order                 | ✓   | ✓              |       |       |
+| it_hfo  | Internal - Fill order                    | ✓   | ✓              |       |       |
+|         | Cancel order                             | ✓   | NA             |       |       |
+|         | Internal - Process cancel order          | ✓   | NA             |       |       |
+|         | Request Withdrawal                       | ✓   | NA             |       |       |
+| it_hpw  | Process withdrawal                       | ✓   | To update root |       |       |
+|         | Cancel Withdrawal                        | ✓   | NA             |       |       |
+| it_hpcw | Process cancel withdrawal                | ✓   | To update root |       |       |
+|         | Combine utxos for HydraOrderBook         |     |                |       |       |
+|         | Combine utxos for HydraAccount           |     |                |       |       |

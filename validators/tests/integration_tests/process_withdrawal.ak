@@ -5,13 +5,11 @@
 // use hydra_account/core as hab
 // use hydra_dex/account_utils.{from_value_to_hydra_balance}
 // use hydra_dex/types.{
-//   BurnIntent, DexAccountBalanceDatum, HydraUserIntentDatum, HydraWithdrawal,
-//   MPFUpdate, ProcessHydraWithdrawal, UpdateBalanceWithWithdrawal,
-//   UserTradeAccount, WithdrawalIntent,
+//   BurnIntent, DexAccountBalanceDatum, HydraAccountOperate, HydraUserIntentDatum,
+//   HydraWithdrawal, MPFUpdate, MasterIntent, ProcessWithdrawal, WithdrawalIntent,
 // }
 // use hydra_dex/utils.{to_mvalue}
-// use hydra_user_intent/mint as intent_mint
-// use hydra_user_intent/spend as intent_spend
+// use hydra_user_intent as hui
 // use mocktail.{
 //   complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
 //   ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
@@ -20,10 +18,11 @@
 // use tests/utils.{
 //   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
 //   mock_dex_order_book_address, mock_dex_order_book_datum,
-//   mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
-//   mock_hydra_token_policy_id, mock_hydra_usd, mock_hydra_usd_token_name,
-//   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-//   mock_hydra_withdrawal, mock_operation_key, mock_oracle_nft,
+//   mock_dex_order_book_token, mock_hydra_account, mock_hydra_account_address,
+//   mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd,
+//   mock_hydra_usd_token_name, mock_hydra_user_intent_address,
+//   mock_hydra_user_intent_token, mock_operation_key, mock_oracle_nft,
+//   mock_user_account,
 // } as test_utils
 
 // type TestCase {
@@ -37,14 +36,16 @@
 //   is_withdraw_value_burnt: Bool,
 // }
 
+// const proof =
+//   MPFUpdate {
+//     from: #"a140a1401a05f5e100",
+//     to: #"a240a1401a3b9aca00581c5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04ba144555344581a3b9aca00",
+//     to_proof: [],
+//   }
+
 // fn mock_tx(
 //   test_case: TestCase,
-// ) -> (
-//   Transaction,
-//   ProcessHydraWithdrawal,
-//   HydraUserIntentDatum,
-//   DexAccountBalanceDatum,
-// ) {
+// ) -> (Transaction, HydraUserIntentDatum, DexAccountBalanceDatum) {
 //   let TestCase {
 //     is_operation_key_signed,
 //     is_single_dex_account_balance_input,
@@ -74,12 +75,6 @@
 //           #"55534458",
 //           1_000_000_000,
 //         )
-//   let proof =
-//     MPFUpdate {
-//       from: #"a140a1401a05f5e100",
-//       to: #"a240a1401a3b9aca00581c5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04ba144555344581a3b9aca00",
-//       to_proof: [],
-//     }
 
 //   let hydra_account_start =
 //     mock_hydra_lovelace(1_000_000_000) |> merge(mock_hydra_usd(2_000_000_000))
@@ -99,9 +94,9 @@
 //     DexAccountBalanceDatum { account_balance_merkle_root: old_root }
 
 //   let intent_datum =
-//     WithdrawalIntent {
-//       account: mock_user_account(mock_account),
-//       amount: withdrawal_amount |> to_mvalue(),
+//     MasterIntent {
+//       account,
+//       intent: WithdrawalIntent { amount: withdrawal_amount |> to_mvalue() },
 //     }
 
 //   let mock_tx =
@@ -151,7 +146,7 @@
 //       |> tx_out_inline_datum(True, account)
 //       |> script_withdrawal(
 //           is_withdrawal_script_validated,
-//           mock_hydra_withdrawal,
+//           mock_hydra_account,
 //           0,
 //         )
 //       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
@@ -191,27 +186,22 @@
 //         )
 //       |> complete()
 
-//   (
-//     mock_tx,
-//     ProcessHydraWithdrawal { mpf_action: proof },
-//     intent_datum,
-//     input_dex_balance,
-//   )
+//   (mock_tx, intent_datum, input_dex_balance)
 // }
 
 // fn check_all_scripts(test_case: TestCase) {
-//   let (tx, redeemer, intent_datum, input_dex_balance) = mock_tx(test_case)
+//   let (tx, intent_datum, input_dex_balance) = mock_tx(test_case)
 
 //   let withdraw =
 //     hab.hydra_account.withdraw(
 //       mock_dex_order_book_token,
-//       redeemer,
-//       Script(mock_hydra_withdrawal),
+//       ProcessWithdrawal { mpf_action: proof },
+//       Script(mock_hydra_account),
 //       tx,
 //     )
 
 //   let check_intent_spend =
-//     intent_spend.hydra_user_intent.spend(
+//     hui.hydra_user_intent.spend(
 //       mock_dex_order_book_token,
 //       Some(intent_datum),
 //       Void,
@@ -219,7 +209,7 @@
 //       tx,
 //     )
 //   let check_intent_mint =
-//     intent_mint.hydra_user_intent.mint(
+//     hui.hydra_user_intent.mint(
 //       mock_dex_order_book_token,
 //       BurnIntent,
 //       mock_hydra_user_intent_token,
@@ -229,7 +219,7 @@
 //     hab.hydra_account.spend(
 //       mock_dex_order_book_token,
 //       Some(mock_user_account(mock_account)),
-//       UpdateBalanceWithWithdrawal,
+//       HydraAccountOperate,
 //       mock_utxo_ref(0, 3),
 //       tx,
 //     )
