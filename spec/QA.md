@@ -29,7 +29,7 @@ Glossary
 | s1_spend    | ✓   | ✓    | ✓              |       |
 | s2_spend    | ✓   | ✓    | ✓              |       |
 | s2_waw      | ✓   | ✓    | To update root |       |
-| s2_wavsr    | ✓   | ✓    |                |       |
+| s2_wavsr    | ✓   | ✓    | ✓              |       |
 | s3_mint     | ✓   | ✓    | ✓              |       |
 | s3_spend    | ✓   | ✓    | ✓              |       |
 | s3_wad      | ✓   | ✓    | To update root |       |
@@ -58,7 +58,7 @@ Glossary
 | s9_wmo      | ✓   | ✓    | ✓              |       |
 | s9_wsom     | ✓   | ✓    | To update root |       |
 | s9_wcom     | ✓   | ✓    | To update root |       |
-| s10         | ✓   | ✓    |                |       |
+| s10         | ✓   | ✓    | ✓              |       |
 
 | **Setup**                     | `I` | `IT` | `PBT` | `E2E` |
 | ----------------------------- | --- | ---- | ----- | ----- |

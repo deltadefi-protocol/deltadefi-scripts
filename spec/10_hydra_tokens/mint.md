@@ -8,12 +8,24 @@
 
 1. Hydra Head Open (mint)
 
-   - `hydra_head_open` withdrawal script is run
+   - `hydra_account` withdrawal script is run with redeemer `ProcessSplitUtxosAtOpen`
 
 2. Hydra Head Close (burn)
 
-   - `hydra_head_close` withdrawal script is run
+   - `hydra_account` withdrawal script is run with redeemer `ProcessCombineUtxosAtClose`
 
-3. Withdrawal (burn)
+3. CancelWithdrawal (mint)
 
-   - `hydra_withdrawal` withdrawal script is run
+   - `hydra_account` withdrawal script is run with redeemer `ProcessCancelWithdrawal`
+
+4. Withdrawal (burn)
+
+   - `hydra_account` withdrawal script is run with redeemer `ProcessWithdrawal`
+
+5. Init Order Book (mint)
+
+   - `hydra_order_book_script_hash` withdrawal script is run with redeemer `SplitOrderMerkle`
+
+6. Combine Order Book (burn)
+
+   - `hydra_order_book_script_hash` withdrawal script is run with redeemer `CombineOrderMerkle`
