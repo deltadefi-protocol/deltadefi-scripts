@@ -5,8 +5,8 @@ use cardano/assets.{PolicyId, add, from_asset_list, merge}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  all_key_signed, get_all_value_from, get_all_value_to, inputs_at_with_policy,
-  key_signed, outputs_at_with_policy,
+  all_key_signed, get_all_value_from_script, get_all_value_to_script,
+  inputs_at_with_policy, key_signed, outputs_at_with_policy,
 }
 use cocktail/vodka_inputs.{input_inline_datum}
 use hydra_dex/account_utils.{
@@ -38,7 +38,7 @@ validator app_withdrawal(oracle_nft: PolicyId) {
     let AppOracleDatum {
       operation_key,
       community_stop_keys,
-      app_vault_address,
+      app_vault_script_hash,
       dex_account_balance_token,
       dex_account_balance_address,
       emergency_withdrawal_request_address,
@@ -50,8 +50,10 @@ validator app_withdrawal(oracle_nft: PolicyId) {
     //  - Check the withdrawal amounut is correct sent to an address equal
     when redeemer is {
       ProcessAppWithdrawal { account, amount, mpf_action } -> {
-        let value_from_vault = get_all_value_from(inputs, app_vault_address)
-        let value_to_vault = get_all_value_to(outputs, app_vault_address)
+        let value_from_vault =
+          get_all_value_from_script(inputs, app_vault_script_hash)
+        let value_to_vault =
+          get_all_value_to_script(outputs, app_vault_script_hash)
         let is_value_unlocked_from_vault_correct =
           value_to_vault
             |> merge(from_asset_list(amount))
@@ -159,7 +161,3 @@ validator app_withdrawal(oracle_nft: PolicyId) {
     fail @"unsupported purpose"
   }
 }
-// test test_app_deposit_withdrawal_policy() {
-//   let redeemer = ProcessAppWithdrawal(MPFInsert([]))
-//   app_withdrawal.withdraw("", redeemer, Script(#""), placeholder)
-// }

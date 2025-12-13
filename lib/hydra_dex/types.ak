@@ -54,6 +54,7 @@ pub type Account {
 pub type WithdrawalScriptHashes {
   app_deposit: ScriptHash,
   app_withdrawal: ScriptHash,
+  app_vault_stake_rotation: ScriptHash,
   emergency_cancel_order: ScriptHash,
 }
 
@@ -63,7 +64,7 @@ pub type AppOracleDatum {
   community_stop_keys: List<VerificationKeyHash>,
   oracle_nft: PolicyId,
   oracle_address: Address,
-  app_vault_address: Address,
+  app_vault_script_hash: ScriptHash,
   app_deposit_request_token: PolicyId,
   app_deposit_request_address: Address,
   dex_account_balance_token: PolicyId,
@@ -102,6 +103,13 @@ pub type ProcessAppWithdrawalRedeemer {
     mpf_action: MPFProof,
   }
   CommunityStop
+}
+
+// 2 - App Vault
+
+pub type AppVaultRedeemer {
+  AppVaultWithdraw
+  AppVaultStakeKeyRotation
 }
 
 // 3 - AppDepositRequest

@@ -8,7 +8,7 @@
 - `stop_key`: The key for stopping the services
 - `oracle_nft`: The policy id of `OracleNFT`
 - `oracle_address`: The address of the current oracle validator
-- `app_vault_address`: The address of `AppVault`
+- `app_vault_script_hash`: The script hash of `AppVault`
 - `app_deposit_request_token`: The policy id of auth token at address of `AppDepositRequest`
 - `app_deposit_request_address`: The address of `AppDepositRequest`
 - `dex_account_balance_token`: The policy id of auth token at address of `DexAccountBalance`

@@ -10,5 +10,5 @@ source = "github"
 
 [[packages]]
 name = "sidan-lab/vodka"
-version = "0.1.21"
+version = "0.1.22"
 source = "github"

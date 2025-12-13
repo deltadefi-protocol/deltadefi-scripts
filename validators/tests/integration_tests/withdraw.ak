@@ -5,8 +5,8 @@ use cardano/address.{Address, Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum, MPFUpdate,
-  ProcessAppWithdrawal, ProcessAppWithdrawalRedeemer,
+  AppVaultWithdraw, DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum,
+  MPFUpdate, ProcessAppWithdrawal, ProcessAppWithdrawalRedeemer,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -236,7 +236,7 @@ fn check_all_scripts(test_case: AppWithdrawalTestCase) {
     app_vault_spend.app_vault.spend(
       mock_oracle_nft,
       None,
-      Void,
+      AppVaultWithdraw,
       mock_utxo_ref(0, 0),
       tx,
     )

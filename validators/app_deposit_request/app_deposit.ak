@@ -3,8 +3,9 @@ use cardano/assets.{PolicyId, from_asset_list, merge}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  get_all_value_from, get_all_value_to, input_inline_datum, inputs_at_with,
-  inputs_at_with_policy, key_signed, only_minted_token, outputs_at_with_policy,
+  get_all_value_from_script, get_all_value_to_script, input_inline_datum,
+  inputs_at_with, inputs_at_with_policy, key_signed, only_minted_token,
+  outputs_at_with_policy,
 }
 use hydra_dex/account_utils.{dex_account_balance_balance_increase}
 use hydra_dex/types.{AppDepositRequestDatum, AppOracleDatum, ProcessAppDeposit}
@@ -27,7 +28,7 @@ validator app_deposit(oracle_nft: PolicyId) {
 
     let AppOracleDatum {
       operation_key,
-      app_vault_address,
+      app_vault_script_hash,
       app_deposit_request_token,
       app_deposit_request_address,
       dex_account_balance_token,
@@ -50,8 +51,9 @@ validator app_deposit(oracle_nft: PolicyId) {
     //  - Check if the token with `AppDepositRequest` is burnt, and the deposit value is sent to vault
     let is_intent_token_burnt =
       only_minted_token(mint, app_deposit_request_token, "", -1)
-    let value_from_vault = get_all_value_from(inputs, app_vault_address)
-    let value_to_vault = get_all_value_to(outputs, app_vault_address)
+    let value_from_vault =
+      get_all_value_from_script(inputs, app_vault_script_hash)
+    let value_to_vault = get_all_value_to_script(outputs, app_vault_script_hash)
     let is_value_sent_to_vault =
       value_from_vault
         |> merge(from_asset_list(deposit_amount))

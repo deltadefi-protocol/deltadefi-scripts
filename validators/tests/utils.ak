@@ -32,7 +32,9 @@ pub const mock_emergency_cancel_order_request_token = mock_policy_id(400)
 
 pub const mock_oracle_address = from_script("oracle_address")
 
-pub const mock_app_vault_address = from_script("app_vault_address")
+pub const mock_app_vault_script_hash = mock_script_hash(2)
+
+pub const mock_app_vault_address = from_script(mock_app_vault_script_hash)
 
 pub const mock_app_deposit_request_address =
   from_script("app_deposit_request_address")
@@ -52,12 +54,15 @@ pub const mock_app_deposit = mock_script_hash(0)
 
 pub const mock_app_withdrawal = mock_script_hash(1)
 
+pub const mock_app_vault_stake_rotation = mock_script_hash(11)
+
 pub const mock_emergency_cancel_order = mock_script_hash(401)
 
 pub const mock_withdrawal_script_hashes: WithdrawalScriptHashes =
   WithdrawalScriptHashes {
     app_deposit: mock_app_deposit,
     app_withdrawal: mock_app_withdrawal,
+    app_vault_stake_rotation: mock_app_vault_stake_rotation,
     emergency_cancel_order: mock_emergency_cancel_order,
   }
 
@@ -81,7 +86,7 @@ pub const mock_input_oracle_datum: AppOracleDatum =
     community_stop_keys: [mock_operation_key, mock_stop_key],
     oracle_nft: mock_oracle_nft,
     oracle_address: mock_oracle_address,
-    app_vault_address: mock_app_vault_address,
+    app_vault_script_hash: mock_app_vault_script_hash,
     app_deposit_request_token: mock_app_deposit_request_token,
     app_deposit_request_address: mock_app_deposit_request_address,
     dex_account_balance_token: mock_dex_account_balance_token,

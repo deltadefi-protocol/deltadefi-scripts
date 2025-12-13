@@ -29,6 +29,7 @@ Glossary
 | s1_spend    | ✓   | ✓    | ✓              |       |
 | s2_spend    | ✓   | ✓    | ✓              |       |
 | s2_waw      | ✓   | ✓    | To update root |       |
+| s2_wavsr    | ✓   | ✓    |                |       |
 | s3_mint     | ✓   | ✓    | ✓              |       |
 | s3_spend    | ✓   | ✓    | ✓              |       |
 | s3_wad      | ✓   | ✓    | To update root |       |

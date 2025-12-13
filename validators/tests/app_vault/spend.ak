@@ -1,6 +1,7 @@
 use app_vault/spend as app_vault_spend
 use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
+use hydra_dex/types.{AppVaultWithdraw}
 use mocktail.{
   complete, mock_policy_id, mock_script_address, mock_tx_hash, mock_utxo_ref,
   mocktail_tx, ref_tx_in, ref_tx_in_inline_datum, script_withdrawal, tx_in,
@@ -72,7 +73,7 @@ test s2_spend_success_withdraw() {
   app_vault_spend.app_vault.spend(
     mock_oracle_nft,
     None,
-    Void,
+    AppVaultWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -91,7 +92,7 @@ test s2_spend_fail_withdraw_with_no_app_oracle_inputed() fail {
   !app_vault_spend.app_vault.spend(
     mock_oracle_nft,
     None,
-    Void,
+    AppVaultWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -110,7 +111,7 @@ test s2_spend_fail_withdraw_with_incorrect_app_oracle_inputed() fail {
   !app_vault_spend.app_vault.spend(
     mock_oracle_nft,
     None,
-    Void,
+    AppVaultWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -129,7 +130,7 @@ test s2_spend_fail_withdraw_with_no_withdrawal_auth_credential() {
   !app_vault_spend.app_vault.spend(
     mock_oracle_nft,
     None,
-    Void,
+    AppVaultWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
