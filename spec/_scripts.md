@@ -18,56 +18,57 @@ aiken check -m s9_wfo
 
 The address serving static app information like app operation key etc
 
-- `s1_mint` - `oracle_nft`
-- `s1_spend` - `spend`
+- `s1_mint` - `oracle_nft` [(script)](../validators/app_oracle/oracle_nft.ak)
+- `s1_spend` - `spend` [(script)](../validators/app_oracle/spend.ak)
 
 ## 2. AppVault
 
 The address storing all value deposit into the DEX.
 
-- `s2_spend` - `spend`
-- `s2_waw` - `app_withdrawal` - The script for checking app withdrawal at L1 (withdrawal)
+- `s2_spend` - `spend` [(script)](../validators/app_vault/spend.ak)
+- `s2_waw` - `app_withdrawal` - The script for checking app withdrawal at L1 (withdrawal) [(script)](../validators/app_vault/app_withdrawal.ak)
+- `s2_wavsr` - `app_vault_stake_rotation` [(script)](../validators/app_vault/app_vault_stake_rotation.ak)
 
 ## 3. AppDepositRequest
 
 The address storing incoming deposit request, to be batched into the deposit info to be committed to hydra head.
 
-- `s3_mint` - `mint`
-- `s3_spend` - `spend`
-- `s3_wad` - `app_deposit` - The script for checking app deposit (process deposit)
+- `s3_mint` - `mint` [(script)](../validators/app_deposit_request/mint.ak)
+- `s3_spend` - `spend` [(script)](../validators/app_deposit_request/spend.ak)
+- `s3_wad` - `app_deposit` - The script for checking app deposit (process deposit) [(script)](../validators/app_deposit_request/app_deposit.ak)
 
 ## 4. EmergencyRequest
 
 The set of scripts to handle emergency request at L1, i.e. cancelling orders and withdrawal directly from merkle root without app owner signature.
 
-- `s4_w_spend` - `withdrawal_spend`
-- `s4_w_mint` - `withdrawal_mint`
-- `s4_c_spend` - `cancel_order_spend`
-- `s4_c_mint` - `cancel_order_mint`
+- `s4_w_spend` - `withdrawal_spend` [(script)](../validators/emergency_request/withdrawal_spend.ak)
+- `s4_w_mint` - `withdrawal_mint` [(script)](../validators/emergency_request/withdrawal_mint.ak)
+- `s4_c_spend` - `cancel_order_spend` [(script)](../validators/emergency_request/cancel_order_spend.ak)
+- `s4_c_mint` - `cancel_order_mint` [(script)](../validators/emergency_request/cancel_order_mint.ak)
 
 ## 5. DexAccountBalance
 
 The single utxo to be committed into hydra head, serving user account balance information.
 
-- `s5_mint` - `mint`
-- `s5_spend` - `spend`
+- `s5_mint` - `mint` [(script)](../validators/dex_account_balance/mint.ak)
+- `s5_spend` - `spend` [(script)](../validators/dex_account_balance/spend.ak)
 
 ## 6. DexOrderBook
 
 The single utxo to be committed into hydra head, serving orders information (limit orders).
 
-- `s6_spend` - `spend`
-- `s6_wec` - `emergency_cancel`
+- `s6_spend` - `spend` [(script)](../validators/dex_order_book/spend.ak)
+- `s6_wec` - `emergency_cancel` [(script)](../validators/dex_order_book/emergency_cancel.ak)
 
-## 7. HydraTradeIntent
+## 7. HydraUserIntent
 
 The address serves only inside hydra head.
 
 - Serving trades, the address hosting limit / market order intents for further processing / batching.
 - Empty state at open and close (processed into `HydraOrderBook`)
 
-- `s7_mint` - `mint`
-- `s7_spend` - `spend`
+- `s7_mint` - `mint` [(script)](../validators/hydra_user_intent.ak)
+- `s7_spend` - `spend` [(script)](../validators/hydra_user_intent.ak)
 
 ## 8. HydraAccount
 
@@ -77,14 +78,14 @@ The address serves only inside hydra head.
 - Active: Serving trade and withdrawal requests.
 - Close, all info will be combined into `DexAccountBalance` utxos.
 
-- `s8_spend` - `spend`
+- `s8_spend` - `spend` [(script)](../validators/hydra_account/core.ak)
 - `s8_w` - The hydra account withdrawal script, with sub-logics:
-  - `s8_whw` - `withdrawal` - The script for checking processing withdrawal request
-  - `s8_wcw` - `cancel_withdrawal` - The script for checking processing withdrawal request
-  - `s8_wt` - `transferal` - The script for checking transferal of value between 2 accounts
-  - `s8_wsat` - `same_account_transferal` - The script for checking transferal of value between 2 accounts
-  - `s8_wsuao` - `split_utxos_at_open` - The script for checking account balance splitting at hydra open
-  - `s8_wcuac` - `combine_utxos_at_close` - The script for checking account balance combining at hydra close
+  - `s8_whw` - `withdrawal` - The script for checking processing withdrawal request [(script)](../validators/hydra_account/withdrawal.ak)
+  - `s8_wcw` - `cancel_withdrawal` - The script for checking processing withdrawal request [(script)](../validators/hydra_account/cancel_withdrawal.ak)
+  - `s8_wt` - `transferal` - The script for checking transferal of value between 2 accounts [(script)](../validators/hydra_account/transferal.ak)
+  - `s8_wsat` - `same_account_transferal` - The script for checking transferal of value between 2 accounts [(script)](../validators/hydra_account/same_account_transferal.ak)
+  - `s8_wsuao` - `split_utxos_at_open` - The script for checking account balance splitting at hydra open [(script)](../validators/hydra_account/split_utxos_at_open.ak)
+  - `s8_wcuac` - `combine_utxos_at_close` - The script for checking account balance combining at hydra close [(script)](../validators/hydra_account/combine_utxos_at_close.ak)
 
 ## 9. HydraOrderBook
 
@@ -94,34 +95,12 @@ The address serves only inside hydra head.
 - Active: Serving trades, the address hosting limit orders.
 - Close, all info will be combined into `DexOrderBook` utxos.
 
-- `s9_spend` - `spend`
+- `s9_spend` - `spend` [(script)](../validators/hydra_order_book/core.ak)
 - `s9_w` - The hydra order book withdrawal script, with sub-logics:
-  - `s9_wpo` - `place_order`
-  - `s9_wco` - `cancel_order`
-  - `s9_wmo` - `modify_order`
-  - `s9_wfo` - `fill_order`
-  - Specific tests on fill orders numbers: `s9_fill_order`
-  - `s9_wcom` - `combine_order_merkle`
-  - `s9_wsom` - `split_order_merkle`
-
-## Param Dependency Graph
-
-1. First layer
-
-   - `s1_mint` - `OracleNFT` (param: `utxo_ref`)
-   - `s1_spend` - `AppOracle` (no param)
-
-2. Second layer
-
-   - 2.1 All account actions (param: `owner`, 1.1, 1.2)
-   - 2.2 All dex actions (param: 1.1, 1.2)
-   - 2.3 `EmergencyUnlock` (param: 1.2)
-
-3. Third layer
-
-   - 3.1 `EmergencyToken` (param: 2.3)
-
-4. Fourth layer
-
-   - 4.1 `Account` (param: 2.1, 2.3, 3.1)
-   - 4.2 `VirtualDEX` (param: 2.2, 2.3, 3.1)
+  - `s9_wpo` - `place_order` [(script)](../validators/hydra_order_book/place_order.ak)
+  - `s9_wco` - `cancel_order` [(script)](../validators/hydra_order_book/cancel_order.ak)
+  - `s9_wmo` - `modify_order` [(script)](../validators/hydra_order_book/modify_order.ak)
+  - `s9_wfo` - `fill_order` [(script)](../validators/hydra_order_book/fill_order.ak)
+    - Specific tests on fill orders numbers: `s9_fill_order`
+  - `s9_wcom` - `combine_order_merkle` [(script)](../validators/hydra_order_book/combine_order_merkle.ak)
+  - `s9_wsom` - `split_order_merkle` [(script)](../validators/hydra_order_book/split_order_merkle.ak)
