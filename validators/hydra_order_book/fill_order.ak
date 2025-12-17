@@ -182,11 +182,16 @@ pub fn fill_order(
   let no_other_inputs = other_inputs == []
   let no_other_outputs = other_outputs == []
 
+  trace @"final_account_payoff"
+  trace final_account_payoff
+
   // - Loop through `AO`
   //   - Each has at least received the payoff value calculated above
   let payoff_after_settlement =
     final_account_payoff |> payoff_output_settlement(account_outputs)
 
+  trace @"payoff_after_settlement"
+  trace payoff_after_settlement
   // - There is no negative payoff
   let is_no_negative_payoff = payoff_after_settlement == []
 
