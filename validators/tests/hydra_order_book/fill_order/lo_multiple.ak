@@ -1,5 +1,5 @@
 use cardano/address.{Script}
-use hydra_dex/types.{FillOrder}
+use hydra_dex/types.{FillOrder, LimitOrder}
 use hydra_order_book/core as ob
 use tests/hydra_order_book/fill_order/utils.{
   Balance, TestCase, TestOrder, fill_order_test,
@@ -28,6 +28,7 @@ test s9_fill_order_13_lo_multiple() {
         unfilled_size: 0,
         base_balance: 0,
         quote_balance: 360000000,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -39,6 +40,7 @@ test s9_fill_order_13_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -49,6 +51,7 @@ test s9_fill_order_13_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -59,6 +62,7 @@ test s9_fill_order_13_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -84,6 +88,7 @@ test s9_fill_order_14_lo_multiple() {
         unfilled_size: 0,
         base_balance: 300000000,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -95,6 +100,7 @@ test s9_fill_order_14_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 120000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -105,6 +111,7 @@ test s9_fill_order_14_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 120000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -115,6 +122,7 @@ test s9_fill_order_14_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 120000000,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -140,6 +148,7 @@ test s9_fill_order_15_lo_multiple() {
         unfilled_size: 0,
         base_balance: 0,
         quote_balance: 450000000,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -151,6 +160,7 @@ test s9_fill_order_15_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -161,6 +171,7 @@ test s9_fill_order_15_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -171,6 +182,7 @@ test s9_fill_order_15_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -196,6 +208,7 @@ test s9_fill_order_16_lo_multiple() {
         unfilled_size: 0,
         base_balance: 300000000,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -207,6 +220,7 @@ test s9_fill_order_16_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 150000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -217,6 +231,7 @@ test s9_fill_order_16_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 140000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -227,6 +242,7 @@ test s9_fill_order_16_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 130000000,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -252,6 +268,7 @@ test s9_fill_order_17_lo_multiple() {
         unfilled_size: 0,
         base_balance: 0,
         quote_balance: 450000000,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -263,6 +280,7 @@ test s9_fill_order_17_lo_multiple() {
           unfilled_size: 0,
           base_balance: 150000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -273,6 +291,7 @@ test s9_fill_order_17_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -283,6 +302,7 @@ test s9_fill_order_17_lo_multiple() {
           unfilled_size: 50000000,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -308,6 +328,7 @@ test s9_fill_order_18_lo_multiple() {
         unfilled_size: 0,
         base_balance: 300000000,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -319,6 +340,7 @@ test s9_fill_order_18_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 225000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -329,6 +351,7 @@ test s9_fill_order_18_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 140000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -339,6 +362,7 @@ test s9_fill_order_18_lo_multiple() {
           unfilled_size: 65000000,
           base_balance: 0,
           quote_balance: 130000000,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -364,6 +388,7 @@ test s9_fill_order_19_lo_multiple() {
         unfilled_size: 300000000,
         base_balance: 0,
         quote_balance: 750000000,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -375,6 +400,7 @@ test s9_fill_order_19_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -385,6 +411,7 @@ test s9_fill_order_19_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -395,6 +422,7 @@ test s9_fill_order_19_lo_multiple() {
           unfilled_size: 0,
           base_balance: 100000000,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -420,6 +448,7 @@ test s9_fill_order_20_lo_multiple() {
         unfilled_size: 200000000,
         base_balance: 500000000,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -431,6 +460,7 @@ test s9_fill_order_20_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 150000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -441,6 +471,7 @@ test s9_fill_order_20_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 140000000,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -451,6 +482,7 @@ test s9_fill_order_20_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 130000000,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -476,6 +508,7 @@ test s9_fill_order_21_lo_multiple() {
         unfilled_size: 0,
         base_balance: 0,
         quote_balance: 445429048,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -487,6 +520,7 @@ test s9_fill_order_21_lo_multiple() {
           unfilled_size: 0,
           base_balance: 139061203,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -497,6 +531,7 @@ test s9_fill_order_21_lo_multiple() {
           unfilled_size: 0,
           base_balance: 689329315,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -507,6 +542,7 @@ test s9_fill_order_21_lo_multiple() {
           unfilled_size: 148789579,
           base_balance: 189528912,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -532,6 +568,7 @@ test s9_fill_order_22_lo_multiple() {
         unfilled_size: 0,
         base_balance: 1021589015,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -543,6 +580,7 @@ test s9_fill_order_22_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 166850088,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -553,6 +591,7 @@ test s9_fill_order_22_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 232321347,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -563,6 +602,7 @@ test s9_fill_order_22_lo_multiple() {
           unfilled_size: 4924715,
           base_balance: 0,
           quote_balance: 120838210,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -588,6 +628,7 @@ test s9_fill_order_23_lo_multiple() {
         unfilled_size: 100021657,
         base_balance: 0,
         quote_balance: 540733901,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -599,6 +640,7 @@ test s9_fill_order_23_lo_multiple() {
           unfilled_size: 0,
           base_balance: 258907125,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 2,
@@ -609,6 +651,7 @@ test s9_fill_order_23_lo_multiple() {
           unfilled_size: 0,
           base_balance: 510250913,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 2,
@@ -619,6 +662,7 @@ test s9_fill_order_23_lo_multiple() {
           unfilled_size: 0,
           base_balance: 123875891,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -642,6 +686,7 @@ test s9_fill_order_24_lo_multiple() {
         unfilled_size: 598663484,
         base_balance: 2903567801,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -653,6 +698,7 @@ test s9_fill_order_24_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 621909385,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 2,
@@ -663,6 +709,7 @@ test s9_fill_order_24_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 1074478218,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 2,
@@ -673,6 +720,7 @@ test s9_fill_order_24_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 1069497577,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -696,6 +744,7 @@ test s9_fill_order_25_lo_multiple() {
         unfilled_size: 0,
         base_balance: 0,
         quote_balance: 445429048,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -707,6 +756,7 @@ test s9_fill_order_25_lo_multiple() {
           unfilled_size: 0,
           base_balance: 139061203,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -717,6 +767,7 @@ test s9_fill_order_25_lo_multiple() {
           unfilled_size: 0,
           base_balance: 689329315,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -727,6 +778,7 @@ test s9_fill_order_25_lo_multiple() {
           unfilled_size: 0,
           base_balance: 40739333,
           quote_balance: 0,
+          order_type: LimitOrder,
         },
       ],
       payoff: [
@@ -752,6 +804,7 @@ test s9_fill_order_26_lo_multiple() {
         unfilled_size: 0,
         base_balance: 869129851,
         quote_balance: 0,
+        order_type: LimitOrder,
       },
       makers: [
         TestOrder {
@@ -763,6 +816,7 @@ test s9_fill_order_26_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 71268866,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 3,
@@ -773,6 +827,7 @@ test s9_fill_order_26_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 353281273,
+          order_type: LimitOrder,
         },
         TestOrder {
           account: 4,
@@ -783,6 +838,7 @@ test s9_fill_order_26_lo_multiple() {
           unfilled_size: 0,
           base_balance: 0,
           quote_balance: 20878908,
+          order_type: LimitOrder,
         },
       ],
       payoff: [

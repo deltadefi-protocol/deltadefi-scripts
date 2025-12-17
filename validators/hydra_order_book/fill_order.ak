@@ -13,7 +13,9 @@ use hydra_dex/account_utils.{
   AccountPayoff, add_to_payoff, payoff_output_settlement,
 }
 use hydra_dex/order_utils.{get_fee, get_min_order_value, get_min_payoff_value}
-use hydra_dex/types.{DexOrderBookDatum, Order, UserAccount}
+use hydra_dex/types.{
+  DexOrderBookDatum, LimitOrder, MarketOrder, Order, UserAccount,
+}
 use hydra_dex/utils.{get_dex_order_book_datum}
 
 pub fn fill_order(
@@ -67,10 +69,10 @@ pub fn fill_order(
 
   // - Loop through `OI` 
   // - Return `total_order_value (TOV)`, `account_payoff (AP)`, `total_filled_order_value (TFOV)`, `total_order_payoff_value (TOPV)`, 
-  let (tov, tpv, ap, tfov, topv, filler_order_input_opt) =
+  let (tov, tpv, ap, tfov, topv, filler_order_input_opt, order_count) =
     order_inputs
       |> list.foldr(
-          (zero, zero, [], zero, zero, None),
+          (zero, zero, [], zero, zero, None, 0),
           fn(
             order_input,
             (
@@ -80,6 +82,7 @@ pub fn fill_order(
               tfov_acc,
               topv_acc,
               filler_order_acc,
+              order_count,
             ),
           ) {
             expect order: Order = input_inline_datum(order_input)
@@ -92,6 +95,7 @@ pub fn fill_order(
                 tfov_acc,
                 topv_acc,
                 Some(order_input),
+                order_count + 1,
               )
             } else {
               //   - Get `order_value (OV)`, `min_order_value (MOV)`, `min_payoff_value (MPV)`
@@ -129,12 +133,13 @@ pub fn fill_order(
                 tfov_acc |> merge(fov),
                 topv_acc |> merge(final_order_payoff),
                 filler_order_acc,
+                order_count + 1,
               )
             }
           },
         )
 
-  let final_account_payoff =
+  let (final_account_payoff, is_min_taker_payoff_satisfied) =
     when filler_order_input_opt is {
       Some(filler_order_input) -> {
         expect order: Order = input_inline_datum(filler_order_input)
@@ -146,7 +151,7 @@ pub fn fill_order(
         let order_value = filler_order_input.output.value
         //   - Handle unfilled order value
         //     - Get `SOV` for filler order
-        let (sov, _, _) =
+        let (sov, _, min_payoff) =
           get_unfilled_order(order, new_order_opt)
             |> get_partial_filled_order_info(order, order_value)
 
@@ -169,11 +174,19 @@ pub fn fill_order(
             |> add_to_payoff(fee_account, fee_value)
             |> add_to_payoff(order.account, taker_fp)
 
-        final_account_payoff
+        // - Check if taker min payoff is fulfilled `TFOV` > `Min Payoff`
+        let is_min_taker_payoff_satisfied =
+          when order.order_type is {
+            LimitOrder ->
+              value_geq(tfov, min_payoff |> apply_rounding_buffer(order_count))
+            MarketOrder -> True
+          }
+
+        (final_account_payoff, is_min_taker_payoff_satisfied)
       }
       None -> {
         let rov = tov |> merge(negate(topv))
-        ap |> add_to_payoff(fee_account, rov)
+        (ap |> add_to_payoff(fee_account, rov), True)
       }
     }
   // ### Contract Guards
@@ -217,6 +230,7 @@ pub fn fill_order(
   and {
     no_other_inputs?,
     no_other_outputs?,
+    is_min_taker_payoff_satisfied?,
     is_no_negative_payoff?,
     is_order_value_sufficient?,
     is_value_parity_holds?,
@@ -300,6 +314,17 @@ fn handle_remaining_value(
                 },
                 from_asset(policy, name, qty),
               )
+        },
+      )
+}
+
+fn apply_rounding_buffer(min_payoff: Value, buffer: Int) -> Value {
+  min_payoff
+    |> assets.reduce(
+        zero,
+        fn(policy, name, qty, acc) {
+          let adjusted_qty = qty - buffer
+          acc |> merge(from_asset(policy, name, adjusted_qty))
         },
       )
 }

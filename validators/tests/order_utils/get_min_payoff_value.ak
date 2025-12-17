@@ -2,7 +2,8 @@ use hydra_dex/order_utils.{
   base_to_quote_qty, get_min_payoff_value, get_payoff_qty, quote_to_base_qty,
 }
 use tests/utils.{
-  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_order, mock_order_id,
+  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_limit_order,
+  mock_order_id,
 }
 
 test ou_gmpv_1() {
@@ -14,7 +15,7 @@ test ou_gmpv_1() {
   let quote_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,
@@ -36,7 +37,7 @@ test ou_gmpv_2() {
   let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,
@@ -58,7 +59,7 @@ test ou_gmpv_3() {
   let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,
@@ -82,7 +83,7 @@ test ou_gmpv_4() {
   let quote_qty = base_to_quote_qty(base_qty, list_price_times_1bil)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
@@ -107,7 +108,7 @@ test ou_gmpv_5() {
   let quote_qty = base_to_quote_qty(base_qty, list_price_times_1bil)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
@@ -131,7 +132,7 @@ test ou_gmpv_6() {
   let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
@@ -155,7 +156,7 @@ test ou_gmpv_7() {
   let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
@@ -179,7 +180,7 @@ test ou_gmpv_8() {
   let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
@@ -201,7 +202,7 @@ test ou_gmpv_9() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
@@ -223,7 +224,7 @@ test ou_gmpv_10() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
@@ -245,7 +246,7 @@ test ou_gmpv_11() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
@@ -267,7 +268,7 @@ test ou_gmpv_12() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
@@ -289,7 +290,7 @@ test ou_gmpv_13() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,

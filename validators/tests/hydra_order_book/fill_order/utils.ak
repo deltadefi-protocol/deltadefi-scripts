@@ -4,7 +4,7 @@ use cardano/assets.{Value, from_asset, merge}
 use cardano/transaction.{Transaction}
 use cocktail/vodka_converter.{convert_int_to_bytes}
 use hydra_dex/order_utils.{get_min_order_value}
-use hydra_dex/types.{Account, Order, UserAccount}
+use hydra_dex/types.{Account, LimitOrder, Order, OrderType, UserAccount}
 use mocktail.{
   MocktailTx, complete, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
   required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
@@ -27,6 +27,7 @@ pub type TestOrder {
   unfilled_size: Int,
   base_balance: Int,
   quote_balance: Int,
+  order_type: OrderType,
 }
 
 pub type OrderConfig {
@@ -54,7 +55,7 @@ pub fn mk_base_order(order: Order) -> Pair<Order, Value> {
   Pair(order, get_min_order_value(order))
 }
 
-pub fn mk_market_order(
+pub fn mk_taker_order(
   order: Order,
   base_balance: Int,
   quote_balance: Int,
@@ -146,11 +147,12 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
               unfilled_size,
               base_balance,
               quote_balance,
+              order_type,
             } = order
             let order_id =
               bytearray.concat("order_", convert_int_to_bytes(i + 1))
             let order_input =
-              mk_market_order(
+              mk_taker_order(
                 mock_order(
                   order_id,
                   is_buy,
@@ -158,6 +160,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
                   price_times_1bil,
                   fee_amount_bp,
                   mk_fill_account(account),
+                  order_type,
                 ),
                 base_balance,
                 quote_balance,
@@ -174,6 +177,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
                       price_times_1bil,
                       fee_amount_bp,
                       mk_fill_account(account),
+                      LimitOrder,
                     ),
                   ),
                 )

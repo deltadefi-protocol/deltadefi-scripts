@@ -7,7 +7,7 @@ use cardano/transaction.{Transaction}
 use dex_order_book/emergency_cancel
 use hydra_dex/types.{
   DexOrderBookDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
-  MPFDelete, MerklizedOrderDatum, Order,
+  LimitOrder, MPFDelete, MerklizedOrderDatum, Order,
 }
 use hydra_dex/utils.{to_mvalue}
 use mocktail.{
@@ -223,6 +223,7 @@ fn mock_process_withdrawal_tx(
           size: 250_000_000,
           fee_amount_bp: 10,
           account: mock_user_account(mock_account),
+          order_type: LimitOrder,
         },
         value: from_lovelace(250_000_000) |> to_mvalue(),
       },

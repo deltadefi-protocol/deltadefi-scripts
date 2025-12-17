@@ -276,6 +276,12 @@ pub type Order {
   size: Int,
   fee_amount_bp: Int,
   account: UserAccount,
+  order_type: OrderType,
+}
+
+pub type OrderType {
+  LimitOrder
+  MarketOrder
 }
 
 pub type MValue =

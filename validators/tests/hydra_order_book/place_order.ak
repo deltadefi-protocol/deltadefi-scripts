@@ -12,9 +12,8 @@ use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
   mock_hydra_order_book, mock_hydra_order_book_address,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_operation_key, mock_order, mock_order_id, mock_order_intent,
-  mock_user_account,
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token, mock_limit_order,
+  mock_operation_key, mock_order_id, mock_order_intent, mock_user_account,
 } as test_utils
 
 type TestCase {
@@ -64,7 +63,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     )
   let order_datum =
     if is_datum_correct {
-      mock_order(
+      mock_limit_order(
         mock_order_id,
         is_buy,
         size,
@@ -73,7 +72,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
         mock_account,
       )
     } else {
-      mock_order(
+      mock_limit_order(
         mock_order_id,
         is_buy,
         123_456_789,

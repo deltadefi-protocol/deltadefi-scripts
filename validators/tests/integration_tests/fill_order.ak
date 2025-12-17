@@ -15,8 +15,8 @@ use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token, mock_fee_account,
   mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
-  mock_hydra_order_book_address, mock_hydra_usd, mock_operation_key, mock_order,
-  mock_user_account,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_limit_order,
+  mock_operation_key, mock_user_account,
 }
 
 type TestCase {
@@ -127,9 +127,23 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
 fn base_case() {
   let order_1 =
-    mock_order("order_1", False, 250_000_000, 1_000_000_000, 10, mock_account)
+    mock_limit_order(
+      "order_1",
+      False,
+      250_000_000,
+      1_000_000_000,
+      10,
+      mock_account,
+    )
   let order_2 =
-    mock_order("order_2", True, 250_000_000, 1_000_000_000, 10, mock_account_2)
+    mock_limit_order(
+      "order_2",
+      True,
+      250_000_000,
+      1_000_000_000,
+      10,
+      mock_account_2,
+    )
 
   let output_balances =
     [

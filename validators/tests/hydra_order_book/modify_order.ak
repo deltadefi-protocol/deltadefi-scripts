@@ -13,8 +13,8 @@ use tests/utils.{
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
   mock_hydra_order_book_address, mock_hydra_user_intent_address,
-  mock_hydra_user_intent_token, mock_modify_order_intent, mock_operation_key,
-  mock_order, mock_order_id, mock_order_id_2, mock_user_account,
+  mock_hydra_user_intent_token, mock_limit_order, mock_modify_order_intent,
+  mock_operation_key, mock_order_id, mock_order_id_2, mock_user_account,
 } as test_utils
 
 type TestCase {
@@ -80,7 +80,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       from_lovelace(250_000_000),
     )
   let old_order_datum =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       old_size,
@@ -89,7 +89,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       mock_account,
     )
   let new_order_datum =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       new_size,

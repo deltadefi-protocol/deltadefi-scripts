@@ -2,9 +2,9 @@ use cardano/address.{Script, VerificationKey, from_script}
 use cardano/assets.{Value, from_asset}
 use hydra_dex/account_utils.{hash_token}
 use hydra_dex/types.{
-  Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, ModifyOrderIntent,
-  Order, PlaceOrderIntent, TokenMap, TradeIntent, UserAccount,
-  UserFundingAccount, UserMobileAccount, UserTradeAccount,
+  Account, AppOracleDatum, DexOrderBookDatum, HydraInfo, LimitOrder, MarketOrder,
+  ModifyOrderIntent, Order, OrderType, PlaceOrderIntent, TokenMap, TradeIntent,
+  UserAccount, UserFundingAccount, UserMobileAccount, UserTradeAccount,
   WithdrawalScriptHashes,
 }
 use hydra_dex/utils.{to_mvalue}
@@ -245,6 +245,7 @@ pub fn mock_order(
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   account: Account,
+  order_type: OrderType,
 ) {
   Order {
     order_id,
@@ -258,7 +259,46 @@ pub fn mock_order(
     size,
     fee_amount_bp,
     account: UserTradeAccount { account, trading_logic: mock_hydra_order_book },
+    order_type,
   }
+}
+
+pub fn mock_market_order(
+  order_id: ByteArray,
+  is_buy: Bool,
+  size: Int,
+  list_price_times_1bil: Int,
+  fee_amount_bp: Int,
+  account: Account,
+) {
+  mock_order(
+    order_id,
+    is_buy,
+    size,
+    list_price_times_1bil,
+    fee_amount_bp,
+    account,
+    MarketOrder,
+  )
+}
+
+pub fn mock_limit_order(
+  order_id: ByteArray,
+  is_buy: Bool,
+  size: Int,
+  list_price_times_1bil: Int,
+  fee_amount_bp: Int,
+  account: Account,
+) {
+  mock_order(
+    order_id,
+    is_buy,
+    size,
+    list_price_times_1bil,
+    fee_amount_bp,
+    account,
+    LimitOrder,
+  )
 }
 
 pub fn mock_order_intent(
@@ -283,6 +323,7 @@ pub fn mock_order_intent(
         size,
         fee_amount_bp,
         account: mock_user_account(mock_account),
+        order_type: LimitOrder,
       },
       authorized_account_value: authorized_account_value |> to_mvalue(),
     },
@@ -312,6 +353,7 @@ pub fn mock_modify_order_intent(
         size,
         fee_amount_bp,
         account: mock_user_account(account),
+        order_type: LimitOrder,
       },
       authorized_account_value: authorized_account_value |> to_mvalue(),
     },

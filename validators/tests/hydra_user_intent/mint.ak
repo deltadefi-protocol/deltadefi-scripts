@@ -4,8 +4,8 @@ use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
   CancelWithdrawalIntent, HydraUserIntentDatum, HydraUserIntentRedeemer,
-  MasterIntent, MintMasterIntent, MintTradeIntent, Order, PlaceOrderIntent,
-  TradeIntent, TransferIntent, UserAccount, WithdrawalIntent,
+  LimitOrder, MasterIntent, MintMasterIntent, MintTradeIntent, Order,
+  PlaceOrderIntent, TradeIntent, TransferIntent, UserAccount, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent as hui
@@ -33,6 +33,7 @@ fn create_mock_limit_order() -> Order {
     size: 999,
     fee_amount_bp: 999,
     account: mock_user_account(mock_account),
+    order_type: LimitOrder,
   }
 }
 
@@ -59,6 +60,7 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
         size: 999,
         fee_amount_bp: 999,
         account: mock_user_account(mock_account),
+        order_type: LimitOrder,
       },
       authorized_account_value: mock_usd(999_000_000)
         |> to_mvalue(),

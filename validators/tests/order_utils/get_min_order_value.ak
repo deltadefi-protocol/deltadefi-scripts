@@ -1,6 +1,7 @@
 use hydra_dex/order_utils.{get_min_order_value}
 use tests/utils.{
-  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_order, mock_order_id,
+  mock_account, mock_hydra_lovelace, mock_hydra_usd, mock_limit_order,
+  mock_order_id,
 }
 
 test ou_gmov_1() {
@@ -10,7 +11,7 @@ test ou_gmov_1() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,
@@ -30,7 +31,7 @@ test ou_gmov_2() {
   let fee_amount_bp = 10
 
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,
@@ -48,7 +49,7 @@ test ou_gmov_3() {
   let list_price_times_1bil = 1_350_000_000
   let fee_amount_bp = 10
   let order =
-    mock_order(
+    mock_limit_order(
       mock_order_id,
       is_buy,
       size,

@@ -14,8 +14,8 @@ use tests/hydra_order_book/fill_order/utils.{
 use tests/utils.{
   mock_account, mock_account_2, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token, mock_fee_account,
-  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_usd, mock_operation_key,
-  mock_order,
+  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_usd, mock_limit_order,
+  mock_operation_key,
 }
 
 type TestCase {
@@ -64,9 +64,23 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
 fn base_case() {
   let order_1 =
-    mock_order("order_1", False, 250_000_000, 1_000_000_000, 10, mock_account)
+    mock_limit_order(
+      "order_1",
+      False,
+      250_000_000,
+      1_000_000_000,
+      10,
+      mock_account,
+    )
   let order_2 =
-    mock_order("order_2", True, 250_000_000, 1_000_000_000, 10, mock_account_2)
+    mock_limit_order(
+      "order_2",
+      True,
+      250_000_000,
+      1_000_000_000,
+      10,
+      mock_account_2,
+    )
 
   let output_balances =
     [
@@ -159,6 +173,60 @@ test s9_wfo_fail_without_key() {
         without_other_inputs: True,
         without_other_outputs: True,
         is_fill_order_authorized: False,
+      },
+    )
+  !ob.hydra_order_book.withdraw(
+    mock_dex_order_book_token,
+    FillOrder { filler_order_id: "order_1" },
+    Script(mock_hydra_order_book),
+    tx,
+  )
+}
+
+test s9_wfo_fail_taker_min_payoff_not_satisfied() {
+  // Taker
+  // Sell at $2
+  let order_1 =
+    mock_limit_order(
+      "order_1",
+      False,
+      250_000_000,
+      2_000_000_000,
+      10,
+      mock_account,
+    )
+
+  // Maker
+  // Buy at $1
+  let order_2 =
+    mock_limit_order(
+      "order_2",
+      True,
+      250_000_000,
+      1_000_000_000,
+      10,
+      mock_account_2,
+    )
+
+  let output_balances =
+    [
+      mk_balance(mock_account, mock_hydra_usd(249_750_000)),
+      mk_balance(mock_account_2, mock_hydra_lovelace(249_750_000)),
+      mk_balance(
+        mock_fee_account,
+        mock_hydra_usd(250_000) |> merge(mock_hydra_lovelace(250_000)),
+      ),
+    ]
+
+  let tx =
+    mock_tx(
+      TestCase {
+        input_orders: [mk_base_order(order_1), mk_base_order(order_2)],
+        output_order: None,
+        output_balances,
+        without_other_inputs: True,
+        without_other_outputs: True,
+        is_fill_order_authorized: True,
       },
     )
   !ob.hydra_order_book.withdraw(

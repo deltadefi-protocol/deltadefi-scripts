@@ -3,7 +3,7 @@
 use aiken/merkle_patricia_forestry.{Branch}
 use cardano/assets.{from_lovelace}
 use hydra_dex/account_utils.{order_merkle_cancel_order}
-use hydra_dex/types.{MPFDelete, MerklizedOrderDatum, Order}
+use hydra_dex/types.{LimitOrder, MPFDelete, MerklizedOrderDatum, Order}
 use hydra_dex/utils.{to_mvalue}
 use tests/utils.{mock_account, mock_user_account} as test_utils
 
@@ -27,6 +27,7 @@ test au_omco() {
         size: 250_000_000,
         fee_amount_bp: 10,
         account: mock_user_account(mock_account),
+        order_type: LimitOrder,
       },
       value: from_lovelace(250_000_000) |> to_mvalue(),
     }

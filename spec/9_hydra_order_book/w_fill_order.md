@@ -27,7 +27,7 @@
     - `Spent OV (SOV)` = `OV` - output `order_value`
     - `Filled OV (FOV)` = `MOV` - output `order_size`
     - `Return OV (ROV)` = `SOV` - `FOV`
-    - `Final Order Payoff (FOP)` = calculate from `FOV`
+    - `Final Order Payoff (FOP)` = `MPV` - new order `MPV`
   - Process the maker order
     - Calculate `fee` (`FOP` \* 10bp round down)
     - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
@@ -38,12 +38,14 @@
   - Handle unfilled order value
     - Get `SOV` for filler order
     - `TOV` = `TOV` + `SOV`
+    - `Min Payoff` = `MPV` - new order `MPV`
   - `order remaining value (ORV)` = `TOV` - `TPV`
   - Process the taker order
     - Pay the `ORV` to taker
     - If there is negative `ORV` → deduct from fee instead
     - To taker `Final Payoff (Taker FP)` = `tfov` - `fee`
     - To fee collector `fee`
+    - If limit order - Check if taker min payoff is fulfilled `TFOV` > `Min Payoff` (apply order length order)
 
 ### Contract Guards
 

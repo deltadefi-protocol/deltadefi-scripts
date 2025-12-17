@@ -12,8 +12,8 @@ use tests/utils.{
   mock_account, mock_account_2, mock_account_3, mock_dex_order_book_address,
   mock_dex_order_book_datum, mock_dex_order_book_token,
   mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
-  mock_hydra_order_book_address, mock_hydra_usd, mock_operation_key, mock_order,
-  mock_user_account,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_limit_order,
+  mock_operation_key, mock_user_account,
 } as test_utils
 
 type TestCase {
@@ -41,7 +41,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   let account_3 = mock_user_account(mock_account_3)
 
   let order_1 =
-    mock_order(
+    mock_limit_order(
       "order_1",
       False,
       size,
@@ -55,7 +55,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     )
 
   let order_2 =
-    mock_order(
+    mock_limit_order(
       "order_2",
       False,
       size,
@@ -64,7 +64,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       mock_account,
     )
   let order_3 =
-    mock_order(
+    mock_limit_order(
       "order_3",
       True,
       size,
