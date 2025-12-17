@@ -245,7 +245,7 @@ fn get_unfilled_order(
   when new_order_opt is {
     Some((new_order, new_order_value)) ->
       if old_order.order_id == new_order.order_id {
-        if Order { ..old_order, size: new_order.size } == new_order {
+        if Order { ..old_order, order_type: LimitOrder, size: new_order.size } == new_order {
           Some((new_order, new_order_value))
         } else {
           fail @"partial filled order altered"
