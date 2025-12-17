@@ -43,3 +43,8 @@
    - The transaction is signed by all signers listed in `hydra_info`
    - The output value to oracle is clean (value length == 2)
    - Check that datum has not changed other than the hydra info
+
+4. Migrate app / migrate community stop key
+
+   - The transaction is signed by existing community keys
+   - The transaction is signed by new community keys

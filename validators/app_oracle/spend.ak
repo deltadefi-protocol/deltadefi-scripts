@@ -4,8 +4,8 @@ use cocktail.{
   value_length, value_tokens,
 }
 use hydra_dex/types.{
-  AppOracleDatum, AppOracleRedeemer, DexRotateKey, HydraInfo,
-  RotateCommunityStopKeys, RotateHydraInfo, StopDex,
+  AppOracleDatum, AppOracleRedeemer, DexRotateKey, HydraInfo, MigrateApp,
+  RotateHydraInfo, StopDex,
 }
 
 validator app_oracle {
@@ -76,20 +76,20 @@ validator app_oracle {
           is_output_datum_updated?,
         }
       }
-      RotateCommunityStopKeys { new_community_stop_keys } -> {
-        let is_output_datum_updated =
-          only_output_datum == AppOracleDatum {
-            ..datum,
-            community_stop_keys: new_community_stop_keys,
-          }
-
+      MigrateApp -> {
         let is_all_community_stop_keys_signed =
           all_key_signed(extra_signatories, datum.community_stop_keys)
 
+        let is_new_community_stop_keys_signed =
+          all_key_signed(
+            extra_signatories,
+            only_output_datum.community_stop_keys,
+          )
+
         and {
           is_all_community_stop_keys_signed?,
+          is_new_community_stop_keys_signed?,
           is_output_value_clean,
-          is_output_datum_updated?,
         }
       }
     }

@@ -87,7 +87,7 @@ pub type AppOracleRedeemer {
   DexRotateKey { new_operation_key: ByteArray, new_stop_key: ByteArray }
   StopDex
   RotateHydraInfo { new_hydra_info: HydraInfo }
-  RotateCommunityStopKeys { new_community_stop_keys: List<VerificationKeyHash> }
+  MigrateApp
 }
 
 // 1 - AccountOperation
