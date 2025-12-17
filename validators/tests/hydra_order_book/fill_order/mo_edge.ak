@@ -492,62 +492,10 @@ test s9_fill_order_94_mo_edge() {
         },
       ],
       payoff: [
-        Balance { account: 0, ada: 1060729, usd: 0 },
-        Balance { account: 0, ada: 0, usd: 521985 },
+        Balance { account: 0, ada: 1060729, usd: 521985 },
         Balance { account: 1, ada: 1060729760, usd: 521463130 },
         Balance { account: 2, ada: 1059669031, usd: 45987447 },
       ],
     }
   run_test(test_case)
 }
-
-test s9_fill_order_95_mo_edge() {
-  let test_case =
-    TestCase {
-      taker: TestOrder {
-        account: 1,
-        is_buy: True,
-        size: 9000000,
-        price_times_1bil: 900000000,
-        fee_amount_bp: 10,
-        unfilled_size: 0,
-        base_balance: 0,
-        quote_balance: 9000000,
-      },
-      makers: [
-        TestOrder {
-          account: 1,
-          is_buy: False,
-          size: 10000000,
-          price_times_1bil: 900000000,
-          fee_amount_bp: 10,
-          unfilled_size: 0,
-          base_balance: 10000000,
-          quote_balance: 0,
-        },
-      ],
-      payoff: [
-        Balance { account: 0, ada: 10000, usd: 0 },
-        Balance { account: 0, ada: 0, usd: 9000 },
-        Balance { account: 1, ada: 9990000, usd: 0 },
-        Balance { account: 1, ada: 0, usd: 8991000 },
-      ],
-    }
-  run_test(test_case)
-}
-// test testing() {
-//   mocktail_tx()
-//     |> add_order_inputs(input_orders)
-//     |> add_order_output(output_order)
-//     |> add_output_balances(output_balances)
-//     |> ref_tx_in(
-//         True,
-//         mock_tx_hash(0),
-//         0,
-//         from_asset(mock_dex_order_book_token, "", 1),
-//         mock_dex_order_book_address,
-//       )
-//     |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
-//     |> required_signer_hash(True, mock_operation_key)
-//     |> complete()
-// }

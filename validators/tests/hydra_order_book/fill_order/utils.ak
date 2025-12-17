@@ -78,13 +78,7 @@ pub fn add_order_inputs(
     mock_tx,
     fn(Pair(order, value), tx) {
       tx
-        |> tx_in(
-            True,
-            mock_tx_hash(0),
-            0,
-            value |> merge(from_asset("", "", 0)),
-            mock_hydra_order_book_address,
-          )
+        |> tx_in(True, mock_tx_hash(0), 0, value, mock_hydra_order_book_address)
         |> tx_in_inline_datum(True, order)
     },
   )
@@ -97,11 +91,7 @@ pub fn add_order_output(
   when output_order is {
     Some(Pair(order, value)) ->
       mock_tx
-        |> tx_out(
-            True,
-            mock_hydra_order_book_address,
-            value |> merge(from_asset("", "", 0)),
-          )
+        |> tx_out(True, mock_hydra_order_book_address, value)
         |> tx_out_inline_datum(True, order)
     None -> mock_tx
   }
@@ -116,11 +106,7 @@ pub fn add_output_balances(
     mock_tx,
     fn(Pair(account, value), tx) {
       tx
-        |> tx_out(
-            True,
-            mock_hydra_account_address,
-            value |> merge(from_asset("", "", 0)),
-          )
+        |> tx_out(True, mock_hydra_account_address, value)
         |> tx_out_inline_datum(True, account)
     },
   )
@@ -204,8 +190,7 @@ pub fn fill_order_test(test_case: TestCase) -> Transaction {
           fn(b: Balance) {
             mk_balance(
               mk_fill_account(b.account),
-              mock_hydra_lovelace(b.ada)
-                |> merge(mock_hydra_usd(b.usd)),
+              mock_hydra_lovelace(b.ada) |> merge(mock_hydra_usd(b.usd)),
             )
           },
         )
