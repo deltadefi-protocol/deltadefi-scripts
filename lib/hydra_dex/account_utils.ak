@@ -114,7 +114,19 @@ pub fn add_to_payoff(
 ) -> AccountPayoff {
   when payoff |> pairs.get_first(user_account) is {
     Some(current_payoff) -> {
-      let post_merge_value = current_payoff |> merge(value)
+      let post_merge_value =
+        current_payoff
+          |> merge(value)
+          |> assets.reduce(
+              zero,
+              fn(policy, name, qty, acc) {
+                if qty > 0 {
+                  acc |> assets.add(policy, name, qty)
+                } else {
+                  acc
+                }
+              },
+            )
       if post_merge_value == zero {
         payoff |> pairs.delete_first(user_account)
       } else {
