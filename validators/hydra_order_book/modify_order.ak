@@ -10,7 +10,6 @@ use cocktail.{
 }
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
-  from_value_to_hydra_balance,
 }
 use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
@@ -34,7 +33,6 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
     hydra_user_intent_script_hash,
     hydra_account_script_hash,
     hydra_order_book_script_hash,
-    hydra_token_policy_id,
     ..
   } = reference_inputs |> get_dex_order_book_datum(oracle_nft)
   let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
@@ -72,8 +70,10 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   expect TradeIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
 
-  expect ModifyOrderIntent { new_order: intent_order, authorized_account_value }: HydraOrderBookIntent =
-    intent
+  expect ModifyOrderIntent {
+    new_order: intent_order,
+    authorized_account_value_l2,
+  }: HydraOrderBookIntent = intent
 
   // - `II` with `account` as account
   let is_intent_account_correct = intent_order.account == account
@@ -97,15 +97,14 @@ pub fn modify_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction)
   let is_intent_token_burnt =
     policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
 
-  // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
+  // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value_l2`
   let deducted_account_value =
     inputs_value(account_inputs)
       |> merge(negate(outputs_value(account_outputs)))
   let is_deduction_within_authorized_limit =
     value_geq(
-      authorized_account_value
-        |> from_asset_list()
-        |> from_value_to_hydra_balance(hydra_token_policy_id),
+      authorized_account_value_l2
+        |> from_asset_list(),
       deducted_account_value,
     )
 

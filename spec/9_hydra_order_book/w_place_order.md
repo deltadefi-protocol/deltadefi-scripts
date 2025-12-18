@@ -2,7 +2,7 @@
 
 ## Redeemer
 
-- PlaceOrder { account: UserAccount, authorized_account_value: MValue }
+- PlaceOrder { account: UserAccount, authorized_account_value_l2: MValue }
 
 ## Logic
 
@@ -23,6 +23,6 @@
   - `is_buy` == True -> at least `size` of quote token
   - `is_buy` == False -> at least `size` of base token
 - The input intent token is burnt
-- The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value`
+- The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value_l2`
 - Value parity: `AI` == `AO` + `OO` (to clear: is the check needed?)
 - Signed by `operating_key`

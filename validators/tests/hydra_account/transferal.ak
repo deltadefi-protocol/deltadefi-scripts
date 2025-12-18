@@ -71,7 +71,7 @@ fn mock_hydra_internal_transfer_tx(
           account: mock_user_account(mock_account),
           intent: TransferIntent {
             to: mock_user_account(mock_account_2),
-            amount: transferal_amount |> to_mvalue(),
+            amount_l2: transferal_amount |> to_mvalue(),
           },
         },
       )

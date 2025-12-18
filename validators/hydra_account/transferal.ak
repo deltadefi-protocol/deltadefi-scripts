@@ -46,7 +46,7 @@ pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
   // - `II` with `TransferIntent` datum
   expect MasterIntent { account: from, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
-  expect TransferIntent { to, amount: transferal_amount }: HydraAccountIntent =
+  expect TransferIntent { to, amount_l2: transferal_amount }: HydraAccountIntent =
     intent
 
   // - Categorize inputs into

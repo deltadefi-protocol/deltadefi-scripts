@@ -1,5 +1,5 @@
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace, zero}
+use cardano/assets.{from_asset, zero}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{PlaceOrder}
 use hydra_order_book/core as ob
@@ -59,7 +59,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       size,
       list_price_times_1bil,
       fee_amount_bp,
-      from_lovelace(size),
+      mock_hydra_lovelace(size),
     )
   let order_datum =
     if is_datum_correct {

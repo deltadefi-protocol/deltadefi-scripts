@@ -99,7 +99,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountOperation) {
           MasterIntent {
             account: mock_user_account(mock_account),
             intent: CancelWithdrawalIntent {
-              amount: withdrawal_amount |> to_mvalue(),
+              amount_l1: withdrawal_amount |> to_mvalue(),
             },
           },
         )

@@ -97,7 +97,7 @@ fn mock_hydra_withdrawal_tx(
           MasterIntent {
             account: mock_user_account(mock_account),
             intent: WithdrawalIntent {
-              amount: withdrawal_amount |> to_mvalue(),
+              amount_l1: withdrawal_amount |> to_mvalue(),
             },
           },
         )

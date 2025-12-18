@@ -306,7 +306,7 @@ pub fn mock_order_intent(
   size: Int,
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
-  authorized_account_value: Value,
+  authorized_account_value_l2: Value,
 ) {
   TradeIntent {
     account: mock_user_account(mock_account),
@@ -325,7 +325,7 @@ pub fn mock_order_intent(
         account: mock_user_account(mock_account),
         order_type: LimitOrder,
       },
-      authorized_account_value: authorized_account_value |> to_mvalue(),
+      authorized_account_value_l2: authorized_account_value_l2 |> to_mvalue(),
     },
   }
 }
@@ -336,7 +336,7 @@ pub fn mock_modify_order_intent(
   list_price_times_1bil: Int,
   fee_amount_bp: Int,
   account: Account,
-  authorized_account_value: Value,
+  authorized_account_value_l2: Value,
 ) {
   TradeIntent {
     account: mock_user_account(account),
@@ -355,7 +355,7 @@ pub fn mock_modify_order_intent(
         account: mock_user_account(account),
         order_type: LimitOrder,
       },
-      authorized_account_value: authorized_account_value |> to_mvalue(),
+      authorized_account_value_l2: authorized_account_value_l2 |> to_mvalue(),
     },
   }
 }

@@ -226,9 +226,9 @@ pub type HydraUserIntentDatum {
 // 8 - HydraAccount
 
 pub type HydraAccountIntent {
-  WithdrawalIntent { amount: MValue }
-  CancelWithdrawalIntent { amount: MValue }
-  TransferIntent { to: UserAccount, amount: MValue }
+  WithdrawalIntent { amount_l1: MValue }
+  CancelWithdrawalIntent { amount_l1: MValue }
+  TransferIntent { to: UserAccount, amount_l2: MValue }
 }
 
 pub type HydraAccountRedeemer {
@@ -253,8 +253,8 @@ pub type HydraAccountOperation {
 // 9 - HydraOrderBook
 
 pub type HydraOrderBookIntent {
-  PlaceOrderIntent { order: Order, authorized_account_value: MValue }
-  ModifyOrderIntent { new_order: Order, authorized_account_value: MValue }
+  PlaceOrderIntent { order: Order, authorized_account_value_l2: MValue }
+  ModifyOrderIntent { new_order: Order, authorized_account_value_l2: MValue }
 }
 
 pub type HydraOrderBookRedeemer {

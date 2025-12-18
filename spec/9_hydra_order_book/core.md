@@ -16,6 +16,7 @@
 - `size`: The amount of token trading - if `is_buy` it represents quote token, if `!is_buy` it represents base token
 - `fee_amount_bp`: The basis point of fee to be charged
 - `account`: The account information of current order owner
+- `order_type`: Limit order or market order
 
 ### User Action
 

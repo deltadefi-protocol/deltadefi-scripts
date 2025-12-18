@@ -54,7 +54,7 @@ pub fn withdrawal(
   // - `II` with `WithdrawalIntent` datum
   expect MasterIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
-  expect WithdrawalIntent { amount: withdrawal_amount }: HydraAccountIntent =
+  expect WithdrawalIntent { amount_l1: withdrawal_amount }: HydraAccountIntent =
     intent
 
   // - Categorize inputs into

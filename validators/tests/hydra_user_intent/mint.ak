@@ -42,7 +42,7 @@ fn create_mock_mint_place_order_intent() -> HydraUserIntentRedeemer {
     account: mock_user_account(mock_account),
     intent: PlaceOrderIntent {
       order: create_mock_limit_order(),
-      authorized_account_value: mock_usd(999_000_000) |> to_mvalue(),
+      authorized_account_value_l2: mock_usd(999_000_000) |> to_mvalue(),
     },
   }
 }
@@ -62,7 +62,7 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
         account: mock_user_account(mock_account),
         order_type: LimitOrder,
       },
-      authorized_account_value: mock_usd(999_000_000)
+      authorized_account_value_l2: mock_usd(999_000_000)
         |> to_mvalue(),
     },
   }
@@ -72,7 +72,7 @@ fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
   MintMasterIntent {
     account: mock_user_account(mock_account),
     intent: WithdrawalIntent {
-      amount: [
+      amount_l1: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
@@ -84,7 +84,7 @@ fn create_mock_mint_cancel_withdrawal_intent() -> HydraUserIntentRedeemer {
   MintMasterIntent {
     account: mock_user_account(mock_account),
     intent: CancelWithdrawalIntent {
-      amount: [
+      amount_l1: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
@@ -96,7 +96,7 @@ fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
   MasterIntent {
     account: mock_user_account(mock_account),
     intent: WithdrawalIntent {
-      amount: [
+      amount_l1: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
@@ -108,7 +108,7 @@ fn create_mock_cancel_withdrawal_intent() -> HydraUserIntentDatum {
   MasterIntent {
     account: mock_user_account(mock_account),
     intent: CancelWithdrawalIntent {
-      amount: [
+      amount_l1: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
@@ -121,7 +121,7 @@ fn create_mock_mint_transfer_intent() -> HydraUserIntentRedeemer {
     account: mock_user_account(mock_account),
     intent: TransferIntent {
       to: mock_user_account(mock_account_2),
-      amount: [
+      amount_l2: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
@@ -137,7 +137,7 @@ fn create_mock_transfer_intent(
     account: from,
     intent: TransferIntent {
       to,
-      amount: [
+      amount_l2: [
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],

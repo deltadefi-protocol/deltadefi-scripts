@@ -56,7 +56,7 @@ pub fn cancel_withdrawal(
   // - `II` with `CancelWithdrawalIntent` datum
   expect MasterIntent { account, intent }: HydraUserIntentDatum =
     input_inline_datum(intent_input)
-  expect CancelWithdrawalIntent { amount: withdrawal_amount }: HydraAccountIntent =
+  expect CancelWithdrawalIntent { amount_l1: withdrawal_amount }: HydraAccountIntent =
     intent
 
   // - Categorize inputs into
