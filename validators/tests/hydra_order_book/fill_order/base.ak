@@ -68,7 +68,7 @@ fn base_case() {
       "order_1",
       False,
       250_000_000,
-      1_000_000_000,
+      1_000_000_000_000,
       10,
       mock_account,
     )
@@ -77,7 +77,7 @@ fn base_case() {
       "order_2",
       True,
       250_000_000,
-      1_000_000_000,
+      1_000_000_000_000,
       10,
       mock_account_2,
     )
@@ -191,7 +191,7 @@ test s9_wfo_fail_taker_min_payoff_not_satisfied() {
       "order_1",
       False,
       250_000_000,
-      2_000_000_000,
+      2_000_000_000_000,
       10,
       mock_account,
     )
@@ -203,7 +203,7 @@ test s9_wfo_fail_taker_min_payoff_not_satisfied() {
       "order_2",
       True,
       250_000_000,
-      1_000_000_000,
+      1_000_000_000_000,
       10,
       mock_account_2,
     )
