@@ -271,7 +271,7 @@ pub type Order {
   base_token: (PolicyId, AssetName),
   quote_token: (PolicyId, AssetName),
   is_buy: Bool,
-  list_price_times_1bil: Int,
+  list_price_times_1tri: Int,
   // if is_buy: `size` in quote_token, else `size` in base_token
   size: Int,
   fee_amount_bp: Int,

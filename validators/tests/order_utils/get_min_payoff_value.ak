@@ -9,17 +9,17 @@ use tests/utils.{
 test ou_gmpv_1() {
   let is_buy = False
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
-  let quote_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let quote_qty = get_payoff_qty(size, list_price_times_1tri, is_buy)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -31,17 +31,17 @@ test ou_gmpv_1() {
 test ou_gmpv_2() {
   let is_buy = True
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
-  let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let base_qty = get_payoff_qty(size, list_price_times_1tri, is_buy)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -53,17 +53,17 @@ test ou_gmpv_2() {
 test ou_gmpv_3() {
   let is_buy = True
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
-  let base_qty = get_payoff_qty(size, list_price_times_1bil, is_buy)
+  let base_qty = get_payoff_qty(size, list_price_times_1tri, is_buy)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -77,17 +77,17 @@ test ou_gmpv_3() {
 test ou_gmpv_4() {
   let is_buy = True
   let base_qty = 891_250_911
-  let list_price_times_1bil = 1_212_100_000
+  let list_price_times_1tri = 1_212_100_000_000
   let fee_amount_bp = 10
 
-  let quote_qty = base_to_quote_qty(base_qty, list_price_times_1bil)
+  let quote_qty = base_to_quote_qty(base_qty, list_price_times_1tri)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -102,17 +102,17 @@ test ou_gmpv_4() {
 test ou_gmpv_5() {
   let is_buy = True
   let base_qty = 1_036_981_165
-  let list_price_times_1bil = 521_100_000
+  let list_price_times_1tri = 521_100_000_000
   let fee_amount_bp = 10
 
-  let quote_qty = base_to_quote_qty(base_qty, list_price_times_1bil)
+  let quote_qty = base_to_quote_qty(base_qty, list_price_times_1tri)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       quote_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -126,17 +126,17 @@ test ou_gmpv_5() {
 test ou_gmpv_6() {
   let is_buy = False
   let quote_qty = 518_501_215
-  let list_price_times_1bil = 512_300_000
+  let list_price_times_1tri = 512_300_000_000
   let fee_amount_bp = 10
 
-  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
+  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1tri)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -150,17 +150,17 @@ test ou_gmpv_6() {
 test ou_gmpv_7() {
   let is_buy = False
   let quote_qty = 16_123_743_813
-  let list_price_times_1bil = 492_100_000
+  let list_price_times_1tri = 492_100_000_000
   let fee_amount_bp = 10
 
-  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
+  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1tri)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -174,17 +174,17 @@ test ou_gmpv_7() {
 test ou_gmpv_8() {
   let is_buy = False
   let quote_qty = 4_251_261_361
-  let list_price_times_1bil = 1_353_300_000
+  let list_price_times_1tri = 1_353_300_000_000
   let fee_amount_bp = 10
 
-  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1bil)
+  let base_qty = quote_to_base_qty(quote_qty, list_price_times_1tri)
 
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -198,7 +198,7 @@ test ou_gmpv_8() {
 test ou_gmpv_9() {
   let is_buy = True
   let quote_qty = 891_250_911
-  let list_price_times_1bil = 1_212_100_000
+  let list_price_times_1tri = 1_212_100_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -206,7 +206,7 @@ test ou_gmpv_9() {
       mock_order_id,
       is_buy,
       quote_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -220,7 +220,7 @@ test ou_gmpv_9() {
 test ou_gmpv_10() {
   let is_buy = True
   let quote_qty = 1_036_981_165
-  let list_price_times_1bil = 521_100_000
+  let list_price_times_1tri = 521_100_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -228,7 +228,7 @@ test ou_gmpv_10() {
       mock_order_id,
       is_buy,
       quote_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -242,7 +242,7 @@ test ou_gmpv_10() {
 test ou_gmpv_11() {
   let is_buy = False
   let base_qty = 518_501_215
-  let list_price_times_1bil = 512_300_000
+  let list_price_times_1tri = 512_300_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -250,7 +250,7 @@ test ou_gmpv_11() {
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -264,7 +264,7 @@ test ou_gmpv_11() {
 test ou_gmpv_12() {
   let is_buy = False
   let base_qty = 16_123_743_813
-  let list_price_times_1bil = 492_100_000
+  let list_price_times_1tri = 492_100_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -272,7 +272,7 @@ test ou_gmpv_12() {
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -286,7 +286,7 @@ test ou_gmpv_12() {
 test ou_gmpv_13() {
   let is_buy = False
   let base_qty = 4_251_261_361
-  let list_price_times_1bil = 1_353_300_000
+  let list_price_times_1tri = 1_353_300_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -294,7 +294,7 @@ test ou_gmpv_13() {
       mock_order_id,
       is_buy,
       base_qty,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )

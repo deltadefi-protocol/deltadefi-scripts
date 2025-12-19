@@ -34,7 +34,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
   } = test_case
 
   let size = 250_000_000
-  let list_price_times_1bil = 1_000_000_000
+  let list_price_times_1tri = 1_000_000_000_000
   let fee_amount_bp = 10
 
   let account = mock_user_account(mock_account)
@@ -45,7 +45,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       "order_1",
       False,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       if is_all_cancels_same_account {
         mock_account
@@ -59,7 +59,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       "order_2",
       False,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -68,7 +68,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       "order_3",
       True,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account_3,
     )

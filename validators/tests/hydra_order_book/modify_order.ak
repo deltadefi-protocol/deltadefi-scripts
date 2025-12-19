@@ -56,7 +56,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     } else {
       250_000_000
     }
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
   let output_balance =
@@ -70,7 +70,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     mock_modify_order_intent(
       is_buy,
       new_size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       if is_intent_account_correct {
         mock_account
@@ -84,7 +84,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       mock_order_id,
       is_buy,
       old_size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -93,7 +93,7 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       mock_order_id,
       is_buy,
       new_size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
