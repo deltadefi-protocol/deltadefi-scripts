@@ -45,14 +45,14 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
 
   let is_buy = False
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
   let intent_datum =
     mock_order_intent(
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_hydra_lovelace(size),
     )
@@ -62,7 +62,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
         mock_order_id,
         is_buy,
         size,
-        list_price_times_1bil,
+        list_price_times_1tri,
         fee_amount_bp,
         mock_account,
       )
@@ -71,7 +71,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
         mock_order_id,
         is_buy,
         123_456_789,
-        list_price_times_1bil,
+        list_price_times_1tri,
         fee_amount_bp,
         mock_account,
       )
