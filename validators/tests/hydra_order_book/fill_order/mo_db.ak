@@ -22,7 +22,7 @@ test s9_fill_order_71_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: True,
-        size: 300000000,
+        size: 360000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -58,7 +58,7 @@ test s9_fill_order_72_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: True,
-        size: 330000000,
+        size: 396000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 36000000,
@@ -202,7 +202,7 @@ test s9_fill_order_76_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 330000000,
+        size: 275000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -346,7 +346,7 @@ test s9_fill_order_80_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 300000000,
+        size: 250000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -382,7 +382,7 @@ test s9_fill_order_81_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 330000000,
+        size: 275000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -418,7 +418,7 @@ test s9_fill_order_82_mo_db() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 330000000,
+        size: 275000000,
         price_times_1bil: 1200000000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
