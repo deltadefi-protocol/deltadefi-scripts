@@ -22,7 +22,7 @@ test s9_fill_order_83_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: True,
-        size: 521985115,
+        size: 256868875,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -92,7 +92,7 @@ test s9_fill_order_85_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: True,
-        size: 521985115,
+        size: 256868875,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -243,7 +243,7 @@ test s9_fill_order_88_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 521985115,
+        size: 1060729760,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -336,7 +336,7 @@ test s9_fill_order_90_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 521985115,
+        size: 1060729760,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 320375110,
@@ -394,7 +394,7 @@ test s9_fill_order_91_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: True,
-        size: 521985115,
+        size: 256868875,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
@@ -502,7 +502,7 @@ test s9_fill_order_94_mo_edge() {
       taker: TestOrder {
         account: 1,
         is_buy: False,
-        size: 521985115,
+        size: 1060729760,
         price_times_1bil: 492100000000,
         fee_amount_bp: 10,
         unfilled_size: 0,
