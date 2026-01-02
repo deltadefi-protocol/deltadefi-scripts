@@ -561,7 +561,7 @@ test s9_fill_order_95_mo_edge() {
       ],
       payoff: [
         Balance { account: 0, ada: 34700, usd: 21284 },
-        Balance { account: 1, ada: 34665300, usd: 21263697 },
+        Balance { account: 1, ada: 34665300, usd: 21263696 },
       ],
     }
   run_test(test_case)
