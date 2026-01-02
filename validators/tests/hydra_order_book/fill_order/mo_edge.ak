@@ -550,7 +550,7 @@ test s9_fill_order_95_mo_edge() {
         TestOrder {
           account: 1,
           is_buy: True,
-          size: 34000000,
+          size: 33999999,
           price_times_1bil: 613400000000,
           fee_amount_bp: 10,
           unfilled_size: 12715019,
@@ -562,6 +562,52 @@ test s9_fill_order_95_mo_edge() {
       payoff: [
         Balance { account: 0, ada: 34700, usd: 21284 },
         Balance { account: 1, ada: 34665300, usd: 21263696 },
+      ],
+    }
+  run_test(test_case)
+}
+
+test s9_fill_order_96_mo_edge() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_buy: False,
+        size: 35800000,
+        price_times_1bil: 451700000000,
+        fee_amount_bp: 10,
+        unfilled_size: 0,
+        base_balance: 35800000,
+        quote_balance: 0,
+        order_type: MarketOrder,
+      },
+      makers: [
+        TestOrder {
+          account: 1,
+          is_buy: True,
+          size: 12430680,
+          price_times_1bil: 583600000000,
+          fee_amount_bp: 10,
+          unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 12430680,
+          order_type: LimitOrder,
+        },
+        TestOrder {
+          account: 1,
+          is_buy: True,
+          size: 35499999,
+          price_times_1bil: 561300000000,
+          fee_amount_bp: 10,
+          unfilled_size: 27361149,
+          base_balance: 0,
+          quote_balance: 35500000,
+          order_type: LimitOrder,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 35800, usd: 20569 },
+        Balance { account: 1, ada: 35764200, usd: 20548962 },
       ],
     }
   run_test(test_case)
