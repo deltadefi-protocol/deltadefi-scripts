@@ -199,7 +199,7 @@ pub fn fill_order(
   //   - Each has at least received the payoff value calculated above
   let payoff_after_settlement =
     final_account_payoff |> payoff_output_settlement(account_outputs)
-
+  trace payoff_after_settlement
   // - There is no negative payoff
   let is_no_negative_payoff = payoff_after_settlement == []
 
