@@ -447,3 +447,38 @@ test s9_fill_order_12_lo_simple() {
     }
   run_test(test_case)
 }
+
+test s9_fill_order_13_lo_simple() {
+  let test_case =
+    TestCase {
+      taker: TestOrder {
+        account: 1,
+        is_buy: False,
+        size: 221111,
+        price_times_1bil: 900000000,
+        fee_amount_bp: 10,
+        unfilled_size: 211111,
+        base_balance: 221111,
+        quote_balance: 0,
+        order_type: LimitOrder,
+      },
+      makers: [
+        TestOrder {
+          account: 1,
+          is_buy: True,
+          size: 9775000,
+          price_times_1bil: 977500000,
+          fee_amount_bp: 10,
+          unfilled_size: 0,
+          base_balance: 0,
+          quote_balance: 9775000,
+          order_type: LimitOrder,
+        },
+      ],
+      payoff: [
+        Balance { account: 0, ada: 10, usd: 9775 },
+        Balance { account: 1, ada: 9990, usd: 9765225 },
+      ],
+    }
+  run_test(test_case)
+}
