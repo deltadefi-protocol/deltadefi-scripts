@@ -7,7 +7,7 @@ use tests/utils.{
 test ou_gmov_1() {
   let is_buy = False
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -15,7 +15,7 @@ test ou_gmov_1() {
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -27,7 +27,7 @@ test ou_gmov_1() {
 test ou_gmov_2() {
   let is_buy = True
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
 
   let order =
@@ -35,7 +35,7 @@ test ou_gmov_2() {
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
@@ -46,14 +46,14 @@ test ou_gmov_2() {
 test ou_gmov_3() {
   let is_buy = True
   let size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let list_price_times_1tri = 1_350_000_000_000
   let fee_amount_bp = 10
   let order =
     mock_limit_order(
       mock_order_id,
       is_buy,
       size,
-      list_price_times_1bil,
+      list_price_times_1tri,
       fee_amount_bp,
       mock_account,
     )
