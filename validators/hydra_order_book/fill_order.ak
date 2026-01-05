@@ -177,13 +177,15 @@ pub fn fill_order(
         // - Check if taker min payoff is fulfilled `TFOV` > `Min Payoff`
         let is_min_taker_payoff_satisfied =
           when order.order_type is {
-            LimitOrder -> {
-              trace @"tfov"
-              trace tfov
-              trace @"min_payoff"
-              trace min_payoff |> apply_rounding_buffer(order_count)
-              value_geq(tfov, min_payoff |> apply_rounding_buffer(order_count))
-            }
+            LimitOrder ->
+              value_geq(
+                tfov,
+                min_payoff
+                  |> apply_rounding_buffer(
+                      order_count,
+                      order.list_price_times_1tri,
+                    ),
+              )
             MarketOrder -> True
           }
 
@@ -204,7 +206,6 @@ pub fn fill_order(
   //   - Each has at least received the payoff value calculated above
   let payoff_after_settlement =
     final_account_payoff |> payoff_output_settlement(account_outputs)
-  trace payoff_after_settlement
   // - There is no negative payoff
   let is_no_negative_payoff = payoff_after_settlement == []
 
@@ -323,7 +324,14 @@ fn handle_remaining_value(
       )
 }
 
-fn apply_rounding_buffer(min_payoff: Value, buffer: Int) -> Value {
+fn apply_rounding_buffer(
+  min_payoff: Value,
+  order_count: Int,
+  price_times_1tri: Int,
+) -> Value {
+  // Price-aware buffer: error per order = 10^12 / price, +1 for safety
+  let error_per_order = 1_000_000_000_000 / price_times_1tri + 1
+  let buffer = order_count * error_per_order
   min_payoff
     |> assets.reduce(
         zero,
