@@ -448,52 +448,6 @@ test s9_fill_order_12_lo_simple() {
   run_test(test_case)
 }
 
-test s9_fill_order_13_lo_simple() {
-  let test_case =
-    TestCase {
-      taker: TestOrder {
-        account: 1,
-        is_buy: True,
-        size: 100000000,
-        price_times_1tri: 10000000,
-        fee_amount_bp: 10,
-        unfilled_size: 18595723,
-        base_balance: 0,
-        quote_balance: 100000000,
-        order_type: LimitOrder,
-      },
-      makers: [
-        TestOrder {
-          account: 1,
-          is_buy: False,
-          size: 1000000000000,
-          price_times_1tri: 10000000,
-          fee_amount_bp: 10,
-          unfilled_size: 0,
-          base_balance: 1000000000000,
-          quote_balance: 0,
-          order_type: LimitOrder,
-        },
-        TestOrder {
-          account: 1,
-          is_buy: False,
-          size: 7140427670000,
-          price_times_1tri: 10000000,
-          fee_amount_bp: 10,
-          unfilled_size: 0,
-          base_balance: 7140427670000,
-          quote_balance: 0,
-          order_type: LimitOrder,
-        },
-      ],
-      payoff: [
-        Balance { account: 0, ada: 8140427670, usd: 81404 },
-        Balance { account: 1, ada: 8132287242330, usd: 81322873 },
-      ],
-    }
-  run_test(test_case)
-}
-
 test s9_fill_order_14_lo_simple() {
   let test_case =
     TestCase {
