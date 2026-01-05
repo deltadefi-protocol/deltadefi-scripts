@@ -177,8 +177,13 @@ pub fn fill_order(
         // - Check if taker min payoff is fulfilled `TFOV` > `Min Payoff`
         let is_min_taker_payoff_satisfied =
           when order.order_type is {
-            LimitOrder ->
+            LimitOrder -> {
+              trace @"tfov"
+              trace tfov
+              trace @"min_payoff"
+              trace min_payoff |> apply_rounding_buffer(order_count)
               value_geq(tfov, min_payoff |> apply_rounding_buffer(order_count))
+            }
             MarketOrder -> True
           }
 
