@@ -226,7 +226,7 @@ pub type HydraUserIntentDatum {
 // 8 - HydraAccount
 
 pub type HydraAccountIntent {
-  WithdrawalIntent { amount_l1: MValue }
+  WithdrawalIntent { amount_l1: MValue, withdrawal_fee_l1: MValue }
   CancelWithdrawalIntent { amount_l1: MValue }
   TransferIntent { to: UserAccount, amount_l2: MValue }
 }

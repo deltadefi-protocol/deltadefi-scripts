@@ -1,5 +1,5 @@
 use aiken/collection/list
-use cardano/assets.{add, from_asset}
+use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
@@ -76,6 +76,7 @@ fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
+      withdrawal_fee_l1: from_lovelace(1) |> to_mvalue(),
     },
   }
 }
@@ -100,6 +101,7 @@ fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
+      withdrawal_fee_l1: from_lovelace(1) |> to_mvalue(),
     },
   }
 }

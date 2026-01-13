@@ -1,9 +1,23 @@
 # QA for the Hydra DEX
 
-Glossary
+## Test Summary (2026-01-13)
+
+| Category            | Total | Passed | Failed | Pass Rate |
+| ------------------- | ----- | ------ | ------ | --------- |
+| Utils (au\_, ou\_)  | 80    | 74     | 6      | 92.5%     |
+| Scripts (s1-s10)    | 393   | 362    | 31     | 92.1%     |
+| Integration (it\_)  | 33    | 19     | 14     | 57.6%     |
+| **Total**           | 506   | 455    | 51     | 89.9%     |
+
+> All 51 failures are MPF (Merkle Patricia Forestry) proof-related.
+> See [test-results.md](../test-results.md) for details.
+
+---
+
+## Glossary
 
 - `I`: Implement
-- `SC`: Specificiation checking
+- `SC`: Specification checking
 - `UT`: Unit Test
 - `IT`: Integration Test
 - `PBT`: Property-based Test
@@ -13,8 +27,8 @@ Glossary
 | ------------------------------------------- | ---- |
 | `au_ta` - trade_auth_by_account             | ✓    |
 | `au_ma` - master_auth_by_account            | ✓    |
-| `au_ambi` - account_merkle_balance_increase | ✓    |
-| `au_ambd` - account_merkle_balance_decrease | ✓    |
+| `au_ambi` - account_merkle_balance_increase | To update root |
+| `au_ambd` - account_merkle_balance_decrease | To update root |
 | `au_omco` - order_merkle_cancel_order       |      |
 | `vhc` - validate_hydra_commit               | ✓    |
 | `htu` - hydra_tree_utils                    | ✓    |
@@ -47,7 +61,7 @@ Glossary
 | s8_spend    | ✓   | ✓    | ✓              |       |
 | s8_wcw      | ✓   | ✓    | To update root |       |
 | s8_wcuac    | ✓   | ✓    | To update root |       |
-| s8_wsat     | ✓   | ✓    | ✓              |       |
+| s8_wsat     | ✓   | ✓    | To update root |       |
 | s8_wsuao    | ✓   | ✓    | To update root |       |
 | s8_ww       | ✓   | ✓    | To update root |       |
 | s8_wt       | ✓   | ✓    | ✓              |       |
