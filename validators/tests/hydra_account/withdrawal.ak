@@ -15,8 +15,8 @@ use mocktail.{
 use tests/utils.{
   mock_account, mock_dex_account_balance_address, mock_dex_account_balance_token,
   mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
-  mock_hydra_token_policy_id, mock_hydra_usd_token_name,
+  mock_dex_order_book_token, mock_fee_account, mock_hydra_account_address,
+  mock_hydra_lovelace, mock_hydra_token_policy_id, mock_hydra_usd_token_name,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token,
   mock_operation_key, mock_usd, mock_user_account,
 } as test_utils
@@ -29,6 +29,7 @@ type HydraWithdrawalTestCase {
   is_account_balance_updated: Bool,
   is_intent_token_burnt: Bool,
   is_withdraw_value_burnt: Bool,
+  is_withdrawal_fee_paid: Bool,
 }
 
 fn mock_hydra_withdrawal_tx(
@@ -42,6 +43,7 @@ fn mock_hydra_withdrawal_tx(
     is_account_balance_updated,
     is_intent_token_burnt,
     is_withdraw_value_burnt,
+    is_withdrawal_fee_paid,
   } = test_case
 
   // MPF
@@ -54,7 +56,7 @@ fn mock_hydra_withdrawal_tx(
       old_root
     }
   let withdrawal_amount =
-    from_lovelace(900_000_000)
+    from_lovelace(901_000_000)
       |> merge(mock_usd(1_000_000_000))
   let proof =
     MPFUpdate {
@@ -98,6 +100,7 @@ fn mock_hydra_withdrawal_tx(
             account: mock_user_account(mock_account),
             intent: WithdrawalIntent {
               amount_l1: withdrawal_amount |> to_mvalue(),
+              withdrawal_fee_l1: from_lovelace(1_000_000) |> to_mvalue(),
             },
           },
         )
@@ -131,6 +134,15 @@ fn mock_hydra_withdrawal_tx(
       |> tx_in_inline_datum(True, mock_user_account(mock_account))
       |> tx_out(True, mock_hydra_account_address, hydra_account_end)
       |> tx_out_inline_datum(True, mock_user_account(mock_account))
+      |> tx_out(
+          is_withdrawal_fee_paid,
+          mock_hydra_account_address,
+          mock_hydra_lovelace(1_000_000),
+        )
+      |> tx_out_inline_datum(
+          is_withdrawal_fee_paid,
+          mock_user_account(mock_fee_account),
+        )
       |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
       |> mint(
           is_withdraw_value_burnt,
@@ -181,6 +193,7 @@ test s8_ww_success() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -198,6 +211,7 @@ test s8_ww_failed_without_operation_key_signed() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -220,6 +234,7 @@ test s8_ww_failed_with_multiple_dex_account_balance_input() fail {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -237,6 +252,7 @@ test s8_ww_failed_with_multiple_dex_account_balance_output() fail {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -254,6 +270,7 @@ test s8_ww_failed_without_merkle_root_updated() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -276,6 +293,7 @@ test s8_ww_failed_without_account_balance_updated() {
       is_account_balance_updated: False,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -298,6 +316,7 @@ test s8_ww_failed_without_intent_token_burnt() {
       is_account_balance_updated: True,
       is_intent_token_burnt: False,
       is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -320,6 +339,7 @@ test s8_ww_failed_without_withdraw_value_burnt() {
       is_account_balance_updated: True,
       is_intent_token_burnt: True,
       is_withdraw_value_burnt: False,
+      is_withdrawal_fee_paid: True,
     }
 
   let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
@@ -330,4 +350,22 @@ test s8_ww_failed_without_withdraw_value_burnt() {
     Script(""),
     tx,
   )
+}
+
+test s8_ww_failed_without_withdrawal_fee_paid() fail {
+  let test_case =
+    HydraWithdrawalTestCase {
+      is_operation_key_signed: True,
+      is_single_dex_account_balance_input: True,
+      is_single_dex_account_balance_output: True,
+      is_merkle_tree_udpated: True,
+      is_account_balance_updated: True,
+      is_intent_token_burnt: True,
+      is_withdraw_value_burnt: True,
+      is_withdrawal_fee_paid: False,
+    }
+
+  let (tx, redeemer) = mock_hydra_withdrawal_tx(test_case)
+
+  ha.hydra_account.withdraw(mock_dex_order_book_token, redeemer, Script(""), tx)
 }

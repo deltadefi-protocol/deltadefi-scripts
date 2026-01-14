@@ -1,5 +1,5 @@
 use aiken/collection/list
-use cardano/assets.{add, from_asset}
+use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
@@ -29,7 +29,7 @@ fn create_mock_limit_order() -> Order {
     base_token: (mock_account_id, mock_hydra_user_intent_token),
     quote_token: (mock_account_id, mock_hydra_user_intent_token),
     is_buy: True,
-    list_price_times_1bil: 1_000_000_000,
+    list_price_times_1tri: 1_000_000_000_000,
     size: 999,
     fee_amount_bp: 999,
     account: mock_user_account(mock_account),
@@ -56,7 +56,7 @@ fn create_mock_place_order_intent() -> HydraUserIntentDatum {
         base_token: (mock_account_id, mock_hydra_user_intent_token),
         quote_token: (mock_account_id, mock_hydra_user_intent_token),
         is_buy: True,
-        list_price_times_1bil: 1_000_000_000,
+        list_price_times_1tri: 1_000_000_000_000,
         size: 999,
         fee_amount_bp: 999,
         account: mock_user_account(mock_account),
@@ -76,6 +76,7 @@ fn create_mock_mint_withdrawal_intent() -> HydraUserIntentRedeemer {
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
+      withdrawal_fee_l1: from_lovelace(1) |> to_mvalue(),
     },
   }
 }
@@ -100,6 +101,7 @@ fn create_mock_withdrawal_intent() -> HydraUserIntentDatum {
         Pair("A", [Pair("abc", 1), Pair("def", 10)]),
         Pair("B", [Pair("abc", 1), Pair("def", 10)]),
       ],
+      withdrawal_fee_l1: from_lovelace(1) |> to_mvalue(),
     },
   }
 }

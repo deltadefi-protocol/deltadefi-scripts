@@ -12,7 +12,7 @@
 - `base_token`: The base token unit
 - `quote_token`: The quote token unit
 - `is_buy`: if it is a buy order
-- `list_price_times_1bil`: Price \* 1,000,000,000
+- `list_price_times_1tri`: Price \* 1,000,000,000,000
 - `size`: The amount of token trading - if `is_buy` it represents quote token, if `!is_buy` it represents base token
 - `fee_amount_bp`: The basis point of fee to be charged
 - `account`: The account information of current order owner

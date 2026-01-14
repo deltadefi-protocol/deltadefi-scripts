@@ -23,7 +23,7 @@ test au_omco() {
           #"55534458",
         ),
         is_buy: False,
-        list_price_times_1bil: 1_350_000_000,
+        list_price_times_1tri: 1_350_000_000_000,
         size: 250_000_000,
         fee_amount_bp: 10,
         account: mock_user_account(mock_account),
