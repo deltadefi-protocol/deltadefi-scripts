@@ -314,7 +314,9 @@ pub fn dex_account_balance_balance_decrease(
 pub fn deser_value(serialised_value: ByteArray) -> Value {
   expect Some(deserialised_value) = cbor.deserialise(serialised_value)
   expect asset_list: MValue = deserialised_value
-  from_asset_list(asset_list)
+  let value = from_asset_list(asset_list)
+  expect cbor.serialise(value) == serialised_value
+  value
 }
 
 pub fn account_merkle_balance_increase(
