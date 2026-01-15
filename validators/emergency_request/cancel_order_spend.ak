@@ -2,14 +2,14 @@ use aiken/collection/dict.{is_empty}
 use aiken/interval.{is_entirely_after}
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{key_signed}
-use hydra_dex/account_utils.{withdrawal_auth_by_account}
+use cocktail.{key_signed, withdrawal_script_validated}
+use hydra_dex/account_utils.{master_auth_by_account}
 use hydra_dex/types.{
   AppOracleDatum, EmergencyCancelRequestDatum, EmergencyCancelRequestRedeemer,
   EmergencyRequestExpiredCancel, EmergencyRequestProcessCancel,
   EmergencyRequestSpamPreventionCancel,
 }
-use hydra_dex/utils.{get_app_oracle_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_app_oracle_datum}
 
 validator emergency_cancel_order_request(oracle_nft: PolicyId) {
   spend(
@@ -64,7 +64,7 @@ validator emergency_cancel_order_request(oracle_nft: PolicyId) {
         let is_operation_key_signed =
           key_signed(extra_signatories, operation_key)
         let is_user_authorized =
-          withdrawal_auth_by_account(
+          master_auth_by_account(
             input_datum.account,
             withdrawals,
             extra_signatories,

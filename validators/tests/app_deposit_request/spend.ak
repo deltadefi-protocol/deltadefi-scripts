@@ -5,8 +5,8 @@ use hydra_dex/types.{
   AppDepositRequestDatum, AppDepositRequestEmergencyWithdrawal,
   AppDepositRequestSpamPreventionWithdraw,
   AppDepositRequestTransferAccountBalance, EmergencyWithdrawalRequestDatum,
-  UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, invalid_before, mint, mock_policy_id, mock_script_address,
   mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
@@ -17,9 +17,9 @@ use tests/utils.{
   mock_app_deposit_request_address, mock_app_deposit_request_token,
   mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft,
-  mock_withdrawal_script_hashes, to_mvalue,
-}
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, mock_user_account,
+  mock_withdrawal_script_hashes,
+} as test_utils
 
 type TransferalTestCase {
   is_app_oracle_inputed: Bool,
@@ -88,13 +88,13 @@ fn mock_emergency_withdraw_tx(
 
   let datum =
     AppDepositRequestDatum {
-      account: UserSpotAccount {
-        account: if is_account_correct {
+      account: mock_user_account(
+        if is_account_correct {
           mock_account
         } else {
           mock_account_2
         },
-      },
+      ),
       amount: from_lovelace(100_000_000) |> to_mvalue(),
     }
 
@@ -133,7 +133,7 @@ fn mock_emergency_withdraw_tx(
       |> tx_in_inline_datum(
           True,
           EmergencyWithdrawalRequestDatum {
-            account: UserSpotAccount { account: mock_account },
+            account: mock_user_account(mock_account),
             amount: zero |> to_mvalue(),
             timestamp: 100,
           },

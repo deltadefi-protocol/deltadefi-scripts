@@ -1,6 +1,6 @@
 name = "deltadefi-protocol/hydra-dex"
 version = "0.0.0"
-compiler = "v1.1.16"
+compiler = "v1.1.17"
 plutus = "v3"
 license = "Apache-2.0"
 description = "Aiken contracts for project 'deltadefi-protocol/hydra-dex'"
@@ -22,7 +22,7 @@ source = "github"
 
 [[dependencies]]
 name = "sidan-lab/vodka"
-version = "0.1.13"
+version = "0.1.22"
 source = "github"
 
 [config]

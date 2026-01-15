@@ -1,6 +1,6 @@
 use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
-use hydra_user_intent/spend as hydra_user_intent_spend
+use hydra_user_intent as hui
 use mocktail.{
   complete, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
   ref_tx_in_inline_datum, tx_in,
@@ -47,7 +47,7 @@ test s7_spend_success_burn() {
       DexSpendTestCase { is_dex_order_book_inputed: True, is_token_burnt: True },
     )
 
-  hydra_user_intent_spend.hydra_user_intent.spend(
+  hui.hydra_user_intent.spend(
     mock_dex_order_book_token,
     None,
     Void,
@@ -65,7 +65,7 @@ test s7_spend_fail_burn_with_with_no_dex_oracle_inputed() fail {
       },
     )
 
-  hydra_user_intent_spend.hydra_user_intent.spend(
+  hui.hydra_user_intent.spend(
     mock_dex_order_book_token,
     None,
     Void,
@@ -83,7 +83,7 @@ test s7_spend_fail_burn_with_no_burn() {
       },
     )
 
-  !hydra_user_intent_spend.hydra_user_intent.spend(
+  !hui.hydra_user_intent.spend(
     mock_dex_order_book_token,
     None,
     Void,

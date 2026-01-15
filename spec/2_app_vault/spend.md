@@ -12,3 +12,8 @@
 
    - Obtain the `app_withdrawal` script hash from oracle
    - Withdrawal script of `app_withdrawal` validating
+
+2. Vault Stake Key Rotation
+
+   - Obtain the `app_withdrawal` script hash from oracle
+   - Withdrawal script of `app_withdrawal` validating

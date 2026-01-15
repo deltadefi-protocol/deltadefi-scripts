@@ -3,8 +3,7 @@ use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
 use dex_account_balance/spend as dex_account_balance
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexAccountBalanceRemoveRegistry,
-  DexAccountBalanceSpamPreventionWithdraw,
+  DABRemoveRegistry, DABSpamPreventionWithdraw, DexAccountBalanceDatum,
 }
 use mocktail.{
   complete, mint, mock_policy_id, mock_script_address, mock_tx_hash,
@@ -99,7 +98,7 @@ test s5_spend_success_spam_prevention_withdraw() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceSpamPreventionWithdraw,
+    DABSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -120,7 +119,7 @@ test s5_spend_fail_spam_prevention_withdraw_with_no_app_oracle_inputed() fail {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceSpamPreventionWithdraw,
+    DABSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -141,7 +140,7 @@ test s5_spend_fail_spam_prevention_withdraw_with_incorrect_app_oracle_inputed() 
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceSpamPreventionWithdraw,
+    DABSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -162,7 +161,7 @@ test s5_spend_fail_spam_prevention_withdraw_with_auth_input() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceSpamPreventionWithdraw,
+    DABSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -183,7 +182,7 @@ test s5_spend_fail_spam_prevention_withdraw_with_no_op_key_sign() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceSpamPreventionWithdraw,
+    DABSpamPreventionWithdraw,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -261,7 +260,7 @@ test s5_spend_success_remove_registry() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceRemoveRegistry,
+    DABRemoveRegistry,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -282,7 +281,7 @@ test s5_spend_fail_remove_registry_with_multiple_account_balance_input() fail {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceRemoveRegistry,
+    DABRemoveRegistry,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -303,7 +302,7 @@ test s5_spend_fail_remove_registry_with_non_empty_root() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceRemoveRegistry,
+    DABRemoveRegistry,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -324,7 +323,7 @@ test s5_spend_fail_remove_registry_with_no_auth_token_burnt() fail {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceRemoveRegistry,
+    DABRemoveRegistry,
     mock_utxo_ref(0, 0),
     tx,
   )
@@ -345,7 +344,7 @@ test s5_spend_fail_remove_registry_with_no_op_key_sign() {
     mock_oracle_nft,
     mock_dex_order_book_token,
     None,
-    DexAccountBalanceRemoveRegistry,
+    DABRemoveRegistry,
     mock_utxo_ref(0, 0),
     tx,
   )

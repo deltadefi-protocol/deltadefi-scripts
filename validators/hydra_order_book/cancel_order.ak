@@ -1,129 +1,83 @@
-use cardano/address.{Credential}
-use cardano/assets.{PolicyId, zero}
-use cardano/certificate.{Certificate}
+use aiken/collection/list
+use cardano/address.{from_script}
+use cardano/assets.{PolicyId, match, without_lovelace}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  input_inline_datum, inputs_at_with, inputs_at_with_policy, key_signed,
-  outputs_at_with_policy, policy_only_minted_token,
+  group_inputs, group_outputs, i_at, input_inline_datum, inputs_value,
+  key_signed, o_at, outputs_value,
 }
-use hydra_dex/account_utils.{hydra_balance_increase}
-use hydra_dex/order_utils.{get_order_value}
-use hydra_dex/types.{
-  CancelOrderIntent, DexOrderBookDatum, HydraOrderBookDatum,
-  HydraUserIntentDatum,
+use hydra_dex/account_utils.{
+  AccountPayoff, add_to_payoff, payoff_output_settlement,
 }
+use hydra_dex/types.{DexOrderBookDatum, Order}
 use hydra_dex/utils.{get_dex_order_book_datum}
 
-validator cancel_order(oracle_nft: PolicyId) {
-  withdraw(_redeemer: Data, _credential: Credential, tx: Transaction) {
-    let Transaction {
-      inputs,
-      outputs,
-      reference_inputs,
-      extra_signatories,
-      mint,
-      ..
-    } = tx
+pub fn cancel_order(oracle_nft: PolicyId, tx: Transaction) {
+  let Transaction { inputs, outputs, reference_inputs, extra_signatories, .. } =
+    tx
 
-    let DexOrderBookDatum {
-      operation_key,
-      hydra_user_intent_token,
-      hydra_user_intent_address,
-      hydra_account_balance_token,
-      hydra_account_balance_address,
-      hydra_order_book_token,
-      hydra_order_book_address,
-      ..
-    }: DexOrderBookDatum =
-      reference_inputs |> get_dex_order_book_datum(oracle_nft)
+  //  - Ref input with `dex_oracle_nft`
+  let DexOrderBookDatum {
+    operation_key,
+    hydra_account_script_hash,
+    hydra_order_book_script_hash,
+    ..
+  }: DexOrderBookDatum =
+    reference_inputs |> get_dex_order_book_datum(oracle_nft)
+  let hydra_order_book_address = from_script(hydra_order_book_script_hash)
+  let hydra_account_address = from_script(hydra_account_script_hash)
 
-    //  - Input from `HydraUserIntent` with `CancelOrder {account, order_id}` datum
-    //  - Exactly 1 input from `HydraOrderBook`, with auth token name of `order_id`
-    let (is_order_correctly_cancelled, order_value) =
-      when
-        inputs_at_with_policy(
-          inputs,
-          hydra_user_intent_address,
-          hydra_user_intent_token,
-        )
-      is {
-        [intent_input] -> {
-          expect CancelOrderIntent { account: intent_account, order_id }: HydraUserIntentDatum =
-            input_inline_datum(intent_input)
-          when
-            inputs_at_with(
-              inputs,
-              hydra_order_book_address,
-              hydra_order_book_token,
-              order_id,
-            )
-          is {
-            [order_input] -> {
-              expect order_datum: HydraOrderBookDatum =
-                input_inline_datum(order_input)
+  //  - Categorize inputs into
+  //    - `OI` - Order Inputs
+  //    - Other inputs
+  let oi_filter = i_at(hydra_order_book_address)
+  let (order_inputs, other_inputs) = group_inputs(inputs, oi_filter)
 
-              //  - `HydraOrderBook` auth token burnt with token name of `order_id`
-              let is_order_token_minted =
-                policy_only_minted_token(
-                  mint,
-                  hydra_order_book_token,
-                  order_id,
-                  -1,
-                )
+  //  - Categorize outputs into
+  //    - `AO` - Account Outputs
+  //    - Other outputs
+  let ao_filter = o_at(hydra_account_address)
+  let (account_outputs, other_outputs) = group_outputs(outputs, ao_filter)
 
-              //  - The input token is burnt
-              let is_intent_token_burnt =
-                policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
+  // - No other inputs and outputs
+  let no_other_inputs = other_inputs == []
+  let no_other_outputs = other_outputs == []
 
-              //  - The datum of `HydraOrderBook` input contains same account as `HydraUserIntent`
-              let is_order_owned_by_account =
-                intent_account == order_datum.account
+  // - For all `OI`, check
+  //   - Return `account_payoff` - `AccountPayoff`
+  //   - Cummulate order value to the `account_payoff`
+  let account_payoff: AccountPayoff =
+    list.foldr(
+      order_inputs,
+      [],
+      fn(order_input, ap_acc) {
+        let order_value = order_input.output.value
+        expect order_datum: Order = input_inline_datum(order_input)
+        ap_acc |> add_to_payoff(order_datum.account, order_value)
+      },
+    )
 
-              let order_value = get_order_value(order_datum)
-              (
-                is_order_token_minted && is_intent_token_burnt && is_order_owned_by_account,
-                order_value,
-              )
-            }
-            _ -> (False, zero)
-          }
-        }
+  // - For all `account_payoff` - `<account, value>`
+  //   - Check output value to `account` equals `value`
+  let payoff_after_settlement =
+    account_payoff |> payoff_output_settlement(account_outputs)
+  let is_payoff_settled = payoff_after_settlement == []
 
-        _ -> (False, zero)
-      }
-    //  - Add the account balance from `HydraAccountBalance` with corresponding auth token
-    let is_account_balance_updated =
-      when
-        (
-          inputs_at_with_policy(
-            inputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
-          outputs_at_with_policy(
-            outputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
-        )
-      is {
-        ([balance_input], [balance_output]) ->
-          hydra_balance_increase(balance_input, balance_output, order_value)
-        _ -> False
-      }
+  //  - Value parity: `OI` == `AO` (to clear: is the check needed?)
+  let input_value = order_inputs |> inputs_value |> without_lovelace
+  let output_value =
+    outputs_value(account_outputs)
+      |> without_lovelace
+  let is_value_parity_holds = match(input_value, output_value, ==)
 
-    //  - Signed by `operating_key`
-    let is_cancel_order_authorized =
-      key_signed(extra_signatories, operation_key)
+  //  - Signed by `operating_key`
+  let is_cancel_order_authorized = key_signed(extra_signatories, operation_key)
 
-    is_order_correctly_cancelled && is_account_balance_updated && is_cancel_order_authorized
-  }
-
-  publish(_redeemer: Data, _credential: Certificate, _tx: Transaction) {
-    True
-  }
-
-  else(_) {
-    fail @"unsupported purpose"
+  and {
+    no_other_inputs?,
+    no_other_outputs?,
+    is_payoff_settled?,
+    is_value_parity_holds?,
+    is_cancel_order_authorized?,
   }
 }

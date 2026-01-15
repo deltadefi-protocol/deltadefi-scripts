@@ -1,154 +1,125 @@
-use cardano/address.{Credential}
-use cardano/assets.{PolicyId, zero}
-use cardano/certificate.{Certificate}
+use cardano/address.{from_script}
+use cardano/assets.{
+  PolicyId, from_asset_list, match, merge, negate, without_lovelace,
+}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  input_inline_datum, inputs_at_with_policy, key_signed, output_inline_datum,
-  outputs_at_with_policy, policy_only_minted_token,
+  group_inputs_2, group_outputs_2, i_at_with_policy, input_inline_datum,
+  inputs_value, key_signed, o_at, output_inline_datum, outputs_value,
+  policy_only_minted_token,
 }
-use cocktail/vodka_outputs.{outputs_at_with}
-use hydra_dex/account_utils.{hydra_balance_decrease}
-use hydra_dex/order_utils.{get_order_value}
+use cocktail/vodka_value.{value_geq}
+use hydra_dex/account_utils.{
+  create_account_inputs_filter, create_account_outputs_filter,
+}
+use hydra_dex/order_utils.{get_min_order_value}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraOrderBookDatum, HydraUserIntentDatum, PlaceOrderIntent,
+  DexOrderBookDatum, HydraOrderBookIntent, HydraUserIntentDatum, Order,
+  PlaceOrderIntent, TradeIntent, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
-validator place_order(oracle_nft: PolicyId) {
-  withdraw(_redeemer: Data, _credential: Credential, tx: Transaction) {
-    let Transaction {
-      inputs,
-      outputs,
-      reference_inputs,
-      extra_signatories,
-      mint,
-      ..
-    } = tx
+pub fn place_order(oracle_nft: PolicyId, account: UserAccount, tx: Transaction) {
+  let Transaction { inputs, outputs, extra_signatories, mint, .. } = tx
+  let oracle = tx.reference_inputs |> get_dex_order_book_datum(oracle_nft)
 
-    let DexOrderBookDatum {
-      operation_key,
-      hydra_user_intent_token,
-      hydra_user_intent_address,
-      hydra_account_balance_token,
-      hydra_account_balance_address,
-      hydra_order_book_token,
-      hydra_order_book_address,
-      ..
-    }: DexOrderBookDatum =
-      reference_inputs |> get_dex_order_book_datum(oracle_nft)
+  let DexOrderBookDatum {
+    operation_key,
+    hydra_user_intent_script_hash,
+    hydra_account_script_hash,
+    hydra_order_book_script_hash,
+    ..
+  }: DexOrderBookDatum = oracle
+  let hydra_user_intent_address = from_script(hydra_user_intent_script_hash)
+  let hydra_order_book_address = from_script(hydra_order_book_script_hash)
 
-    //  - Input from `HydraUserIntent` with `LimitOrder` datum
-    //  - Exactly 1 output to `HydraOrderBook`, with exactly the same datum as input from current address (i.e. `LimitOrder`), except `order_id`
-    let (is_order_correctly_placed, order_value) =
-      when
-        inputs_at_with_policy(
-          inputs,
-          hydra_user_intent_address,
-          hydra_user_intent_token,
-        )
-      is {
-        [intent_input] -> {
-          expect PlaceOrderIntent {
-            order_id: intent_order_id,
-            long_token: intent_long_token,
-            short_token: intent_short_token,
-            is_long: intent_is_long,
-            list_price_times_1bil: intent_list_price_times_1bil,
-            order_size: intent_order_size,
-            fee_amount_bp: intent_fee_amount_bp,
-            account: intent_account,
-            ..
-          }: HydraUserIntentDatum = input_inline_datum(intent_input)
+  //  - Categorize inputs into
+  //    - `AI` - Account Input with `account` at intent
+  //    - `II` - Intent Inputs
+  //    - Other inputs
+  let ai_filter =
+    create_account_inputs_filter(account, hydra_account_script_hash)
 
-          when
-            outputs_at_with(
-              outputs,
-              hydra_order_book_address,
-              hydra_order_book_token,
-              intent_order_id,
-            )
-          is {
-            [order_output] -> {
-              expect order_datum: HydraOrderBookDatum =
-                output_inline_datum(order_output)
+  let ii_filter =
+    i_at_with_policy(hydra_user_intent_address, hydra_user_intent_script_hash)
 
-              let HydraOrderBookDatum {
-                order_id,
-                long_token,
-                short_token,
-                is_long,
-                fee_amount_bp,
-                account,
-                list_price_times_1bil,
-                order_size,
-                ..
-              } = order_datum
+  let (account_inputs, intent_inputs, other_inputs) =
+    group_inputs_2(inputs, ai_filter, ii_filter)
 
-              //  - `HydraOrderBook` auth token minted with token name of `order_id`
-              let is_order_token_minted =
-                policy_only_minted_token(
-                  mint,
-                  hydra_order_book_token,
-                  order_id,
-                  1,
-                )
+  expect [intent_input] = intent_inputs
+  expect TradeIntent { account, intent }: HydraUserIntentDatum =
+    input_inline_datum(intent_input)
+  expect PlaceOrderIntent { order: intent_order, authorized_account_value_l2 }: HydraOrderBookIntent =
+    intent
 
-              //  - The input token is burnt
-              let is_intent_token_burnt =
-                policy_only_minted_token(mint, hydra_user_intent_token, "", -1)
+  //  - Categorize outputs into
+  //    - `AO` - Account Output with `account` at intent
+  //    - `OO` - Order Output with `account` at intent
+  //    - Other outputs
+  let ao_filter =
+    create_account_outputs_filter(account, hydra_account_script_hash)
 
-              let is_datum_correct =
-                intent_order_id == order_id && intent_long_token == long_token && intent_short_token == short_token && intent_is_long == is_long && intent_fee_amount_bp == fee_amount_bp && intent_account == account && intent_order_size == order_size
-              let order_value = get_order_value(order_datum)
+  let oo_filter = o_at(hydra_order_book_address)
 
-              let is_price_correct =
-                when intent_is_long is {
-                  True -> list_price_times_1bil <= intent_list_price_times_1bil
-                  False -> list_price_times_1bil >= intent_list_price_times_1bil
-                }
+  let (account_outputs, order_outputs, other_outputs) =
+    group_outputs_2(outputs, ao_filter, oo_filter)
 
-              (
-                is_order_token_minted? && is_intent_token_burnt? && is_datum_correct? && is_price_correct?,
-                order_value,
-              )
-            }
-            _ -> (False, zero)
-          }
-        }
+  expect [order_output] = order_outputs
 
-        _ -> (False, zero)
-      }
-    //  - Deduct the account balance from `HydraAccountBalance` with corresponding auth token
-    let is_account_balance_updated =
-      when
-        (
-          inputs_at_with_policy(
-            inputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
-          outputs_at_with_policy(
-            outputs,
-            hydra_account_balance_address,
-            hydra_account_balance_token,
-          ),
-        )
-      is {
-        ([balance_input], [balance_output]) ->
-          hydra_balance_decrease(balance_input, balance_output, order_value)
-        _ -> False
-      }
+  // - No other inputs and outputs
+  let no_other_inputs = other_inputs == []
+  let no_other_outputs = other_outputs == []
 
-    let is_place_order_authorized = key_signed(extra_signatories, operation_key)
+  // - `II` with `PlaceOrderIntent` datum
+  expect order_datum: Order = output_inline_datum(order_output)
 
-    is_order_correctly_placed? && is_account_balance_updated? && is_place_order_authorized?
-  }
+  // - `II` with `account` as account
+  let is_intent_account_correct = intent_order.account == account
 
-  publish(_redeemer: Data, _credential: Certificate, _tx: Transaction) {
-    True
-  }
+  // - `II` with `PlaceOrderIntent` datum
+  let is_order_correctly_placed = intent_order == order_datum
 
-  else(_) {
-    fail @"unsupported purpose"
+  //  - `OO` has at least value
+  // - `is_buy` == True -> at least `size` of quote token
+  // - `is_buy` == False -> at least `size` of base token
+  let is_order_value_sufficient =
+    value_geq(order_output.value, get_min_order_value(order_datum))
+
+  //  - The input token is burnt
+  let is_intent_token_burnt =
+    policy_only_minted_token(mint, hydra_user_intent_script_hash, "", -1)
+
+  // - The deduction of account value (`AI` - `AO`) does not exceed `authorized_account_value_l2`
+  let deducted_account_value =
+    inputs_value(account_inputs)
+      |> merge(negate(outputs_value(account_outputs)))
+  let is_deduction_within_authorized_limit =
+    value_geq(
+      authorized_account_value_l2
+        |> from_asset_list(),
+      deducted_account_value,
+    )
+
+  //  - Value parity: `AI` == `AO` + `OO`
+  let input_value = account_inputs |> inputs_value |> without_lovelace
+  let output_value =
+    outputs_value(account_outputs)
+      |> merge(order_output.value)
+      |> without_lovelace
+  let is_value_parity_holds = match(input_value, output_value, ==)
+
+  //  - Signed by `operating_key`
+  let is_place_order_authorized = key_signed(extra_signatories, operation_key)
+
+  and {
+    no_other_inputs?,
+    no_other_outputs?,
+    is_intent_account_correct?,
+    is_order_correctly_placed?,
+    is_order_value_sufficient?,
+    is_intent_token_burnt?,
+    is_deduction_within_authorized_limit?,
+    is_value_parity_holds?,
+    is_place_order_authorized?,
   }
 }

@@ -1,19 +1,178 @@
 use aiken/cbor
+use aiken/collection/dict
 use aiken/collection/list
-use aiken/crypto.{ScriptHash, VerificationKeyHash}
+use aiken/collection/pairs
+use aiken/crypto.{ScriptHash, VerificationKeyHash, blake2b_256}
 use aiken/merkle_patricia_forestry as mpf
 use aiken/primitive/bytearray
-use cardano/address.{Credential, Script, VerificationKey}
-use cardano/assets.{Lovelace, Value, from_asset_list, merge, negate}
+use cardano/address.{Credential, Script, VerificationKey, from_script}
+use cardano/assets.{
+  AssetName, Lovelace, PolicyId, Value, from_asset_list, merge, negate, tokens,
+  zero,
+}
 use cardano/transaction.{Input, Output}
 use cocktail.{input_inline_datum, one_of_keys_signed, output_inline_datum}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, DexOrderBookDatum, HydraAccountBalanceDatum,
-  HydraOrderBookDatum, MPFDelete, MPFInsert, MPFProof, MPFUpdate, MValue,
-  UserAccount, UserFundingAccount, UserMobileAccount, UserSpotAccount,
+  DexAccountBalanceDatum, DexOrderBookDatum, MPFDelete, MPFInsert, MPFProof,
+  MPFUpdate, MValue, MerklizedOrderDatum, TokenMap, UserAccount,
+  UserFundingAccount, UserMobileAccount, UserTradeAccount,
 }
 use hydra_dex/utils.{withdrawal_script_hashes}
 
+// Filters
+
+pub fn create_account_inputs_filter(
+  account: UserAccount,
+  hydra_account_script_hash: ByteArray,
+) {
+  fn(input: Input) {
+    if input.output.address == from_script(hydra_account_script_hash) {
+      expect input_datum: UserAccount = input_inline_datum(input)
+      input_datum == account
+    } else {
+      False
+    }
+  }
+}
+
+pub fn create_account_outputs_filter(
+  account: UserAccount,
+  hydra_account_script_hash: ByteArray,
+) {
+  fn(output: Output) {
+    if output.address == from_script(hydra_account_script_hash) {
+      expect output_datum: UserAccount = output_inline_datum(output)
+      output_datum == account
+    } else {
+      False
+    }
+  }
+}
+
+//  Account Value related
+
+pub fn hash_token(policy_id: PolicyId, asset_name: AssetName) -> AssetName {
+  if policy_id == "" && asset_name == "" {
+    ""
+  } else {
+    blake2b_256(policy_id |> bytearray.concat(asset_name))
+  }
+}
+
+test hashing_tokens() {
+  let hash =
+    hash_token(
+      #"5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04b",
+      #"55534458",
+    )
+  hash == #"578df351072da33dc2f3d2abb4706b5847562419d315962fb86909406b883960"
+}
+
+pub fn from_value_to_hydra_balance(
+  account_value: Value,
+  hydra_token_policy_id: PolicyId,
+) -> Value {
+  account_value
+    |> assets.reduce(
+        zero,
+        fn(policy_id, asset_name, qty, acc) {
+          let token_hash = hash_token(policy_id, asset_name)
+          acc |> assets.add(hydra_token_policy_id, token_hash, qty)
+        },
+      )
+}
+
+pub fn from_hydra_balance_to_value(
+  hydra_value: Value,
+  hydra_token_policy_id: PolicyId,
+  token_map: TokenMap,
+) -> Value {
+  hydra_value
+    |> tokens(hydra_token_policy_id)
+    |> dict.foldr(
+        zero,
+        fn(token_hash, token_qty, account_value_acc) {
+          when pairs.get_first(token_map, token_hash) is {
+            Some((policy_id, asset_name)) ->
+              account_value_acc
+                |> assets.add(policy_id, asset_name, token_qty)
+            None -> fail @"Token hash not found in token map"
+          }
+        },
+      )
+}
+
+// payoff
+
+pub type AccountPayoff =
+  Pairs<UserAccount, Value>
+
+pub fn add_to_payoff(
+  payoff: AccountPayoff,
+  user_account: UserAccount,
+  value: Value,
+) -> AccountPayoff {
+  when payoff |> pairs.get_first(user_account) is {
+    Some(current_payoff) -> {
+      let post_merge_value =
+        current_payoff
+          |> merge(value)
+          |> assets.reduce(
+              zero,
+              fn(policy, name, qty, acc) {
+                if qty > 0 {
+                  acc |> assets.add(policy, name, qty)
+                } else {
+                  acc
+                }
+              },
+            )
+      if post_merge_value == zero {
+        payoff |> pairs.delete_first(user_account)
+      } else {
+        payoff
+          |> pairs.repsert_by_ascending_key(
+              user_account,
+              post_merge_value,
+              compare_user_account,
+            )
+      }
+    }
+    None ->
+      payoff
+        |> pairs.repsert_by_ascending_key(
+            user_account,
+            value,
+            compare_user_account,
+          )
+  }
+}
+
+pub fn deduct_from_payoff(
+  payoff: AccountPayoff,
+  user_account: UserAccount,
+  value: Value,
+) -> AccountPayoff {
+  let negate_value = negate(value)
+  add_to_payoff(payoff, user_account, negate_value)
+}
+
+pub fn payoff_output_settlement(
+  payoff: AccountPayoff,
+  account_outputs: List<Output>,
+) -> AccountPayoff {
+  account_outputs
+    |> list.foldr(
+        payoff,
+        fn(account_output, acc) {
+          expect account: UserAccount = output_inline_datum(account_output)
+          let settlement_value = account_output.value
+          acc |> deduct_from_payoff(account, settlement_value)
+        },
+      )
+}
+
+//
 pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
   let a_account_id = get_account_id(a)
   let b_account_id = get_account_id(b)
@@ -22,9 +181,9 @@ pub fn compare_user_account(a: UserAccount, b: UserAccount) -> Ordering {
 
 pub fn get_account_id(account: UserAccount) -> ByteArray {
   when account is {
-    UserSpotAccount { account } -> account.account_id
-    UserFundingAccount { account } -> account.account_id
-    UserMobileAccount { account } -> account.account_id
+    UserTradeAccount { account, .. } -> account.account_id
+    UserFundingAccount { account, .. } -> account.account_id
+    UserMobileAccount { account, .. } -> account.account_id
   }
 }
 
@@ -45,11 +204,19 @@ pub fn split_creds(
       )
 }
 
+pub fn get_trading_logic(account: UserAccount) -> ScriptHash {
+  when account is {
+    UserTradeAccount { trading_logic, .. } -> trading_logic
+    UserFundingAccount { trading_logic, .. } -> trading_logic
+    UserMobileAccount { trading_logic, .. } -> trading_logic
+  }
+}
+
 pub fn get_master_key(account: UserAccount) -> Credential {
   when account is {
-    UserSpotAccount { account } -> account.master_key
-    UserFundingAccount { account } -> account.master_key
-    UserMobileAccount { account } -> account.master_key
+    UserTradeAccount { account, .. } -> account.master_key
+    UserFundingAccount { account, .. } -> account.master_key
+    UserMobileAccount { account, .. } -> account.master_key
   }
 }
 
@@ -58,23 +225,24 @@ pub fn get_trade_keys(
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserSpotAccount { account } -> [account.master_key, account.operation_key]
-      UserFundingAccount { account } -> [account.master_key]
-      UserMobileAccount { account } ->
+      UserTradeAccount { account, .. } ->
+        [account.master_key, account.operation_key]
+      UserFundingAccount { account, .. } -> [account.master_key]
+      UserMobileAccount { account, .. } ->
         [account.master_key, account.operation_key]
     }
   split_creds(creds)
 }
 
-pub fn get_withdrawal_keys(
+pub fn get_master_keys(
   account: UserAccount,
 ) -> (List<VerificationKeyHash>, List<ScriptHash>) {
   let creds =
     when account is {
-      UserSpotAccount { account } -> [account.master_key]
-      UserFundingAccount { account } ->
+      UserTradeAccount { account, .. } -> [account.master_key]
+      UserFundingAccount { account, .. } ->
         [account.master_key, account.operation_key]
-      UserMobileAccount { account } ->
+      UserMobileAccount { account, .. } ->
         [account.master_key, account.operation_key]
     }
   split_creds(creds)
@@ -93,44 +261,16 @@ pub fn trade_auth_by_account(
   signature_auth || script_auth
 }
 
-pub fn withdrawal_auth_by_account(
+pub fn master_auth_by_account(
   account: UserAccount,
   withdrawals: Pairs<Credential, Lovelace>,
   extra_signatories: List<VerificationKeyHash>,
 ) -> Bool {
-  let (pub_key_hashes, script_hashes) = get_withdrawal_keys(account)
+  let (pub_key_hashes, script_hashes) = get_master_keys(account)
   let signature_auth = one_of_keys_signed(extra_signatories, pub_key_hashes)
   let script_auth =
     withdrawal_script_hashes(withdrawals) |> one_of_keys_signed(script_hashes)
   signature_auth || script_auth
-}
-
-pub fn hydra_balance_increase(
-  input: Input,
-  output: Output,
-  increase: Value,
-) -> Bool {
-  expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
-  expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
-  let old_balance = from_asset_list(input_datum.balance)
-  let new_balance = from_asset_list(output_datum.balance)
-  let expected_balance = old_balance |> merge(increase)
-  let is_same_account = input_datum.account == output_datum.account
-  is_same_account? && (expected_balance == new_balance)?
-}
-
-pub fn hydra_balance_decrease(
-  input: Input,
-  output: Output,
-  decrease: Value,
-) -> Bool {
-  expect input_datum: HydraAccountBalanceDatum = input_inline_datum(input)
-  expect output_datum: HydraAccountBalanceDatum = output_inline_datum(output)
-  let old_balance = from_asset_list(input_datum.balance)
-  let new_balance = from_asset_list(output_datum.balance)
-  let expected_balance = old_balance |> merge(negate(decrease))
-  let is_same_account = input_datum.account == output_datum.account
-  is_same_account && expected_balance == new_balance
 }
 
 pub fn dex_account_balance_balance_increase(
@@ -174,7 +314,9 @@ pub fn dex_account_balance_balance_decrease(
 pub fn deser_value(serialised_value: ByteArray) -> Value {
   expect Some(deserialised_value) = cbor.deserialise(serialised_value)
   expect asset_list: MValue = deserialised_value
-  from_asset_list(asset_list)
+  let value = from_asset_list(asset_list)
+  expect cbor.serialise(value) == serialised_value
+  value
 }
 
 pub fn account_merkle_balance_increase(
@@ -233,39 +375,11 @@ pub fn account_merkle_balance_decrease(
   }
 }
 
-pub fn get_account_input(
-  inputs: List<Input>,
-  account: UserAccount,
-) -> Option<Input> {
-  inputs
-    |> list.find(
-        fn(account_input) {
-          expect datum: HydraAccountBalanceDatum =
-            input_inline_datum(account_input)
-          datum.account == account
-        },
-      )
-}
-
-pub fn get_account_output(
-  outputs: List<Output>,
-  account: UserAccount,
-) -> Option<Output> {
-  outputs
-    |> list.find(
-        fn(accout_output) {
-          expect datum: HydraAccountBalanceDatum =
-            output_inline_datum(accout_output)
-          datum.account == account
-        },
-      )
-}
-
 // Dex Order Book
 pub fn dex_order_book_cancel_order(
   input: Input,
   output: Output,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   proof: MPFProof,
 ) -> Bool {
   expect input_datum: DexOrderBookDatum = input_inline_datum(input)
@@ -282,14 +396,14 @@ pub fn dex_order_book_cancel_order(
 pub fn order_merkle_cancel_order(
   old_root: ByteArray,
   new_root: ByteArray,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   proof: MPFProof,
 ) -> Bool {
   let old_trie = mpf.from_root(old_root)
   let new_trie = mpf.from_root(new_root)
   when proof is {
     MPFDelete { proof } ->
-      mpf.delete(old_trie, order.order_id, cbor.serialise(order), proof) == new_trie
+      mpf.delete(old_trie, order.datum.order_id, cbor.serialise(order), proof) == new_trie
     _ -> False
   }
 }
