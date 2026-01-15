@@ -2,21 +2,20 @@ use cardano/assets.{add, from_asset}
 use cardano/transaction.{Transaction}
 use dex_account_balance/spend as dex_account_balance
 use hydra_dex/types.{
-  AppDeposit, AppWithdrawal, DexAccountBalanceCombineMerkleTree,
-  DexAccountBalanceSplitMerkleTree, DexAccountBalanceTransferAccountBalance,
-  HydraCancelWithdrawal, HydraWithdrawal,
+  AppDeposit, AppWithdrawal, DABCombineMerkleTree, DABSplitMerkleTree,
+  HydraCancelWithdrawal, HydraWithdrawal, MPFDelete, MPFInsert,
+  ProcessCancelWithdrawal, ProcessCombineUtxosAtClose, ProcessSplitUtxosAtOpen,
+  ProcessWithdrawal, Proofs, TreeOrProofsWithTokenMap,
 }
 use mocktail.{
   complete, mock_policy_id, mock_script_address, mock_tx_hash, mock_utxo_ref,
   mocktail_tx, ref_tx_in, ref_tx_in_inline_datum, script_withdrawal, tx_in,
-  tx_out,
+  tx_out, withdrawal_redeemer_value,
 }
 use tests/utils.{
   mock_app_deposit, mock_app_withdrawal, mock_dex_order_book_address,
-  mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_cancel_withdrawal, mock_hydra_head_close, mock_hydra_head_open,
-  mock_hydra_internal_transfer, mock_hydra_withdrawal, mock_input_oracle_datum,
-  mock_oracle_address, mock_oracle_nft,
+  mock_dex_order_book_datum, mock_dex_order_book_token, mock_hydra_account,
+  mock_input_oracle_datum, mock_oracle_address, mock_oracle_nft,
 }
 
 type TestCase {
@@ -26,7 +25,6 @@ type TestCase {
   is_app_withdrawal_script_attached: Bool,
   is_hydra_withdrawal_script_attached: Bool,
   is_hydra_cancel_withdrawal_script_attached: Bool,
-  is_hydra_internal_transfer_script_attached: Bool,
   is_hydra_head_open_script_attached: Bool,
   is_hydra_head_close_script_attached: Bool,
 }
@@ -39,7 +37,6 @@ fn mock_tx(test_case: TestCase) -> Transaction {
     is_app_withdrawal_script_attached,
     is_hydra_withdrawal_script_attached,
     is_hydra_cancel_withdrawal_script_attached,
-    is_hydra_internal_transfer_script_attached,
     is_hydra_head_open_script_attached,
     is_hydra_head_close_script_attached,
   } = test_case
@@ -76,35 +73,46 @@ fn mock_tx(test_case: TestCase) -> Transaction {
       )
     |> tx_out(True, mock_script_address(999, None), input_value)
     |> script_withdrawal(is_app_deposit_script_attached, mock_app_deposit, 0)
+    |> withdrawal_redeemer_value(is_app_deposit_script_attached, AppDeposit)
     |> script_withdrawal(
         is_app_withdrawal_script_attached,
         mock_app_withdrawal,
         0,
       )
+    |> withdrawal_redeemer_value(
+        is_app_withdrawal_script_attached,
+        AppWithdrawal,
+      )
     |> script_withdrawal(
+        is_hydra_withdrawal_script_attached || is_hydra_cancel_withdrawal_script_attached || is_hydra_head_open_script_attached || is_hydra_head_close_script_attached,
+        mock_hydra_account,
+        0,
+      )
+    |> withdrawal_redeemer_value(
         is_hydra_withdrawal_script_attached,
-        mock_hydra_withdrawal,
-        0,
+        ProcessWithdrawal { mpf_action: MPFInsert { proof: [] } },
       )
-    |> script_withdrawal(
+    |> withdrawal_redeemer_value(
         is_hydra_cancel_withdrawal_script_attached,
-        mock_hydra_cancel_withdrawal,
-        0,
+        ProcessCancelWithdrawal { mpf_action: MPFDelete { proof: [] } },
       )
-    |> script_withdrawal(
-        is_hydra_internal_transfer_script_attached,
-        mock_hydra_internal_transfer,
-        0,
-      )
-    |> script_withdrawal(
+    |> withdrawal_redeemer_value(
         is_hydra_head_open_script_attached,
-        mock_hydra_head_open,
-        0,
+        ProcessSplitUtxosAtOpen {
+          tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+            proof: Proofs { proofs: [] },
+            token_map: [],
+          },
+        },
       )
-    |> script_withdrawal(
+    |> withdrawal_redeemer_value(
         is_hydra_head_close_script_attached,
-        mock_hydra_head_close,
-        0,
+        ProcessCombineUtxosAtClose {
+          tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap {
+            proof: Proofs { proofs: [] },
+            token_map: [],
+          },
+        },
       )
     |> complete()
 }
@@ -120,7 +128,6 @@ test s5_spend_w_success_app_deposit() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -148,7 +155,6 @@ test s5_spend_w_fail_app_deposit_with_no_app_oracle_inputed() fail {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -176,7 +182,6 @@ test s5_spend_w_success_app_deposit_with_no_dex_oracle_inputed() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -203,7 +208,6 @@ test s5_spend_w_fail_app_deposit_without_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -230,7 +234,6 @@ test s5_spend_w_success_app_withdrawal() {
         is_app_withdrawal_script_attached: True,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -258,7 +261,6 @@ test s5_spend_w_fail_app_withdrawal_with_no_app_oracle_inputed() fail {
         is_app_withdrawal_script_attached: True,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -286,7 +288,6 @@ test s5_spend_w_success_app_withdrawal_with_no_dex_oracle_inputed() {
         is_app_withdrawal_script_attached: True,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -313,7 +314,6 @@ test s5_spend_w_fail_app_withdrawal_without_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -340,7 +340,6 @@ test s5_spend_w_success_hydra_withdrawal() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: True,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -368,7 +367,6 @@ test s5_spend_w_success_hydra_withdrawal_with_no_app_oracle_inputed() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: True,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -396,7 +394,6 @@ test s5_spend_w_fail_hydra_withdrawal_with_no_dex_oracle_inputed() fail {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: True,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -411,7 +408,7 @@ test s5_spend_w_fail_hydra_withdrawal_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_spend_w_fail_hydra_withdrawal_without_script() {
+test s5_spend_w_fail_hydra_withdrawal_without_script() fail {
   let redeemer = HydraWithdrawal
 
   let tx =
@@ -423,7 +420,6 @@ test s5_spend_w_fail_hydra_withdrawal_without_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -450,7 +446,6 @@ test s5_spend_w_success_hydra_cancel_withdrawal() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: True,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -478,7 +473,6 @@ test s5_spend_w_success_hydra_cancel_withdrawal_with_no_app_oracle_inputed() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: True,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -506,7 +500,6 @@ test s5_spend_w_fail_hydra_cancel_withdrawal_with_no_dex_oracle_inputed() fail {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: True,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -521,7 +514,7 @@ test s5_spend_w_fail_hydra_cancel_withdrawal_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_spend_w_fail_hydra_cancel_withdrawal_without_script() {
+test s5_spend_w_fail_hydra_cancel_withdrawal_without_script() fail {
   let redeemer = HydraCancelWithdrawal
 
   let tx =
@@ -533,117 +526,6 @@ test s5_spend_w_fail_hydra_cancel_withdrawal_without_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
-        is_hydra_head_open_script_attached: False,
-        is_hydra_head_close_script_attached: False,
-      },
-    )
-
-  !dex_account_balance.dex_account_balance.spend(
-    mock_oracle_nft,
-    mock_dex_order_book_token,
-    None,
-    redeemer,
-    mock_utxo_ref(0, 0),
-    tx,
-  )
-}
-
-test s5_spend_w_success_interal_transfer() {
-  let redeemer = DexAccountBalanceTransferAccountBalance
-  let tx =
-    mock_tx(
-      TestCase {
-        is_app_oracle_inputed: True,
-        is_dex_order_book_inputed: True,
-        is_app_deposit_script_attached: False,
-        is_app_withdrawal_script_attached: False,
-        is_hydra_withdrawal_script_attached: False,
-        is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: True,
-        is_hydra_head_open_script_attached: False,
-        is_hydra_head_close_script_attached: False,
-      },
-    )
-
-  dex_account_balance.dex_account_balance.spend(
-    mock_oracle_nft,
-    mock_dex_order_book_token,
-    None,
-    redeemer,
-    mock_utxo_ref(0, 0),
-    tx,
-  )
-}
-
-test s5_spend_w_success_transfer_with_no_app_oracle_inputed() {
-  let redeemer = DexAccountBalanceTransferAccountBalance
-
-  let tx =
-    mock_tx(
-      TestCase {
-        is_app_oracle_inputed: False,
-        is_dex_order_book_inputed: True,
-        is_app_deposit_script_attached: False,
-        is_app_withdrawal_script_attached: False,
-        is_hydra_withdrawal_script_attached: False,
-        is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: True,
-        is_hydra_head_open_script_attached: False,
-        is_hydra_head_close_script_attached: False,
-      },
-    )
-
-  dex_account_balance.dex_account_balance.spend(
-    mock_oracle_nft,
-    mock_dex_order_book_token,
-    None,
-    redeemer,
-    mock_utxo_ref(0, 0),
-    tx,
-  )
-}
-
-test s5_spend_w_fail_internal_transfer_with_no_dex_oracle_inputed() fail {
-  let redeemer = DexAccountBalanceTransferAccountBalance
-
-  let tx =
-    mock_tx(
-      TestCase {
-        is_app_oracle_inputed: True,
-        is_dex_order_book_inputed: False,
-        is_app_deposit_script_attached: False,
-        is_app_withdrawal_script_attached: False,
-        is_hydra_withdrawal_script_attached: False,
-        is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: True,
-        is_hydra_head_open_script_attached: False,
-        is_hydra_head_close_script_attached: False,
-      },
-    )
-  dex_account_balance.dex_account_balance.spend(
-    mock_oracle_nft,
-    mock_dex_order_book_token,
-    None,
-    redeemer,
-    mock_utxo_ref(0, 0),
-    tx,
-  )
-}
-
-test s5_spend_w_fail_internal_transfer_with_script() {
-  let redeemer = DexAccountBalanceTransferAccountBalance
-
-  let tx =
-    mock_tx(
-      TestCase {
-        is_app_oracle_inputed: True,
-        is_dex_order_book_inputed: True,
-        is_app_deposit_script_attached: False,
-        is_app_withdrawal_script_attached: False,
-        is_hydra_withdrawal_script_attached: False,
-        is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -660,7 +542,7 @@ test s5_spend_w_fail_internal_transfer_with_script() {
 }
 
 test s5_spend_w_success_split_merkle_tree() {
-  let redeemer = DexAccountBalanceSplitMerkleTree
+  let redeemer = DABSplitMerkleTree
   let tx =
     mock_tx(
       TestCase {
@@ -670,7 +552,6 @@ test s5_spend_w_success_split_merkle_tree() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: True,
         is_hydra_head_close_script_attached: False,
       },
@@ -687,7 +568,7 @@ test s5_spend_w_success_split_merkle_tree() {
 }
 
 test s5_spend_w_success_split_merkle_tree_with_no_app_oracle_inputed() {
-  let redeemer = DexAccountBalanceSplitMerkleTree
+  let redeemer = DABSplitMerkleTree
 
   let tx =
     mock_tx(
@@ -698,7 +579,6 @@ test s5_spend_w_success_split_merkle_tree_with_no_app_oracle_inputed() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: True,
         is_hydra_head_close_script_attached: False,
       },
@@ -715,7 +595,7 @@ test s5_spend_w_success_split_merkle_tree_with_no_app_oracle_inputed() {
 }
 
 test s5_spend_w_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
-  let redeemer = DexAccountBalanceSplitMerkleTree
+  let redeemer = DABSplitMerkleTree
 
   let tx =
     mock_tx(
@@ -726,7 +606,6 @@ test s5_spend_w_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: True,
         is_hydra_head_close_script_attached: False,
       },
@@ -742,8 +621,8 @@ test s5_spend_w_fail_split_merkle_tree_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_spend_w_fail_split_merkle_tree_with_no_script() {
-  let redeemer = DexAccountBalanceSplitMerkleTree
+test s5_spend_w_fail_split_merkle_tree_with_no_script() fail {
+  let redeemer = DABSplitMerkleTree
 
   let tx =
     mock_tx(
@@ -754,7 +633,6 @@ test s5_spend_w_fail_split_merkle_tree_with_no_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },
@@ -771,7 +649,7 @@ test s5_spend_w_fail_split_merkle_tree_with_no_script() {
 }
 
 test s5_spend_w_success_combine_merkle_tree() {
-  let redeemer = DexAccountBalanceCombineMerkleTree
+  let redeemer = DABCombineMerkleTree
   let tx =
     mock_tx(
       TestCase {
@@ -781,7 +659,6 @@ test s5_spend_w_success_combine_merkle_tree() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: True,
       },
@@ -798,7 +675,7 @@ test s5_spend_w_success_combine_merkle_tree() {
 }
 
 test s5_spend_w_success_combine_merkle_tree_with_no_app_oracle_inputed() {
-  let redeemer = DexAccountBalanceCombineMerkleTree
+  let redeemer = DABCombineMerkleTree
 
   let tx =
     mock_tx(
@@ -809,7 +686,6 @@ test s5_spend_w_success_combine_merkle_tree_with_no_app_oracle_inputed() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: True,
       },
@@ -826,7 +702,7 @@ test s5_spend_w_success_combine_merkle_tree_with_no_app_oracle_inputed() {
 }
 
 test s5_spend_w_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
-  let redeemer = DexAccountBalanceSplitMerkleTree
+  let redeemer = DABSplitMerkleTree
 
   let tx =
     mock_tx(
@@ -837,7 +713,6 @@ test s5_spend_w_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: True,
       },
@@ -853,8 +728,8 @@ test s5_spend_w_fail_combine_merkle_tree_with_no_dex_oracle_inputed() fail {
   )
 }
 
-test s5_spend_w_fail_combine_merkle_tree_with_no_script() {
-  let redeemer = DexAccountBalanceCombineMerkleTree
+test s5_spend_w_fail_combine_merkle_tree_with_no_script() fail {
+  let redeemer = DABCombineMerkleTree
 
   let tx =
     mock_tx(
@@ -865,7 +740,6 @@ test s5_spend_w_fail_combine_merkle_tree_with_no_script() {
         is_app_withdrawal_script_attached: False,
         is_hydra_withdrawal_script_attached: False,
         is_hydra_cancel_withdrawal_script_attached: False,
-        is_hydra_internal_transfer_script_attached: False,
         is_hydra_head_open_script_attached: False,
         is_hydra_head_close_script_attached: False,
       },

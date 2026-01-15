@@ -1,104 +1,90 @@
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace}
+use cardano/assets.{from_asset, merge, zero}
 use cardano/transaction.{Transaction}
-use hydra_dex/types.{
-  CancelOrderIntent, HydraAccountBalanceDatum, UserSpotAccount,
-}
-use hydra_order_book/cancel_order
+use hydra_dex/types.{CancelOrder}
+use hydra_order_book/core as ob
 use mocktail.{
-  complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in, ref_tx_in_inline_datum,
-  required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  complete, mock_pub_key_address, mock_tx_hash, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, tx_in, tx_in_inline_datum,
+  tx_out, tx_out_inline_datum,
 }
 use tests/utils.{
-  mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_account_balance_address,
-  mock_hydra_account_balance_token, mock_hydra_order_book_address,
-  mock_hydra_order_book_token, mock_hydra_place_order,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_operation_key, mock_order, mock_order_id, to_mvalue,
-}
+  mock_account, mock_account_2, mock_account_3, mock_dex_order_book_address,
+  mock_dex_order_book_datum, mock_dex_order_book_token,
+  mock_hydra_account_address, mock_hydra_lovelace, mock_hydra_order_book,
+  mock_hydra_order_book_address, mock_hydra_usd, mock_limit_order,
+  mock_operation_key, mock_user_account,
+} as test_utils
 
 type TestCase {
-  is_single_intent_input: Bool,
-  is_single_order_input: Bool,
-  is_order_id_matched: Bool,
-  is_order_token_burnt: Bool,
-  is_intent_token_burnt: Bool,
-  is_datum_correct: Bool,
-  is_account_balance_updated: Bool,
+  without_random_input: Bool,
+  without_random_output: Bool,
+  is_all_cancels_same_account: Bool,
+  is_account_balance_settlement_correct: Bool,
   is_operation_key_signed: Bool,
 }
 
 fn mock_tx(test_case: TestCase) -> Transaction {
   let TestCase {
-    is_single_intent_input,
-    is_single_order_input,
-    is_order_id_matched,
-    is_order_token_burnt,
-    is_intent_token_burnt,
-    is_datum_correct,
-    is_account_balance_updated,
+    without_random_input,
+    without_random_output,
+    is_all_cancels_same_account,
+    is_account_balance_settlement_correct,
     is_operation_key_signed,
   } = test_case
 
-  let is_long = False
-  let order_size = 250_000_000
-  let list_price_times_1bil = 1_350_000_000
+  let size = 250_000_000
+  let list_price_times_1tri = 1_000_000_000_000
   let fee_amount_bp = 10
-  let extra_value = 0
 
-  let account = UserSpotAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
+  let account_3 = mock_user_account(mock_account_3)
 
-  let intent_datum =
-    CancelOrderIntent {
-      account,
-      order_id: if is_order_id_matched {
-        mock_order_id
+  let order_1 =
+    mock_limit_order(
+      "order_1",
+      False,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      if is_all_cancels_same_account {
+        mock_account
       } else {
-        "another_order_id"
+        mock_account_2
       },
-    }
+    )
 
-  let order_datum =
-    if is_datum_correct {
-      mock_order(
-        mock_order_id,
-        is_long,
-        order_size,
-        list_price_times_1bil,
-        fee_amount_bp,
-        extra_value,
-        mock_account,
-      )
+  let order_2 =
+    mock_limit_order(
+      "order_2",
+      False,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account,
+    )
+  let order_3 =
+    mock_limit_order(
+      "order_3",
+      True,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account_3,
+    )
+
+  let (a1_output_balance, a3_output_balance) =
+    if is_account_balance_settlement_correct {
+      (mock_hydra_lovelace(500_000_000), mock_hydra_usd(250_000_000))
     } else {
-      mock_order(
-        mock_order_id,
-        is_long,
-        123_456_789,
-        list_price_times_1bil,
-        fee_amount_bp,
-        extra_value,
-        mock_account,
+      (
+        mock_hydra_lovelace(250_000_000),
+        mock_hydra_usd(250_000_000) |> merge(mock_hydra_lovelace(250_000_000)),
       )
-    }
-
-  let input_balance =
-    HydraAccountBalanceDatum {
-      account: UserSpotAccount { account: mock_account },
-      balance: from_lovelace(250_000_000) |> to_mvalue(),
-    }
-
-  let output_balance =
-    if is_account_balance_updated {
-      HydraAccountBalanceDatum {
-        account: UserSpotAccount { account: mock_account },
-        balance: from_lovelace(500_000_000) |> to_mvalue(),
-      }
-    } else {
-      input_balance
     }
 
   mocktail_tx()
+    //  - Ref input with `dex_oracle_nft`
     |> ref_tx_in(
         True,
         mock_tx_hash(0),
@@ -107,61 +93,51 @@ fn mock_tx(test_case: TestCase) -> Transaction {
         mock_dex_order_book_address,
       )
     |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
-    |> tx_in(
-        True,
-        mock_tx_hash(0),
-        1,
-        from_asset(mock_hydra_user_intent_token, "", 1),
-        mock_hydra_user_intent_address,
-      )
-    |> tx_in_inline_datum(True, intent_datum)
+    // - Categorize inputs into
+    //    - `OI` - Order Inputs
+    //    - Other inputs
     |> tx_in(
         True,
         mock_tx_hash(0),
         2,
-        from_asset(mock_hydra_order_book_token, mock_order_id, 1),
+        mock_hydra_lovelace(size),
         mock_hydra_order_book_address,
       )
-    |> tx_in_inline_datum(True, order_datum)
-    |> mint(
-        is_order_token_burnt,
-        -1,
-        mock_hydra_order_book_token,
-        mock_order_id,
-      )
-    |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
+    |> tx_in_inline_datum(True, order_1)
     |> tx_in(
         True,
         mock_tx_hash(0),
-        3,
-        from_asset(mock_hydra_account_balance_token, "", 1),
-        mock_hydra_account_balance_address,
+        2,
+        mock_hydra_lovelace(size),
+        mock_hydra_order_book_address,
       )
-    |> tx_in_inline_datum(True, input_balance)
-    |> tx_out(
+    |> tx_in_inline_datum(True, order_2)
+    |> tx_in(
         True,
-        mock_hydra_account_balance_address,
-        from_asset(mock_hydra_account_balance_token, "", 1),
+        mock_tx_hash(0),
+        2,
+        mock_hydra_usd(size),
+        mock_hydra_order_book_address,
       )
-    |> tx_out_inline_datum(True, output_balance)
+    |> tx_in_inline_datum(True, order_3)
+    // - Categorize outputs into
+    //    - `AO` - Account Outputs
+    //    - Other outputs
+    |> tx_out(True, mock_hydra_account_address, a1_output_balance)
+    |> tx_out_inline_datum(True, account)
+    |> tx_out(True, mock_hydra_account_address, a3_output_balance)
+    |> tx_out_inline_datum(True, account_3)
+    //  - Signed by `operating_key`
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     // failing cases
     |> tx_in(
-        !is_single_intent_input,
-        mock_tx_hash(0),
-        5,
-        from_asset(mock_hydra_user_intent_token, "", 1),
-        mock_hydra_user_intent_address,
+        !without_random_input,
+        mock_tx_hash(2),
+        0,
+        zero,
+        mock_pub_key_address(10, None),
       )
-    |> tx_in_inline_datum(!is_single_intent_input, intent_datum)
-    |> tx_in(
-        !is_single_order_input,
-        mock_tx_hash(0),
-        4,
-        from_asset(mock_hydra_order_book_token, mock_order_id, 1),
-        mock_hydra_order_book_address,
-      )
-    |> tx_in_inline_datum(!is_single_order_input, order_datum)
+    |> tx_out(!without_random_output, mock_pub_key_address(10, None), zero)
     |> complete()
 }
 
@@ -169,174 +145,93 @@ test s9_wco_success() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: True,
+        without_random_output: True,
+        is_all_cancels_same_account: True,
+        is_account_balance_settlement_correct: True,
         is_operation_key_signed: True,
       },
     )
-  cancel_order.cancel_order.withdraw(
+  ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
 
-test s9_wco_fail_with_multiple_intent_input() {
+test s9_wco_fail_with_random_input() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: False,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: False,
+        without_random_output: True,
+        is_all_cancels_same_account: True,
+        is_account_balance_settlement_correct: True,
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
 
-test s9_wco_fail_with_multiple_order_input() {
+test s9_wco_fail_with_random_output() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: False,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: True,
+        without_random_output: False,
+        is_all_cancels_same_account: True,
+        is_account_balance_settlement_correct: True,
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
 
-test s9_wco_fail_with_incorrect_order_id() {
+test s9_wco_fail_with_mixed_accounts() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: False,
-        is_order_id_matched: False,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: True,
+        without_random_output: True,
+        is_all_cancels_same_account: False,
+        is_account_balance_settlement_correct: True,
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
 
-test s9_wco_fail_without_order_token_minted() {
+test s9_wco_fail_without_balance_settlement_correct() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: False,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: True,
+        without_random_output: True,
+        is_all_cancels_same_account: True,
+        is_account_balance_settlement_correct: False,
         is_operation_key_signed: True,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
-    tx,
-  )
-}
-
-test s9_wco_fail_without_intent_token_burnt() {
-  let tx =
-    mock_tx(
-      TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: False,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
-        is_operation_key_signed: True,
-      },
-    )
-  !cancel_order.cancel_order.withdraw(
-    mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
-    tx,
-  )
-}
-
-test s9_wco_fail_with_incorrect_datum() {
-  let tx =
-    mock_tx(
-      TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: False,
-        is_account_balance_updated: True,
-        is_operation_key_signed: True,
-      },
-    )
-  !cancel_order.cancel_order.withdraw(
-    mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
-    tx,
-  )
-}
-
-test s9_wco_fail_without_balance_updated() {
-  let tx =
-    mock_tx(
-      TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_id_matched: True,
-        is_order_token_burnt: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: False,
-        is_operation_key_signed: True,
-      },
-    )
-  !cancel_order.cancel_order.withdraw(
-    mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }
@@ -345,20 +240,17 @@ test s9_wco_fail_without_operation_key_signed() {
   let tx =
     mock_tx(
       TestCase {
-        is_single_intent_input: True,
-        is_single_order_input: True,
-        is_order_token_burnt: True,
-        is_order_id_matched: True,
-        is_intent_token_burnt: True,
-        is_datum_correct: True,
-        is_account_balance_updated: True,
+        without_random_input: True,
+        without_random_output: True,
+        is_all_cancels_same_account: True,
+        is_account_balance_settlement_correct: True,
         is_operation_key_signed: False,
       },
     )
-  !cancel_order.cancel_order.withdraw(
+  !ob.hydra_order_book.withdraw(
     mock_dex_order_book_token,
-    Void,
-    Script(mock_hydra_place_order),
+    CancelOrder,
+    Script(mock_hydra_order_book),
     tx,
   )
 }

@@ -22,6 +22,14 @@ pub type TreeOrProofs {
   Proofs { proofs: List<MPFProof> }
 }
 
+pub type TokenMap =
+  Pairs<ByteArray, (PolicyId, AssetName)>
+
+pub type TreeOrProofsWithTokenMap {
+  proof: TreeOrProofs,
+  token_map: TokenMap,
+}
+
 // Mint Redeemer
 
 pub type MintPolarity {
@@ -30,9 +38,9 @@ pub type MintPolarity {
 }
 
 pub type UserAccount {
-  UserSpotAccount { account: Account }
-  UserFundingAccount { account: Account }
-  UserMobileAccount { account: Account }
+  UserTradeAccount { account: Account, trading_logic: ScriptHash }
+  UserFundingAccount { account: Account, trading_logic: ScriptHash }
+  UserMobileAccount { account: Account, trading_logic: ScriptHash }
 }
 
 pub type Account {
@@ -46,15 +54,17 @@ pub type Account {
 pub type WithdrawalScriptHashes {
   app_deposit: ScriptHash,
   app_withdrawal: ScriptHash,
+  app_vault_stake_rotation: ScriptHash,
   emergency_cancel_order: ScriptHash,
 }
 
 pub type AppOracleDatum {
   operation_key: VerificationKeyHash,
   stop_key: VerificationKeyHash,
+  community_stop_keys: List<VerificationKeyHash>,
   oracle_nft: PolicyId,
   oracle_address: Address,
-  app_vault_address: Address,
+  app_vault_script_hash: ScriptHash,
   app_deposit_request_token: PolicyId,
   app_deposit_request_address: Address,
   dex_account_balance_token: PolicyId,
@@ -70,7 +80,6 @@ pub type AppOracleDatum {
 }
 
 pub type HydraInfo {
-  hydra_initial_hash: ScriptHash,
   hydra_signers: List<VerificationKeyHash>,
 }
 
@@ -78,9 +87,8 @@ pub type AppOracleRedeemer {
   DexRotateKey { new_operation_key: ByteArray, new_stop_key: ByteArray }
   StopDex
   RotateHydraInfo { new_hydra_info: HydraInfo }
+  MigrateApp
 }
-
-// all_token_indices: Pairs<Int, (PolicyId, AssetName)>,
 
 // 1 - AccountOperation
 
@@ -88,23 +96,20 @@ pub type ProcessAppDeposit {
   mpf_action: MPFProof,
 }
 
-pub type ProcessAppWithdrawal {
-  account: UserAccount,
-  amount: MValue,
-  mpf_action: MPFProof,
+pub type ProcessAppWithdrawalRedeemer {
+  ProcessAppWithdrawal {
+    account: UserAccount,
+    amount: MValue,
+    mpf_action: MPFProof,
+  }
+  CommunityStop
 }
 
-pub type ProcessHydraHeadOpen {
-  account_balance_proof: ByteArray,
-  net_deposit_proof: ByteArray,
-}
+// 2 - App Vault
 
-pub type ProcessHydraWithdrawal {
-  mpf_action: MPFProof,
-}
-
-pub type ProcessHydraCancelWithdrawal {
-  mpf_action: MPFProof,
+pub type AppVaultRedeemer {
+  AppVaultWithdraw
+  AppVaultStakeKeyRotation
 }
 
 // 3 - AppDepositRequest
@@ -136,7 +141,7 @@ pub type EmergencyWithdrawalRequestRedeemer {
 
 pub type EmergencyCancelRedeemer {
   account: UserAccount,
-  order: HydraOrderBookDatum,
+  order: MerklizedOrderDatum,
   mpf_action: MPFProof,
 }
 
@@ -159,17 +164,20 @@ pub type DexAccountBalanceDatum {
 }
 
 pub type DexAccountBalanceRedeemer {
+  // L1 actions
   AppDeposit
   AppWithdrawal
+  // Hydra actions
+  DABHydraIncrementalDecommit
+  DABHydraCommit
+  // In hydra actions
   HydraWithdrawal
   HydraCancelWithdrawal
-  DexAccountBalanceHydraCommit
-  DexAccountBalanceTransferAccountBalance
-  DexAccountBalanceSplitMerkleTree
-  DexAccountBalanceCombineMerkleTree
-  DexAccountBalanceSpamPreventionWithdraw
-  DexAccountBalanceRemoveRegistry
-  HydraIncrementalDecommit
+  DABSplitMerkleTree
+  DABCombineMerkleTree
+  // Edge cases
+  DABSpamPreventionWithdraw
+  DABRemoveRegistry
 }
 
 // 6 - DexOrderBook
@@ -191,114 +199,102 @@ pub type DexOrderBookDatum {
   dex_account_balance_address: Address,
   dex_order_book_token: PolicyId,
   dex_order_book_address: Address,
-  hydra_user_intent_token: PolicyId,
-  hydra_user_intent_address: Address,
-  hydra_account_balance_token: PolicyId,
-  hydra_account_balance_address: Address,
-  hydra_order_book_token: PolicyId,
-  hydra_order_book_address: Address,
-  withdrawal_script_hashes: DexOrderBookWithdrawalScripts,
+  hydra_user_intent_script_hash: ScriptHash,
+  hydra_account_script_hash: ScriptHash,
+  hydra_order_book_script_hash: ScriptHash,
+  hydra_token_policy_id: PolicyId,
 }
 
-pub type DexOrderBookWithdrawalScripts {
-  hydra_head_open: ScriptHash,
-  hydra_head_close: ScriptHash,
-  hydra_withdrawal: ScriptHash,
-  hydra_cancel_withdrawal: ScriptHash,
-  hydra_internal_transfer: ScriptHash,
-  hydra_combine_balance: ScriptHash,
-  combine_order_merkle: ScriptHash,
-  split_order_merkle: ScriptHash,
-  hydra_place_order: ScriptHash,
-  hydra_fill_order: ScriptHash,
-  hydra_cancel_order: ScriptHash,
-  hydra_release_extra_value: ScriptHash,
+pub type MerklizedOrderDatum {
+  datum: Order,
+  value: MValue,
 }
 
 // 7 - HydraUserIntent
 
 pub type HydraUserIntentRedeemer {
-  MintPlaceOrderIntent { order: HydraOrderBookDatum }
-  HydraUserPlaceOrder
-  MintCancelOrderIntent { account: UserAccount, order_id: ByteArray }
-  HydraUserCancelOrder
-  MintWithdrawalIntent { account: UserAccount, amount: MValue }
-  HydraUserWithdrawal
-  MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }
-  HydraUserCancelWithdrawal
-  MintTransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
-  HydraUserTransfer
+  MintTradeIntent { account: UserAccount, intent: Data }
+  MintMasterIntent { account: UserAccount, intent: Data }
   BurnIntent
 }
 
 pub type HydraUserIntentDatum {
-  // - Same as `HydraOrderBook`'s `LimitOrder` with an extra field of `order_id`
-  PlaceOrderIntent {
-    order_id: ByteArray,
-    long_token: (AssetName, PolicyId),
-    short_token: (AssetName, PolicyId),
-    is_long: Bool,
-    list_price_times_1bil: Int,
-    order_size: Int,
-    fee_amount_bp: Int,
-    extra_value: Int,
-    account: UserAccount,
+  TradeIntent { account: UserAccount, intent: Data }
+  MasterIntent { account: UserAccount, intent: Data }
+}
+
+// 8 - HydraAccount
+
+pub type HydraAccountIntent {
+  WithdrawalIntent { amount_l1: MValue, withdrawal_fee_l1: MValue }
+  CancelWithdrawalIntent { amount_l1: MValue }
+  TransferIntent { to: UserAccount, amount_l2: MValue }
+}
+
+pub type HydraAccountRedeemer {
+  HydraAccountTrade { trade_redeemer: Data }
+  HydraAccountOperate
+  HydraAccountSpamPreventionWithdraw
+}
+
+pub type HydraAccountOperation {
+  ProcessWithdrawal { mpf_action: MPFProof }
+  ProcessCancelWithdrawal { mpf_action: MPFProof }
+  ProcessSameAccountTransferal { account: UserAccount }
+  ProcessTransferal
+  ProcessCombineUtxosAtClose {
+    tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
-  CancelOrderIntent { account: UserAccount, order_id: ByteArray }
-  WithdrawalIntent { account: UserAccount, amount: MValue }
-  CancelWithdrawalIntent { account: UserAccount, amount: MValue }
-  TransferIntent { from: UserAccount, to: UserAccount, amount: MValue }
-}
-
-// 8 - HydraAccountBalance
-
-pub type HydraAccountBalanceDatum {
-  account: UserAccount,
-  balance: MValue,
-}
-
-pub type HydraAccountBalanceRedeemer {
-  UpdateBalanceWithPlaceOrder
-  UpdataBalanceWithFillOrder
-  UpdataBalanceWithCancelOrder
-  UpdataBalanceWithReleaseExtraValue
-  UpdateBalanceWithWithdrawal
-  UpdateBalanceWithCancelWithdrawal
-  UpdateBalanceWithTransfer
-  HydraCombineUtxosAtClose
-  // HydraAccountBalanceSpamPreventionWithdraw
-  HydraAccountBalanceRemoveEmptyBalance
-  HydraCombineUtxosAtOpen
+  ProcessSplitUtxosAtOpen {
+    tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
+  }
 }
 
 // 9 - HydraOrderBook
 
-pub type HydraOrderBookRedeemer {
-  PlaceOrder
-  CancelOrder
-  FillOrder
-  ReleaseExtraValue
-  CombineOrderMerkle
-  SplitOrderMerkle
+pub type HydraOrderBookIntent {
+  PlaceOrderIntent { order: Order, authorized_account_value_l2: MValue }
+  ModifyOrderIntent { new_order: Order, authorized_account_value_l2: MValue }
 }
 
-pub type HydraOrderBookDatum {
+pub type HydraOrderBookRedeemer {
+  PlaceOrder { account: UserAccount }
+  CancelOrder
+  FillOrder { filler_order_id: ByteArray }
+  ModifyOrder { account: UserAccount }
+  CombineOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
+  SplitOrderMerkle { tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap }
+}
+
+pub type Order {
   order_id: ByteArray,
-  long_token: (PolicyId, AssetName),
-  short_token: (PolicyId, AssetName),
-  is_long: Bool,
-  list_price_times_1bil: Int,
-  order_size: Int,
+  base_token: (PolicyId, AssetName),
+  quote_token: (PolicyId, AssetName),
+  is_buy: Bool,
+  list_price_times_1tri: Int,
+  // if is_buy: `size` in quote_token, else `size` in base_token
+  size: Int,
   fee_amount_bp: Int,
-  extra_value: Int,
   account: UserAccount,
+  order_type: OrderType,
+}
+
+pub type OrderType {
+  LimitOrder
+  MarketOrder
 }
 
 pub type MValue =
   Pairs<PolicyId, Pairs<AssetName, Int>>
 
-pub type FillOrderRedeemer {
-  filler_order_id: ByteArray,
+// 10 - HydraTokens
+pub type HydraTokensRedeemer {
+  MintAtHydraOpen
+  BurnAtHydraClose
+  MintAtCancelWithdrawal
+  BurnAtWithdrawal
+  MintAtInitOrderBook
+  BurnAtCombineOrderBook
 }
 
 // From Hydra scripts

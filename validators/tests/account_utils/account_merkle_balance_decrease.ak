@@ -1,11 +1,12 @@
+use aiken/cbor
 use aiken/merkle_patricia_forestry.{Branch}
-use cardano/assets.{add, from_asset}
-use hydra_dex/account_utils.{account_merkle_balance_decrease}
-use hydra_dex/types.{MPFDelete, MPFUpdate, UserSpotAccount}
-use tests/utils.{mock_account}
+use cardano/assets.{Value, add, from_asset}
+use hydra_dex/account_utils.{account_merkle_balance_decrease, deser_value}
+use hydra_dex/types.{MPFDelete, MPFUpdate}
+use tests/utils.{mock_account, mock_user_account}
 
 test au_hmbd_delete() {
-  let account = UserSpotAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
   let old_root =
     #"c30c594b7188370e1995e5cf31d319f386d386d967f2987aa56a0c542f2ef076"
   let new_root =
@@ -31,7 +32,7 @@ test au_hmbd_delete() {
 }
 
 test au_hmbd_update() {
-  let account = UserSpotAccount { account: mock_account }
+  let account = mock_user_account(mock_account)
   let old_root =
     #"c30c594b7188370e1995e5cf31d319f386d386d967f2987aa56a0c542f2ef076"
   let new_root =
@@ -51,4 +52,20 @@ test au_hmbd_update() {
     }
 
   account_merkle_balance_decrease(old_root, new_root, account, value, proof)
+}
+
+test au_deser_value() {
+  let test_value: Value =
+    deser_value(
+      #"a640a1401a0bebc200581c3363b99384d6ee4c4b009068af396c8fdf92dafd111e58a857af0429a1454e494748541a05f5e100581c378f9732c755ed6f4fc8d406f1461d0cca95d7d2e69416784684df39a144534e454b1a05f5e100581c82e46eb16633bf8bfa820c83ffeb63192c6e21757d2bf91290b2f41da1434941471a05f5e100581ca2818ba06a88bb6c08d10f4f9b897c09768f28d274093628ad7086fca145484f534b591a05f5e100581cc69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913a1445553444d1a0bebc200",
+    )
+  cbor.serialise(test_value) == #"a640a1401a0bebc200581c3363b99384d6ee4c4b009068af396c8fdf92dafd111e58a857af0429a1454e494748541a05f5e100581c378f9732c755ed6f4fc8d406f1461d0cca95d7d2e69416784684df39a144534e454b1a05f5e100581c82e46eb16633bf8bfa820c83ffeb63192c6e21757d2bf91290b2f41da1434941471a05f5e100581ca2818ba06a88bb6c08d10f4f9b897c09768f28d274093628ad7086fca145484f534b591a05f5e100581cc69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913a1445553444d1a0bebc200"
+}
+
+test au_deser_value_fail() fail {
+  let test_value: Value =
+    deser_value(
+      #"a640a1401a0bebc200581cc69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913a1445553444d1a0bebc200581c3363b99384d6ee4c4b009068af396c8fdf92dafd111e58a857af0429a1454e494748541a05f5e100581c378f9732c755ed6f4fc8d406f1461d0cca95d7d2e69416784684df39a144534e454b1a05f5e100581c82e46eb16633bf8bfa820c83ffeb63192c6e21757d2bf91290b2f41da1434941471a05f5e100581ca2818ba06a88bb6c08d10f4f9b897c09768f28d274093628ad7086fca145484f534b591a05f5e100",
+    )
+  cbor.serialise(test_value) == #"a640a1401a0bebc200581c3363b99384d6ee4c4b009068af396c8fdf92dafd111e58a857af0429a1454e494748541a05f5e100581c378f9732c755ed6f4fc8d406f1461d0cca95d7d2e69416784684df39a144534e454b1a05f5e100581c82e46eb16633bf8bfa820c83ffeb63192c6e21757d2bf91290b2f41da1434941471a05f5e100581ca2818ba06a88bb6c08d10f4f9b897c09768f28d274093628ad7086fca145484f534b591a05f5e100581cc69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913a1445553444d1a0bebc200"
 }

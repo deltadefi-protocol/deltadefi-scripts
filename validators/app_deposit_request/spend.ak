@@ -2,15 +2,18 @@ use aiken/collection/dict.{is_empty}
 use aiken/interval.{is_entirely_after}
 use cardano/assets.{PolicyId, tokens}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{input_inline_datum, inputs_at_with_policy, key_signed}
-use hydra_dex/account_utils.{withdrawal_auth_by_account}
+use cocktail.{
+  input_inline_datum, inputs_at_with_policy, key_signed,
+  withdrawal_script_validated,
+}
+use hydra_dex/account_utils.{master_auth_by_account}
 use hydra_dex/types.{
   AppDepositRequestDatum, AppDepositRequestEmergencyWithdrawal,
   AppDepositRequestRedeemer, AppDepositRequestSpamPreventionWithdraw,
   AppDepositRequestTransferAccountBalance, AppOracleDatum,
   EmergencyWithdrawalRequestDatum,
 }
-use hydra_dex/utils.{get_app_oracle_datum, withdrawal_script_validated}
+use hydra_dex/utils.{get_app_oracle_datum}
 
 validator app_deposit_request(oracle_nft: PolicyId) {
   spend(
@@ -63,7 +66,7 @@ validator app_deposit_request(oracle_nft: PolicyId) {
             and {
               is_emergency_token_burnt?,
               is_account_correct?,
-              withdrawal_auth_by_account(
+              master_auth_by_account(
                 withdraw_account,
                 withdrawals,
                 extra_signatories,

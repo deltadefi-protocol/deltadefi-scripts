@@ -153,52 +153,31 @@ fn mock_tx(test_case: TestCase) -> Transaction {
 
 fn base_case() {
   let order_1 =
-    mock_order(
-      "order_1",
-      False,
-      250_000_000,
-      1_000_000_000,
-      10,
-      0,
-      mock_account,
-    )
+    mock_order("order_1", True, 8_000_000, 997_300_000, 10, 0, mock_account)
   let order_2 =
-    mock_order(
-      "order_2",
-      True,
-      250_000_000,
-      1_000_000_000,
-      10,
-      0,
-      mock_account_2,
-    )
+    mock_order("order_2", False, 5_000_000, 954_900_000, 10, 0, mock_account)
 
   let input_balances =
     [
       mock_hydra_balance(
         mock_account,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000)),
+        from_lovelace(4_948_810_000) |> merge(mock_usd(4_969_360_884)),
       ),
       mock_hydra_balance(
-        mock_account_2,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000)),
+        mock_fee_account,
+        from_lovelace(5_000_190_000) |> merge(mock_usd(5_000_182_316)),
       ),
-      mock_hydra_balance(mock_fee_account, zero),
     ]
 
   let output_balances =
     [
       mock_hydra_balance(
         mock_account,
-        from_lovelace(3995000000) |> merge(mock_usd(999500000000 + 249_750_000)),
-      ),
-      mock_hydra_balance(
-        mock_account_2,
-        from_lovelace(3995000000 + 249_750_000) |> merge(mock_usd(999500000000)),
+        from_lovelace(4_956_802_000) |> merge(mock_usd(4_977_331_645)),
       ),
       mock_hydra_balance(
         mock_fee_account,
-        mock_usd(250_000) |> merge(from_lovelace(250_000)),
+        from_lovelace(5_000_198_000) |> merge(mock_usd(5_000_189_955)),
       ),
     ]
 
@@ -207,15 +186,23 @@ fn base_case() {
 
 test s9_wfo_1() {
   let (order_1, order_2, input_balances, output_balances) = base_case()
+  let order_3 =
+    mock_order("order_3", False, 1_000_000, 951_100_000, 10, 0, mock_account)
+
+  let order_4 =
+    mock_order("order_4", False, 4_000_000, 957_400_000, 10, 0, mock_account)
+
+  let updated_order_4 =
+    mock_order("order_4", False, 2_000_000, 957_400_000, 10, 0, mock_account)
 
   let tx =
     mock_tx(
       TestCase {
-        input_orders: [order_1, order_2],
-        output_order: None,
+        input_orders: [order_1, order_2, order_3, order_4],
+        output_order: Some(updated_order_4),
         input_balances,
         output_balances,
-        burnt_order_ids: ["order_1", "order_2"],
+        burnt_order_ids: ["order_1", "order_2", "order_3"],
         is_operation_key_signed: True,
       },
     )
@@ -274,8 +261,8 @@ test s9_wfo_1_fail_without_all_complete_orders_burnt() {
 test s9_wfo_1_fail_without_balanced_value_1() {
   let (order_1, order_2, input_balances, _) = base_case()
 
-  let (_, o1_payoff, _, o1_fee) = get_order_settlement_info(order_1, None)
-  let (_, o2_payoff, _, o2_fee) = get_order_settlement_info(order_2, None)
+  let (_, o1_payoff, _, o1_fee, _, _) = get_order_settlement_info(order_1, None)
+  let (_, o2_payoff, _, o2_fee, _, _) = get_order_settlement_info(order_2, None)
 
   let output_balances =
     [
@@ -307,8 +294,8 @@ test s9_wfo_1_fail_without_balanced_value_1() {
 test s9_wfo_1_fail_without_balanced_value_2() {
   let (order_1, order_2, input_balances, _) = base_case()
 
-  let (_, o1_payoff, _, o1_fee) = get_order_settlement_info(order_1, None)
-  let (_, o2_payoff, _, o2_fee) = get_order_settlement_info(order_2, None)
+  let (_, o1_payoff, _, o1_fee, _, _) = get_order_settlement_info(order_1, None)
+  let (_, o2_payoff, _, o2_fee, _, _) = get_order_settlement_info(order_2, None)
 
   let output_balances =
     [
@@ -682,6 +669,93 @@ test s9_wfo_4_fill_non_exact_market_buy_order() {
         input_balances,
         output_balances,
         burnt_order_ids: ["order_2"],
+        is_operation_key_signed: True,
+      },
+    )
+  fill_order.fill_order.withdraw(
+    mock_dex_order_book_token,
+    FillOrderRedeemer { filler_order_id: "order_1" },
+    Script(mock_hydra_fill_order),
+    tx,
+  )
+}
+
+test s9_wfo_5_rounding_negative_payoff_settle_to_fee() {
+  // let a = 606300000
+  // let b = 4340147900
+  // let c = a * b / 1_000_000_000
+  // c == 1
+  let order_1 =
+    mock_order(
+      "order_1",
+      True,
+      4_340_147_900,
+      606_300_000,
+      10,
+      0,
+      mock_account_2,
+    )
+  let order_2 =
+    mock_order(
+      "order_2",
+      False,
+      9_288_391_000,
+      606_300_000,
+      10,
+      0,
+      mock_account,
+    )
+
+  let input_balances =
+    [
+      mock_hydra_balance(
+        mock_account,
+        from_lovelace(26_125_960_537) |> merge(mock_usd(20_270_636_513)),
+      ),
+      mock_hydra_balance(
+        mock_account_2,
+        from_lovelace(21_186_800) |> merge(mock_usd(16_164_508_829)),
+      ),
+      mock_hydra_balance(
+        mock_fee_account,
+        from_lovelace(170_054_784_049) |> merge(mock_usd(864_422_514_364)),
+      ),
+    ]
+
+  let output_balances =
+    [
+      mock_hydra_balance(
+        mock_account,
+        from_lovelace(26_125_960_537) |> merge(mock_usd(22_899_436_754)),
+      ),
+      mock_hydra_balance(
+        mock_account_2,
+        from_lovelace(4_356_994_553) |> merge(mock_usd(16_164_508_829)),
+      ),
+      mock_hydra_balance(
+        mock_fee_account,
+        from_lovelace(170_059_124_196) |> merge(mock_usd(864_425_145_794)),
+      ),
+    ]
+  let order_3 =
+    mock_order(
+      "order_2",
+      False,
+      4_948_243_100,
+      606_300_000,
+      10,
+      0,
+      mock_account,
+    )
+
+  let tx =
+    mock_tx(
+      TestCase {
+        input_orders: [order_1, order_2],
+        output_order: Some(order_3),
+        input_balances,
+        output_balances,
+        burnt_order_ids: ["order_1"],
         is_operation_key_signed: True,
       },
     )

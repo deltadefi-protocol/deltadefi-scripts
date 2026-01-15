@@ -6,57 +6,18 @@
 
 ## User Action
 
-1. User Intent - Redeemer `MintPlaceOrderIntent { order: HydraOrderBookDatum }`
+1. User Intent - Redeemer `MintTradeIntent { account: UserAccount, intent: Data }`
 
-   - Exactly 1 token minted
-   - Token name equals empty byte array
-   - Auth by account (either sign by any `trade_key` or `withdrawal_key`, or pass any script validation of `trade_key` or `withdrawal_key`)
-   - Output to `HydraUserIntent` address with correct datum
+   - Exactly 1 token with empty token name minted
+   - Auth by account (either sign by any `trade_key` or `master_key`, or pass any script validation of `trade_key` or `master_key`)
+   - Only 1 output to `HydraUserIntent` address with datum `TradeDatum { account, intent }`
 
-2. Process Orders
+2. User Intent - Redeemer `MintMasterIntent { account: UserAccount, intent: Data }`
 
-   - `place_order` withdrawal script is run
+   - Exactly 1 token with empty token name minted
+   - Auth by account (sign by `master_key`, or pass script validation of `master_key`)
+   - Only 1 output to `HydraUserIntent` address with datum `MasterDatum { account, intent }`
 
-3. User Intent - Redeemer `MintCancelOrderIntent { account: UserAcount, order_id: ByteArray }`
+3. Process Intent / Burn
 
-   - Exactly 1 token minted
-   - Token name equals empty byte array
-   - Auth by account (either sign by any `trade_key` or `withdrawal_key`, or pass any script validation of `trade_key` or `withdrawal_key`)
-   - Output to `HydraUserIntent` address with correct datum
-
-4. Process Cancel Orders
-
-   - `cancel_order` withdrawal script is run
-
-5. User Intent - Redeemer `MintWithdrawalIntent { account: UserAccount, amount: MValue }`
-
-   - Exactly 1 token minted
-   - Token name equals empty byte array
-   - Auth by account (sign by `withdrawal_key`, or pass script validation of `withdrawal_key`)
-   - Output to `HydraUserIntent` address with correct `WithdrawalIntent` datum
-
-6. Process Withdrawal
-
-   - `hydra_withdrawal` withdrawal script is run
-
-7. User Intent - Redeemer `MintCancelWithdrawalIntent { account: UserAccount, amount: MValue }`
-
-   - Exactly 1 token minted
-   - Token name equals empty byte array
-   - Auth by account (sign by `withdrawal_key`, or pass script validation of `withdrawal_key`)
-   - Output to `HydraUserIntent` address with correct `WithdrawalIntent` datum
-
-8. Process Withdrawal
-
-   - `hydra_cancel_withdrawal` withdrawal script is run
-
-9. User Intent - Redeemer `MintCancelTransferIntent`
-
-   - Exactly 1 token minted
-   - Token name equals empty byte array
-   - Auth by account (sign by `withdrawal_key`, or pass script validation of `withdrawal_key`)
-   - Output to `HydraUserIntent` address with correct `TransferIntent` datum
-
-10. Process Internal Transfer
-
-    - `hydra_internal_transfer` withdrawal script is run
+   - Operation key is signed

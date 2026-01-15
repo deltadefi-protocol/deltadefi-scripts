@@ -1,18 +1,17 @@
 use aiken/collection/dict
 use aiken/interval.{is_entirely_after}
 use cardano/address.{Credential}
-use cardano/assets.{PolicyId, merge}
+use cardano/assets.{PolicyId, from_asset_list, merge}
 use cardano/certificate.{Certificate}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  get_all_value_from, get_all_value_to, inputs_at_with_policy, key_signed,
-  outputs_at_with_policy,
+  get_all_value_from_script, get_all_value_to_script, inputs_at_with_policy,
+  key_signed, outputs_at_with_policy,
 }
 use cocktail/vodka_inputs.{input_inline_datum}
 use hydra_dex/account_utils.{
-  dex_order_book_cancel_order, get_master_key, withdrawal_auth_by_account,
+  dex_order_book_cancel_order, get_master_key, master_auth_by_account,
 }
-use hydra_dex/order_utils.{get_order_value}
 use hydra_dex/types.{
   AppOracleDatum, EmergencyCancelRedeemer, EmergencyCancelRequestDatum,
 }
@@ -37,7 +36,7 @@ validator emergency_order_cancel(oracle_nft: PolicyId) {
 
     let AppOracleDatum {
       operation_key,
-      app_vault_address,
+      app_vault_script_hash,
       dex_order_book_token,
       dex_order_book_address,
       emergency_cancel_order_request_token,
@@ -47,9 +46,10 @@ validator emergency_order_cancel(oracle_nft: PolicyId) {
 
     //  - Obtain the input and output value to `AppVault`, check the value deducted equal to withdrawal amount
     //  - Check the withdrawal amounut is correct sent to an address equal
-    let value_from_vault = get_all_value_from(inputs, app_vault_address)
-    let value_to_vault = get_all_value_to(outputs, app_vault_address)
-    let value_in_order = get_order_value(redeemer.order)
+    let value_from_vault =
+      get_all_value_from_script(inputs, app_vault_script_hash)
+    let value_to_vault = get_all_value_to_script(outputs, app_vault_script_hash)
+    let value_in_order = from_asset_list(redeemer.order.value)
     let is_value_unlocked_from_vault_correct =
       value_to_vault
         |> merge(value_in_order)
@@ -117,11 +117,11 @@ validator emergency_order_cancel(oracle_nft: PolicyId) {
 
         // Check that the redeemer matches the withdrawal request        
         let is_redeemer_matches_withdrawal_request =
-          redeemer.account == cancel_account && redeemer.order.order_id == cancel_order_id
+          redeemer.account == cancel_account && redeemer.order.datum.order_id == cancel_order_id
         and {
           is_emergency_token_burnt,
           is_redeemer_matches_withdrawal_request,
-          withdrawal_auth_by_account(
+          master_auth_by_account(
             redeemer.account,
             withdrawals,
             extra_signatories,

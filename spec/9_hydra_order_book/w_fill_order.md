@@ -1,22 +1,61 @@
 # Specification - HydraOrderBook - FillOrder
 
-## Parameter
+## Redeemer
 
-- `dex_oracle_nft`: The policy id of the token attached with `DexOrderBook`
+- FillOrder { filler_order_id: ByteArray }
 
-## User Action
+## Logics
 
-1. Process fill order - Redeemer - `FillOrderRedeemer { filler_account: UserAccount }`
+- Ref input with `dex_oracle_nft`
+- Categorize inputs into
+  - `OI` - Order Inputs
+  - Other inputs
+- Categorize outputs into
+  - `AO` - Account Outputs
+  - `OO` - Order Output
+  - Other outputs
 
-   - Burn all fully filled `HydraOrderBook` tokens
-   - Accumulate proceeds from all filled orders, to get a payoff map, including that to fee account
-     - Obtain a map of to owe value by looking at order input (payoff - fee)
-     - extra value add to payoff to order placer
-   - Process current filler order, adding to payoff
-     - use filled order order va
-     - There is no negative payoff
-   - Accumulate proceeds to order placers, update all account balance accordingly
-     - Obtain a map of original order value
-     - Update the map by duducting the to owe value by looking at order output
-   - The remaining order values go into current filler_account
-   - Signed by `operating_key`
+### Backend Logics
+
+- Loop through `OI`
+  - Return `total_order_value (TOV)`, `account_payoff (AP)`, `total_filled_order_value (TFOV)`, `total_order_payoff_value (TOPV)`, `filler_order_input_opt`
+  - Skip the filler order for later process
+  - Get `order_value (OV)`, `min_order_value (MOV)`, `min_payoff_value (MPV)`
+    - Calculate the `excess_order_value (EOV)` (`OV` - `MOV`)
+  - If the order is partially filled, with `filled_qty` = `start_qty` - `end_qty`, calculate:
+    - If any order information other than `size` changed -> panic
+    - `Spent OV (SOV)` = `OV` - output `order_value`
+    - `Filled OV (FOV)` = `MOV` - output `order_size`
+    - `Return OV (ROV)` = `SOV` - `FOV`
+    - `Final Order Payoff (FOP)` = `MPV` - new order `MPV`
+  - Process the maker order
+    - Calculate `fee` (`FOP` \* 10bp round down)
+    - To maker `Final Payoff (FP)` = `FOP` + `ROV` - `fee`
+    - To fee collector `fee`
+- Handle filler order
+  - Calculate `fee` (`TFOV` \* 10bp round down)
+  - Get `Maker OV`
+  - Handle unfilled order value
+    - Get `SOV` for filler order
+    - `TOV` = `TOV` + `SOV`
+    - `Min Payoff` = `MPV` - new order `MPV`
+  - `order remaining value (ORV)` = `TOV` - `TPV`
+  - Process the taker order
+    - Pay the `ORV` to taker
+    - If there is negative `ORV` → deduct from fee instead
+    - To taker `Final Payoff (Taker FP)` = `tfov` - `fee`
+    - To fee collector `fee`
+    - If limit order - Check if taker min payoff is fulfilled `TFOV` > `Min Payoff` (apply order length order)
+
+### Contract Guards
+
+- There is no other inputs
+- There is no other outputs
+- Loop through `AO`
+  - Each has at least received the payoff value calculated above
+- There is no negative payoff
+- `OO` has at least value
+  - `is_buy` == True -> at least `size` of quote token
+  - `is_buy` == False -> at least `size` of base token
+- Value parity: `OI` == `AO` + `OO` (to clear: is the check needed?)
+- Signed by `operating_key`

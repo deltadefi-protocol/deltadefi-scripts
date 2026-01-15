@@ -4,8 +4,8 @@ use emergency_request/withdrawal_spend
 use hydra_dex/types.{
   EmergencyRequestExpiredWithdraw, EmergencyRequestProcessEmergencyAction,
   EmergencyRequestSpamPreventionWithdraw, EmergencyWithdrawalRequestDatum,
-  UserSpotAccount,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
   complete, invalid_before, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx,
   ref_tx_in, ref_tx_in_inline_datum, required_signer_hash, tx_in,
@@ -15,8 +15,8 @@ use tests/utils.{
   mock_account, mock_account_master_key_hash,
   mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft, to_mvalue,
-}
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, mock_user_account,
+} as test_utils
 
 type TestCase {
   is_user_authorized: Bool,
@@ -45,7 +45,7 @@ fn mock_emergency_withdrawal_tx(
 
   let datum =
     EmergencyWithdrawalRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       amount: from_lovelace(2_000_000)
         |> to_mvalue(),
       timestamp: 100,
@@ -256,7 +256,7 @@ fn mock_expire_tx(
 
   let datum =
     EmergencyWithdrawalRequestDatum {
-      account: UserSpotAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       amount: from_lovelace(2_000_000)
         |> to_mvalue(),
       timestamp: 100,

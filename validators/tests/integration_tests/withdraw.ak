@@ -1,26 +1,27 @@
-use account_operation/app_withdrawal
 use aiken/merkle_patricia_forestry.{Branch}
+use app_vault/app_withdrawal
 use app_vault/spend as app_vault_spend
 use cardano/address.{Address, Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_dex/types.{
-  DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum, MPFUpdate,
-  ProcessAppWithdrawal, UserSpotAccount,
+  AppVaultWithdraw, DexAccountBalanceDatum, EmergencyWithdrawalRequestDatum,
+  MPFUpdate, ProcessAppWithdrawal, ProcessAppWithdrawalRedeemer,
 }
+use hydra_dex/utils.{to_mvalue}
 use mocktail.{
-  complete, invalid_before, mint, mock_tx_hash, mock_utxo_ref, mocktail_tx,
-  ref_tx_in, ref_tx_in_inline_datum, required_signer_hash, script_withdrawal,
-  tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
+  complete, invalid_before, mint, mock_tx_hash, mock_utxo_ref,
+  mock_verfication_key_credential, mocktail_tx, ref_tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
+  tx_in_inline_datum, tx_out, tx_out_inline_datum,
 }
-use mocktail/virgin_address
 use tests/utils.{
   mock_account, mock_account_master_key_hash, mock_app_vault_address,
   mock_app_withdrawal, mock_dex_account_balance_address,
   mock_dex_account_balance_token, mock_emergency_withdrawal_request_address,
   mock_emergency_withdrawal_request_token, mock_input_oracle_datum,
-  mock_operation_key, mock_oracle_address, mock_oracle_nft, to_mvalue,
-}
+  mock_operation_key, mock_oracle_address, mock_oracle_nft, mock_user_account,
+} as test_utils
 
 type AppWithdrawalTestCase {
   is_operation_key_signed: Bool,
@@ -38,7 +39,7 @@ type AppWithdrawalTestCase {
 
 fn mock_process_withdrawal_tx(
   test_case: AppWithdrawalTestCase,
-) -> (Transaction, ProcessAppWithdrawal) {
+) -> (Transaction, ProcessAppWithdrawalRedeemer) {
   let AppWithdrawalTestCase {
     is_operation_key_signed,
     is_single_dex_account_balance_input,
@@ -135,9 +136,7 @@ fn mock_process_withdrawal_tx(
       |> tx_out(
           True,
           Address {
-            payment_credential: virgin_address.mock_verfication_key_credential(
-              999,
-            ),
+            payment_credential: mock_verfication_key_credential(999),
             stake_credential: None,
           },
           from_lovelace(1_000_000),
@@ -165,7 +164,7 @@ fn mock_process_withdrawal_tx(
       |> tx_in_inline_datum(
           is_emergency_withdraw,
           EmergencyWithdrawalRequestDatum {
-            account: UserSpotAccount { account: mock_account },
+            account: mock_user_account(mock_account),
             amount: withdrawal_amount |> to_mvalue(),
             timestamp: 100,
           },
@@ -216,7 +215,7 @@ fn mock_process_withdrawal_tx(
   (
     mock_tx,
     ProcessAppWithdrawal {
-      account: UserSpotAccount { account: mock_account },
+      account: mock_user_account(mock_account),
       amount: withdrawal_amount |> to_mvalue(),
       mpf_action: proof,
     },
@@ -237,7 +236,7 @@ fn check_all_scripts(test_case: AppWithdrawalTestCase) {
     app_vault_spend.app_vault.spend(
       mock_oracle_nft,
       None,
-      Void,
+      AppVaultWithdraw,
       mock_utxo_ref(0, 0),
       tx,
     )
