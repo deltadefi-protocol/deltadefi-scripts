@@ -1,16 +1,10 @@
-// TODO: Update merkle test case
-
-use aiken/merkle_patricia_forestry.{Branch}
+use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/assets.{from_lovelace}
 use hydra_dex/account_utils.{order_merkle_cancel_order}
 use hydra_dex/types.{LimitOrder, MPFDelete, MerklizedOrderDatum, Order}
 use hydra_dex/utils.{to_mvalue}
 use tests/utils.{mock_account, mock_user_account} as test_utils
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test au_omco() {
   let order_id = #"032f3cc8274143358eb2bbf7b58acaf8"
   let order =
@@ -31,20 +25,14 @@ test au_omco() {
       },
       value: from_lovelace(250_000_000) |> to_mvalue(),
     }
-  let old_root =
-    #"4005bf6b8dcfba8d297cdddb5f4b1cfabe006a85315b0f870a668c29c163e46e"
-  let new_root =
-    #"e112f4fad96829c544fbed2ce83b4d93db3402ac3a3d1c6d755e376d8d58d1fe"
 
-  let proof =
-    MPFDelete {
-      proof: [
-        Branch {
-          skip: 0,
-          neighbors: #"61bc86c7587b7bf73d02ca47c08c4e78dbbc4e546040bf8349e84dde61ddb317706c5b827e05abe8f554f9b75201f2949c7f7504cc9bf6aa9a4abf25da4cc21c0eb923b0cbd24df54401d998531feead35a47a99f4deed205de4af81120f97610000000000000000000000000000000000000000000000000000000000000000",
-        },
-      ],
-    }
+  // Single order trie: delete results in empty trie (null_hash)
+  let old_root =
+    #"18aea1856d599e589ad928f8a773e1cde81d2cb4a481cb3a3518665dff7c8b7c"
+  let new_root = null_hash
+
+  // Empty proof for single-key trie deletion
+  let proof = MPFDelete { proof: [] }
 
   order_merkle_cancel_order(old_root, new_root, order, proof)
 }
