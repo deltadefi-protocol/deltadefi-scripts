@@ -6,7 +6,7 @@ use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
 use hydra_dex/types.{
-  Account, DexAccountBalanceDatum, FullTree, ProcessSplitUtxosAtOpen, Tree,
+  DexAccountBalanceDatum, FullTree, ProcessSplitUtxosAtOpen, Tree,
   TreeBranch, TreeLeaf, TreeOrProofsWithTokenMap,
 }
 use mocktail.{
@@ -30,39 +30,36 @@ type HydraOpenTestCase {
   is_operation_key_signed: Bool,
 }
 
-type AccountWrapper {
-  wrapped_account: Account,
-}
-
+// Tree with correct UserTradeAccount keys and blake2b_256 paths
+// Nibbles are determined by first hex digit of path:
+// - mock_account_2: path 065d... -> nibble 0
+// - mock_account_3: path 6f5f... -> nibble 6
+// - mock_account: path c855... -> nibble 12
 const tree: Tree =
   TreeBranch {
     nibble: #"",
     nodes: [
       Pair(
-        4,
+        0,
         TreeLeaf {
-          path: #"4edd63a178c1f0a5cf5d3ff33c80d172a52d94d49294f7c565e2308d8183f0c3",
-          key: cbor.serialise(
-            AccountWrapper { wrapped_account: mock_account_2 },
-          ),
+          path: #"065d4f4f02a4106e922618b93141ed04d88c65e467ccfc8bc5a1b0d35dae2e8b",
+          key: cbor.serialise(mock_user_account(mock_account_2)),
           value: cbor.serialise(mock_usd(10000)),
         },
       ),
       Pair(
-        5,
+        6,
         TreeLeaf {
-          path: #"597dd2983e37fd66ba32d94184c5d25a891f566eedb18b5c9f0ec45cb770e59e",
-          key: cbor.serialise(
-            AccountWrapper { wrapped_account: mock_account_3 },
-          ),
+          path: #"6f5f7eebd95e100030c69024f8a78f914308ff94da98a9cb6160e7854985cc41",
+          key: cbor.serialise(mock_user_account(mock_account_3)),
           value: cbor.serialise(from_lovelace(100)),
         },
       ),
       Pair(
-        15,
+        12,
         TreeLeaf {
-          path: #"f742c7d87d703d499d4d98c2f49a9a59356bce5ac3b9b730a3b26fd6bd7a98b9",
-          key: cbor.serialise(AccountWrapper { wrapped_account: mock_account }),
+          path: #"c85512a4db97785c0c92fd3555650ca817bff9c5f9411253a83f1cb9d40f3610",
+          key: cbor.serialise(mock_user_account(mock_account)),
           value: cbor.serialise(from_lovelace(0)),
         },
       ),
@@ -74,30 +71,26 @@ const invalid_tree: Tree =
     nibble: #"",
     nodes: [
       Pair(
-        4,
+        0,
         TreeLeaf {
-          path: #"4edd63a178c1f0a5cf5d3ff33c80d172a52d94d49294f7c565e2308d8183f0c3",
-          key: cbor.serialise(
-            AccountWrapper { wrapped_account: mock_account_2 },
-          ),
+          path: #"065d4f4f02a4106e922618b93141ed04d88c65e467ccfc8bc5a1b0d35dae2e8b",
+          key: cbor.serialise(mock_user_account(mock_account_2)),
           value: cbor.serialise(mock_usd(10000)),
         },
       ),
       Pair(
-        5,
+        6,
         TreeLeaf {
-          path: #"597dd2983e37fd66ba32d94184c5d25a891f566eedb18b5c9f0ec45cb770e59e",
-          key: cbor.serialise(
-            AccountWrapper { wrapped_account: mock_account_3 },
-          ),
+          path: #"6f5f7eebd95e100030c69024f8a78f914308ff94da98a9cb6160e7854985cc41",
+          key: cbor.serialise(mock_user_account(mock_account_3)),
           value: cbor.serialise(from_lovelace(101)),
         },
       ),
       Pair(
-        15,
+        12,
         TreeLeaf {
-          path: #"f742c7d87d703d499d4d98c2f49a9a59356bce5ac3b9b730a3b26fd6bd7a98b9",
-          key: cbor.serialise(AccountWrapper { wrapped_account: mock_account }),
+          path: #"c85512a4db97785c0c92fd3555650ca817bff9c5f9411253a83f1cb9d40f3610",
+          key: cbor.serialise(mock_user_account(mock_account)),
           value: cbor.serialise(from_lovelace(0)),
         },
       ),

@@ -3,22 +3,24 @@ use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{get_master_keys, get_trade_keys}
 use hydra_dex/types.{
-  CancelWithdrawalIntent, HydraUserIntentDatum, HydraUserIntentRedeemer,
-  LimitOrder, MasterIntent, MintMasterIntent, MintTradeIntent, Order,
-  PlaceOrderIntent, TradeIntent, TransferIntent, UserAccount, WithdrawalIntent,
+  BurnIntent, CancelWithdrawalIntent, HydraUserIntentDatum,
+  HydraUserIntentRedeemer, LimitOrder, MasterIntent, MintMasterIntent,
+  MintTradeIntent, Order, PlaceOrderIntent, TradeIntent, TransferIntent,
+  UserAccount, WithdrawalIntent,
 }
 use hydra_dex/utils.{to_mvalue}
 use hydra_user_intent as hui
 use mocktail.{
-  MocktailTx, complete, mint, mock_tx_hash, mocktail_tx, ref_tx_in,
-  ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_out,
-  tx_out_inline_datum,
+  MocktailTx, add_extra_signatory, complete, mint, mock_tx_hash, mocktail_tx,
+  ref_tx_in, ref_tx_in_inline_datum, required_signer_hash, script_withdrawal,
+  tx_in, tx_out, tx_out_inline_datum,
 }
+use mocktail/virgin_output_reference.{mock_utxo_ref}
 use tests/utils.{
   mock_account, mock_account_2, mock_account_id, mock_dex_order_book_datum,
   mock_dex_order_book_token, mock_hydra_order_book_address,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token, mock_usd,
-  mock_user_account,
+  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
+  mock_operation_key, mock_usd, mock_user_account,
 } as test_utils
 
 const mock_order_id = "mock_order_id"
@@ -966,4 +968,259 @@ test fail_transfer_intent_with_no_key_signed() {
     mock_hydra_user_intent_token,
     tx,
   )
+}
+
+type BurnMultipleIntentsTestCase {
+  is_dex_order_book_inputed: Bool,
+  is_token_burnt: Bool,
+  is_authed_by_operation_key: Bool,
+  is_no_output: Bool,
+}
+
+fn mock_burn_multiple_intents_tx(
+  test_case: BurnMultipleIntentsTestCase,
+) -> Transaction {
+  let BurnMultipleIntentsTestCase {
+    is_dex_order_book_inputed,
+    is_token_burnt,
+    is_authed_by_operation_key,
+    is_no_output,
+  } = test_case
+
+  mocktail_tx()
+    |> ref_tx_in(
+        is_dex_order_book_inputed,
+        mock_tx_hash(0),
+        0,
+        from_asset(mock_dex_order_book_token, "", 1),
+        mock_hydra_order_book_address,
+      )
+    |> ref_tx_in_inline_datum(
+        is_dex_order_book_inputed,
+        mock_dex_order_book_datum,
+      )
+    |> tx_in(
+        True,
+        mock_tx_hash(1),
+        0,
+        from_asset(mock_dex_order_book_token, "", 1),
+        mock_hydra_order_book_address,
+      )
+    |> tx_in(
+        True,
+        mock_tx_hash(2),
+        0,
+        from_asset(mock_dex_order_book_token, "", 1),
+        mock_hydra_order_book_address,
+      )
+    |> tx_in(
+        True,
+        mock_tx_hash(3),
+        0,
+        from_asset(mock_dex_order_book_token, "", 1),
+        mock_hydra_order_book_address,
+      )
+    |> mint(is_token_burnt, -3, mock_hydra_user_intent_token, "")
+    |> tx_out(
+        !is_no_output,
+        mock_hydra_user_intent_address,
+        from_asset(mock_hydra_user_intent_token, "", 1),
+      )
+    |> complete()
+    |> add_extra_signatory(is_authed_by_operation_key, mock_operation_key)
+}
+
+test s7_burn_multiple_intents() {
+  let redeemer = BurnIntent
+
+  let tx =
+    mock_burn_multiple_intents_tx(
+      BurnMultipleIntentsTestCase {
+        is_dex_order_book_inputed: True,
+        is_token_burnt: True,
+        is_authed_by_operation_key: True,
+        is_no_output: True,
+      },
+    )
+
+  hui.hydra_user_intent.mint(
+    mock_dex_order_book_token,
+    redeemer,
+    mock_hydra_user_intent_token,
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(1, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(2, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(3, 0),
+    tx,
+  )
+}
+
+test s7_burn_fail_multiple_intents_with_no_dex_oracle_inputed() fail {
+  let redeemer = BurnIntent
+
+  let tx =
+    mock_burn_multiple_intents_tx(
+      BurnMultipleIntentsTestCase {
+        is_dex_order_book_inputed: False,
+        is_token_burnt: True,
+        is_authed_by_operation_key: True,
+        is_no_output: True,
+      },
+    )
+
+  hui.hydra_user_intent.mint(
+    mock_dex_order_book_token,
+    redeemer,
+    mock_hydra_user_intent_token,
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(1, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(2, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(3, 0),
+    tx,
+  )
+}
+
+test s7_burn_fail_multiple_intents_with_no_token_burnt() {
+  let redeemer = BurnIntent
+
+  let tx =
+    mock_burn_multiple_intents_tx(
+      BurnMultipleIntentsTestCase {
+        is_dex_order_book_inputed: True,
+        is_token_burnt: False,
+        is_authed_by_operation_key: True,
+        is_no_output: True,
+      },
+    )
+
+  !(hui.hydra_user_intent.mint(
+    mock_dex_order_book_token,
+    redeemer,
+    mock_hydra_user_intent_token,
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(1, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(2, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(3, 0),
+    tx,
+  ))
+}
+
+test s7_burn_fail_multiple_intents_with_no_operation_key_signed() {
+  let redeemer = BurnIntent
+
+  let tx =
+    mock_burn_multiple_intents_tx(
+      BurnMultipleIntentsTestCase {
+        is_dex_order_book_inputed: True,
+        is_token_burnt: True,
+        is_authed_by_operation_key: False,
+        is_no_output: True,
+      },
+    )
+
+  !(hui.hydra_user_intent.mint(
+    mock_dex_order_book_token,
+    redeemer,
+    mock_hydra_user_intent_token,
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(1, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(2, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(3, 0),
+    tx,
+  ))
+}
+
+test s7_burn_fail_multiple_intents_with_output() {
+  let redeemer = BurnIntent
+
+  let tx =
+    mock_burn_multiple_intents_tx(
+      BurnMultipleIntentsTestCase {
+        is_dex_order_book_inputed: True,
+        is_token_burnt: True,
+        is_authed_by_operation_key: True,
+        is_no_output: False,
+      },
+    )
+
+  !(hui.hydra_user_intent.mint(
+    mock_dex_order_book_token,
+    redeemer,
+    mock_hydra_user_intent_token,
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(1, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(2, 0),
+    tx,
+  ) && hui.hydra_user_intent.spend(
+    mock_dex_order_book_token,
+    None,
+    Void,
+    mock_utxo_ref(3, 0),
+    tx,
+  ))
 }

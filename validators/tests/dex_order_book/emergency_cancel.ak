@@ -1,6 +1,4 @@
-// TODO: Update merkle test case
-
-use aiken/merkle_patricia_forestry.{Branch}
+use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Address, Script}
 use cardano/assets.{add, from_asset, from_lovelace}
 use cardano/transaction.{Transaction}
@@ -52,26 +50,19 @@ fn mock_process_withdrawal_tx(
     is_user_signed,
   } = test_case
 
-  // MPF
+  // MPF - Single order trie: delete results in empty trie (null_hash)
   let old_root =
-    #"4005bf6b8dcfba8d297cdddb5f4b1cfabe006a85315b0f870a668c29c163e46e"
+    #"18aea1856d599e589ad928f8a773e1cde81d2cb4a481cb3a3518665dff7c8b7c"
   let new_root =
     if is_merkle_tree_udpated {
-      #"e112f4fad96829c544fbed2ce83b4d93db3402ac3a3d1c6d755e376d8d58d1fe"
+      null_hash
     } else {
       old_root
     }
   let withdrawal_amount = from_asset("", "", 250_000_000)
 
-  let proof =
-    MPFDelete {
-      proof: [
-        Branch {
-          skip: 0,
-          neighbors: #"61bc86c7587b7bf73d02ca47c08c4e78dbbc4e546040bf8349e84dde61ddb317706c5b827e05abe8f554f9b75201f2949c7f7504cc9bf6aa9a4abf25da4cc21c0eb923b0cbd24df54401d998531feead35a47a99f4deed205de4af81120f97610000000000000000000000000000000000000000000000000000000000000000",
-        },
-      ],
-    }
+  // Empty proof for single-key trie deletion
+  let proof = MPFDelete { proof: [] }
 
   let order_id = #"032f3cc8274143358eb2bbf7b58acaf8"
 
@@ -232,10 +223,6 @@ fn mock_process_withdrawal_tx(
   )
 }
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test s6_wec_success() {
   let test_case =
     AppWithdrawalTestCase {
@@ -336,10 +323,6 @@ test s6_wec_failed_with_multiple_dex_order_book_output() {
   )
 }
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_without_merkle_updated() {
   let test_case =
     AppWithdrawalTestCase {
@@ -415,10 +398,6 @@ test s6_wec_failed_without_sufficient_amount_sent_to_users() {
   )
 }
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test s6_wec_success_emergency_withdrawal() {
   let test_case =
     AppWithdrawalTestCase {
@@ -469,10 +448,6 @@ test s6_wec_failed_emergency_withdrawal_without_token_burnt() fail {
   )
 }
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_emergency_withdrawal_without_time_passed() {
   let test_case =
     AppWithdrawalTestCase {
@@ -498,10 +473,6 @@ test s6_wec_failed_emergency_withdrawal_without_time_passed() {
   )
 }
 
-// TODO: Fix
-// │ · with traces
-// │ | the validator crashed / exited prematurely
-// │ | expect including(key, value, proof) == self.root
 test s6_wec_failed_emergency_withdrawal_without_user_signature() {
   let test_case =
     AppWithdrawalTestCase {
