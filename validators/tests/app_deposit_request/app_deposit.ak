@@ -42,12 +42,13 @@ fn mock_process_deposit_tx(
     is_value_sent_to_vault,
   } = test_case
 
-  // MPF
+  // MPF - Account starts with 100M lovelace, deposits 900M lovelace + 1B USDX
+  // Resulting in 1B lovelace + 1B USDX
   let old_root =
-    #"d77bbe4dd2ef95da2112cb54177b8132b4166f05493405b5fdc6c4f7e9ec8df8"
+    #"8f112b346bf2bef0c76d306c10f76432b1936b49a5074311ce9ed16f0c964a28"
   let new_root =
     if is_merkle_tree_udpated {
-      #"fc765255aa7da1b705a7703f161f9e954e53964026d4aecda93fc3d986c899b8"
+      #"79a1f8ed21bade02612f0f83f41453ee61cee7d7b797ffc84ce787717279ed0e"
     } else {
       old_root
     }

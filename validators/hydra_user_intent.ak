@@ -1,8 +1,10 @@
+use aiken/collection/list
 use cardano/address.{from_script}
-use cardano/assets.{PolicyId, negate, restricted_to}
-use cardano/transaction.{OutputReference, Transaction, find_input}
+use cardano/assets.{PolicyId, flatten}
+use cardano/transaction.{OutputReference, Transaction}
 use cocktail.{
   key_signed, only_minted_token, output_inline_datum, outputs_at_with_policy,
+  outputs_with_policy,
 }
 use hydra_dex/account_utils.{master_auth_by_account, trade_auth_by_account}
 use hydra_dex/types.{
@@ -16,20 +18,24 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
   spend(
     _datum: Option<HydraUserIntentDatum>,
     _redeemer: Data,
-    utxo: OutputReference,
+    _utxo: OutputReference,
     self: Transaction,
   ) {
-    let Transaction { reference_inputs, mint, inputs, .. } = self
+    let Transaction { reference_inputs, mint, .. } = self
     let DexOrderBookDatum { hydra_user_intent_script_hash, .. }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
 
-    expect Some(own_input) = find_input(inputs, utxo)
     let is_intent_burnt =
-      restricted_to(mint, [hydra_user_intent_script_hash]) == negate(
-        restricted_to(own_input.output.value, [hydra_user_intent_script_hash]),
-      )
-
+      when
+        flatten(mint)
+          |> list.filter(
+              fn(asset) { asset.1st == hydra_user_intent_script_hash },
+            )
+      is {
+        [(_, _, minted_quantity)] -> minted_quantity < 0
+        _ -> False
+      }
     is_intent_burnt?
   }
 
@@ -102,7 +108,16 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
           master_auth_by_account(account, withdrawals, extra_signatories)
         token_check? && only_output_check? && is_account_auth?
       }
-      BurnIntent -> key_signed(extra_signatories, oracle.operation_key)
+      BurnIntent -> {
+        let no_output_check =
+          when
+            outputs_with_policy(outputs, oracle.hydra_user_intent_script_hash)
+          is {
+            [] -> True
+            _ -> False
+          }
+        no_output_check? && key_signed(extra_signatories, oracle.operation_key)?
+      }
     }
   }
 

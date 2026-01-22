@@ -1,4 +1,3 @@
-use aiken/merkle_patricia_forestry.{Branch}
 use cardano/address.{Script}
 use cardano/assets.{add, from_asset, from_lovelace, merge}
 use cardano/transaction.{Transaction}
@@ -42,12 +41,14 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountOperation) {
     is_cancel_withdrawal_amount_minted,
   } = test_case
 
-  // MPF
+  // MPF - Cancel withdrawal uses decrease operation on pending withdrawal balance
+  // Account has 1B lovelace + 1B USDX pending, decreasing by 500M lovelace
+  // Resulting in 500M lovelace + 1B USDX
   let old_root =
-    #"c30c594b7188370e1995e5cf31d319f386d386d967f2987aa56a0c542f2ef076"
+    #"79a1f8ed21bade02612f0f83f41453ee61cee7d7b797ffc84ce787717279ed0e"
   let new_root =
     if is_merkle_tree_udpated {
-      #"d13dbd6ff7b335876e3d6812f26649dc13592b3cd91b38623f95da458a835030"
+      #"13a67d5c7d4b6c68217d01cb569646ab08595ed9711224c6451ba834ff30de09"
     } else {
       old_root
     }
@@ -57,12 +58,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraAccountOperation) {
     MPFUpdate {
       from: #"a240a1401a3b9aca00581c5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04ba144555344581a3b9aca00",
       to: #"a240a1401a1dcd6500581c5066154a102ee037390c5236f78db23239b49c5748d3d349f3ccf04ba144555344581a3b9aca00",
-      to_proof: [
-        Branch {
-          skip: 0,
-          neighbors: #"9543c86b0bb9781a8d503bc087408469b50a3d3e1f7f4b0554dc813ae14c086185c09af929492a871e4fae32d9d5c36e352471cd659bcdb61de08f1722acc3b10eb923b0cbd24df54401d998531feead35a47a99f4deed205de4af81120f97610000000000000000000000000000000000000000000000000000000000000000",
-        },
-      ],
+      to_proof: [],
     }
 
   let hydra_account_start = mock_hydra_lovelace(10_000_000)
