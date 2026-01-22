@@ -254,3 +254,118 @@ test s9_wco_fail_without_operation_key_signed() {
     tx,
   )
 }
+
+test s9_wcao_success() {
+  let size = 250_000_000
+  let list_price_times_1tri = 1_000_000_000_000
+  let fee_amount_bp = 10
+
+  let account = mock_user_account(mock_account)
+  let account_3 = mock_user_account(mock_account_3)
+
+  let order_1 =
+    mock_limit_order(
+      "order_1",
+      False,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account,
+    )
+
+  let order_2 =
+    mock_limit_order(
+      "order_2",
+      False,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account,
+    )
+  let order_3 =
+    mock_limit_order(
+      "order_3",
+      True,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account_3,
+    )
+
+  let order_4 =
+    mock_limit_order(
+      "order_4",
+      False,
+      size,
+      list_price_times_1tri,
+      fee_amount_bp,
+      mock_account_3,
+    )
+  let (a1_output_balance, a3_output_balance) =
+    (
+      mock_hydra_lovelace(500_000_000),
+      mock_hydra_usd(250_000_000) |> merge(mock_hydra_lovelace(250_000_000)),
+    )
+  let tx =
+    mocktail_tx()
+      //  - Ref input with `dex_oracle_nft`
+      |> ref_tx_in(
+          True,
+          mock_tx_hash(0),
+          0,
+          from_asset(mock_dex_order_book_token, "", 1),
+          mock_dex_order_book_address,
+        )
+      |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
+      // - Categorize inputs into
+      //    - `OI` - Order Inputs
+      //    - Other inputs
+      |> tx_in(
+          True,
+          mock_tx_hash(0),
+          2,
+          mock_hydra_lovelace(size),
+          mock_hydra_order_book_address,
+        )
+      |> tx_in_inline_datum(True, order_1)
+      |> tx_in(
+          True,
+          mock_tx_hash(0),
+          2,
+          mock_hydra_lovelace(size),
+          mock_hydra_order_book_address,
+        )
+      |> tx_in_inline_datum(True, order_2)
+      |> tx_in(
+          True,
+          mock_tx_hash(0),
+          2,
+          mock_hydra_usd(size),
+          mock_hydra_order_book_address,
+        )
+      |> tx_in_inline_datum(True, order_3)
+      |> tx_in(
+          True,
+          mock_tx_hash(0),
+          2,
+          mock_hydra_lovelace(size),
+          mock_hydra_order_book_address,
+        )
+      |> tx_in_inline_datum(True, order_4)
+      // - Categorize outputs into
+      //    - `AO` - Account Outputs
+      //    - Other outputs
+      |> tx_out(True, mock_hydra_account_address, a1_output_balance)
+      |> tx_out_inline_datum(True, account)
+      |> tx_out(True, mock_hydra_account_address, a3_output_balance)
+      |> tx_out_inline_datum(True, account_3)
+      //  - Signed by `operating_key`
+      |> required_signer_hash(True, mock_operation_key)
+      |> complete()
+  ob.hydra_order_book.withdraw(
+    mock_dex_order_book_token,
+    CancelOrder,
+    Script(mock_hydra_order_book),
+    tx,
+  )
+}
