@@ -2,7 +2,7 @@ use aiken/builtin.{blake2b_256}
 use aiken/cbor
 use aiken/merkle_patricia_forestry/merkling.{null_hash}
 use cardano/address.{Script}
-use cardano/assets.{from_asset, from_lovelace, merge, negate, without_lovelace}
+use cardano/assets.{from_asset, merge, negate, without_lovelace}
 use cardano/transaction.{Transaction}
 use hydra_dex/account_utils.{from_hydra_balance_to_value}
 use hydra_dex/hydra_tree_utils.{compute_tree_hash}
