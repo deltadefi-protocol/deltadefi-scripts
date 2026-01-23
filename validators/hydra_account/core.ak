@@ -33,12 +33,17 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
       ..
     } = tx
 
-    let DexOrderBookDatum { operation_key, hydra_account_script_hash, .. }: DexOrderBookDatum =
+    let DexOrderBookDatum {
+      operation_key,
+      hydra_account_script_hash,
+      hydra_order_book_script_hash,
+      ..
+    }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
       HydraAccountTrade { .. } ->
-        withdrawal_script_validated(withdrawals, hydra_account_script_hash)?
+        withdrawal_script_validated(withdrawals, hydra_order_book_script_hash)?
       HydraAccountOperate ->
         withdrawal_script_validated(withdrawals, hydra_account_script_hash)?
 
