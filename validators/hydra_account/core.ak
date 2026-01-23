@@ -2,7 +2,7 @@ use aiken/option.{is_none}
 use cardano/address.{Credential}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{address_script_hash, key_signed, withdrawal_redeemer}
+use cocktail.{key_signed, withdrawal_redeemer}
 use hydra_account/cancel_withdrawal.{cancel_withdrawal}
 use hydra_account/combine_utxos_at_close.{combine_utxos_at_close}
 use hydra_account/same_account_transferal.{same_account_transferal}
@@ -34,7 +34,7 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
       ..
     } = tx
 
-    let DexOrderBookDatum { operation_key, .. }: DexOrderBookDatum =
+    let DexOrderBookDatum { operation_key, hydra_account_script_hash, .. }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
@@ -44,14 +44,11 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
           withdrawal_redeemer(redeemers, get_trading_logic(account))
         w_redeemer == trade_redeemer
       }
-      HydraAccountOperate -> {
-        expect Some(own_input) = find_input(inputs, input)
-        expect Some(script_hash) = address_script_hash(own_input.output.address)
-        when withdrawal_redeemer(redeemers, script_hash) is {
+      HydraAccountOperate ->
+        when withdrawal_redeemer(redeemers, hydra_account_script_hash) is {
           Some(_) -> True
           None -> False
         }
-      }
       HydraAccountSpamPreventionWithdraw -> {
         // TODO: review
         expect Some(own_input) = inputs |> find_input(input)

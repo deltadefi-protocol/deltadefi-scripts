@@ -2,13 +2,14 @@ use cardano/address.{Credential}
 use cardano/assets.{PolicyId}
 use cardano/certificate.{Certificate}
 use cardano/script_context.{ScriptContext}
-use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{address_script_hash}
+use cardano/transaction.{OutputReference, Transaction}
 use cocktail/vodka_redeemers.{withdrawal_redeemer}
 use hydra_dex/types.{
-  CancelOrder, CombineOrderMerkle, FillOrder, HydraOrderBookRedeemer,
-  ModifyOrder, Order, PlaceOrder, SplitOrderMerkle, TreeOrProofsWithTokenMap,
+  CancelOrder, CombineOrderMerkle, DexOrderBookDatum, FillOrder,
+  HydraOrderBookRedeemer, ModifyOrder, Order, PlaceOrder, SplitOrderMerkle,
+  TreeOrProofsWithTokenMap,
 }
+use hydra_dex/utils.{get_dex_order_book_datum}
 use hydra_order_book/cancel_order.{cancel_order}
 use hydra_order_book/combine_order_merkle.{combine_order_merkle}
 use hydra_order_book/fill_order.{fill_order}
@@ -21,13 +22,15 @@ validator hydra_order_book(oracle_nft: PolicyId) {
   spend(
     _datum_opt: Option<Order>,
     redeemer: Data,
-    input: OutputReference,
+    _input: OutputReference,
     tx: Transaction,
   ) {
-    let Transaction { redeemers, inputs, .. } = tx
-    expect Some(own_input) = find_input(inputs, input)
-    expect Some(script_hash) = address_script_hash(own_input.output.address)
-    expect Some(w_redeemer) = withdrawal_redeemer(redeemers, script_hash)
+    let Transaction { redeemers, reference_inputs, .. } = tx
+    let DexOrderBookDatum { hydra_order_book_script_hash, .. }: DexOrderBookDatum =
+      reference_inputs
+        |> get_dex_order_book_datum(oracle_nft)
+    expect Some(w_redeemer) =
+      withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
     redeemer == w_redeemer
   }
 
