@@ -14,8 +14,8 @@ use mocktail.{
 }
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
-  mock_hydra_order_book, mock_hydra_order_book_address,
+  mock_dex_order_book_token, mock_hydra_account, mock_hydra_account_address,
+  mock_hydra_lovelace, mock_hydra_order_book, mock_hydra_order_book_address,
   mock_hydra_user_intent_address, mock_hydra_user_intent_token, mock_limit_order,
   mock_operation_key, mock_order_id, mock_order_intent, mock_user_account,
 }
@@ -147,6 +147,7 @@ fn mock_tx(test_case: TestCase) -> (Transaction, HydraUserIntentDatum) {
           mock_hydra_order_book,
           0,
         )
+      |> script_withdrawal(is_withdrawal_script_attached, mock_hydra_account, 0)
       |> withdrawal_redeemer_value(
           is_withdrawal_script_attached,
           PlaceOrder { account },

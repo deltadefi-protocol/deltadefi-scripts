@@ -2,14 +2,13 @@ use aiken/option.{is_none}
 use cardano/address.{Credential}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
-use cocktail.{address_script_hash, key_signed, withdrawal_redeemer}
+use cocktail.{key_signed, withdrawal_script_validated}
 use hydra_account/cancel_withdrawal.{cancel_withdrawal}
 use hydra_account/combine_utxos_at_close.{combine_utxos_at_close}
 use hydra_account/same_account_transferal.{same_account_transferal}
 use hydra_account/split_utxos_at_open.{split_utxos_at_open}
 use hydra_account/transferal.{transferal}
 use hydra_account/withdrawal.{withdrawal}
-use hydra_dex/account_utils.{get_trading_logic}
 use hydra_dex/types.{
   DexOrderBookDatum, HydraAccountOperate, HydraAccountOperation,
   HydraAccountRedeemer, HydraAccountSpamPreventionWithdraw, HydraAccountTrade,
@@ -28,30 +27,26 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
   ) {
     let Transaction {
       reference_inputs,
-      redeemers,
       inputs,
       extra_signatories,
+      withdrawals,
       ..
     } = tx
 
-    let DexOrderBookDatum { operation_key, .. }: DexOrderBookDatum =
+    let DexOrderBookDatum {
+      operation_key,
+      hydra_account_script_hash,
+      hydra_order_book_script_hash,
+      ..
+    }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(dex_oracle_nft)
     when redeemer is {
-      HydraAccountTrade { trade_redeemer } -> {
-        expect Some(account) = datum_opt
-        expect Some(w_redeemer) =
-          withdrawal_redeemer(redeemers, get_trading_logic(account))
-        w_redeemer == trade_redeemer
-      }
-      HydraAccountOperate -> {
-        expect Some(own_input) = find_input(inputs, input)
-        expect Some(script_hash) = address_script_hash(own_input.output.address)
-        when withdrawal_redeemer(redeemers, script_hash) is {
-          Some(_) -> True
-          None -> False
-        }
-      }
+      HydraAccountTrade { .. } ->
+        withdrawal_script_validated(withdrawals, hydra_order_book_script_hash)?
+      HydraAccountOperate ->
+        withdrawal_script_validated(withdrawals, hydra_account_script_hash)?
+
       HydraAccountSpamPreventionWithdraw -> {
         // TODO: review
         expect Some(own_input) = inputs |> find_input(input)
