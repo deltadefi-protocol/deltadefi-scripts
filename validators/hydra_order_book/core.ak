@@ -3,7 +3,7 @@ use cardano/assets.{PolicyId}
 use cardano/certificate.{Certificate}
 use cardano/script_context.{ScriptContext}
 use cardano/transaction.{OutputReference, Transaction}
-use cocktail/vodka_redeemers.{withdrawal_redeemer}
+use cocktail.{withdrawal_script_validated}
 use hydra_dex/types.{
   CancelOrder, CombineOrderMerkle, DexOrderBookDatum, FillOrder,
   HydraOrderBookRedeemer, ModifyOrder, Order, PlaceOrder, SplitOrderMerkle,
@@ -21,17 +21,16 @@ validator hydra_order_book(oracle_nft: PolicyId) {
   // todo: spam prevention
   spend(
     _datum_opt: Option<Order>,
-    redeemer: Data,
+    _redeemer: Data,
     _input: OutputReference,
     tx: Transaction,
   ) {
-    let Transaction { redeemers, reference_inputs, .. } = tx
+    let Transaction { reference_inputs, withdrawals, .. } = tx
     let DexOrderBookDatum { hydra_order_book_script_hash, .. }: DexOrderBookDatum =
       reference_inputs
         |> get_dex_order_book_datum(oracle_nft)
-    expect Some(w_redeemer) =
-      withdrawal_redeemer(redeemers, hydra_order_book_script_hash)
-    redeemer == w_redeemer
+
+    withdrawal_script_validated(withdrawals, hydra_order_book_script_hash)?
   }
 
   withdraw(
