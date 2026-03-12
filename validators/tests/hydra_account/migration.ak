@@ -1,4 +1,4 @@
-use cardano/address.{Script, from_script}
+use cardano/address.{Script}
 use cardano/assets.{from_asset}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
@@ -110,7 +110,10 @@ test s8_wm_success() {
 test s8_wm_failed_without_operation_key_signed() {
   let tx =
     mock_migration_tx(
-      MigrationTestCase { ..default_test_case(), is_operation_key_signed: False },
+      MigrationTestCase {
+        ..default_test_case(),
+        is_operation_key_signed: False,
+      },
     )
 
   !ha.hydra_account.withdraw(
@@ -169,7 +172,10 @@ test s8_wm_failed_with_other_old_script_inputs() {
 test s8_wm_failed_with_new_script_inputs() {
   let tx =
     mock_migration_tx(
-      MigrationTestCase { ..default_test_case(), is_no_new_script_inputs: False },
+      MigrationTestCase {
+        ..default_test_case(),
+        is_no_new_script_inputs: False,
+      },
     )
 
   !ha.hydra_account.withdraw(
