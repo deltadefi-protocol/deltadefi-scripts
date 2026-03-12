@@ -1,30 +1,32 @@
 # Specification - HydraAccount - Migration
 
-## Overview
+## User Action
 
-Periodic migration workflow for updating `hydra_account` and `hydra_order_book` scripts.
+- Ref input with `oracle_nft`
+- Get `account` from redeemer
+- Old script hash from own `credential` (this withdrawal script's hash)
+- New script hash from oracle's `hydra_account_script_hash`
+- Categorize inputs into
+  - `AI` - Account Inputs at old script hash with matching `account` datum
+  - Other inputs
+- Categorize outputs into
+  - `AO` - Account Outputs at new `hydra_account_script_hash` (from oracle)
+  - Other outputs
+- No other inputs at old script hash (single account per tx)
+- No inputs at new `hydra_account_script_hash` (prevent mixing with normal operations)
+- All `AO` have datum with:
+  - Same `account_id`
+  - Same `master_key`
+  - Same `operation_key`
+  - `trading_logic` updated to new `hydra_order_book_script_hash` from oracle
+- Total value preserved: `inputs_value(AI) == outputs_value(AO)`
+- Signed by `operation_key`
 
-## Migration Steps
+## Note - Migration Workflow
 
 1. Cancel all existing orders
-2. Update the `dex_order_book` oracle datum with new `hydra_signers` keys
-3. Migrate all `hydra_account` UTxOs:
-   - Same `master_key` + `operation_key` preserved
-   - `trading_logic` updated to the latest `hydra_order_book_script_hash` from `dex_order_book` oracle
+2. Combine `hydra_account` utxos into 1 utxo per user
+3. Update the `dex_order_book` oracle datum with new script hashes (`hydra_account` and `hydra_order_book` mainly) and `hydra_signers` keys
+4. Migrate all `hydra_account` UTxOs using `ProcessMigration` withdrawal on the **new** script
 
-## Open Questions
-
-### Oracle Update vs Migration Ordering
-
-If step 2 (oracle update) happens before step 3 (migration), the old `hydra_account` validator can no longer look up its own script hash from the oracle — the oracle now points to the new script hash. This means `withdrawal_script_validated(withdrawals, hydra_account_script_hash)` in the old validator would check against the **new** hash, not the old one, and the old script's withdrawal cannot be triggered.
-
-Options:
-- **Option A**: Perform step 3 before step 2 — migrate accounts while the oracle still references the old scripts
-- **Option B**: Have the migration redeemer use `operation_key` signature directly (like `HydraAccountSpamPreventionWithdraw`) rather than the withdrawal-based pattern
-
-### Output Validation
-
-The migration validator must ensure:
-- New UTxOs are sent to the **new** `hydra_account_script_hash`
-- `trading_logic` in the datum is correctly updated to the new `hydra_order_book_script_hash`
-- The source of truth for the new script hash must be authoritative (the updated oracle, or a validator parameter)
+Old account UTxOs are spent with `HydraAccountMigrate` redeemer. This derives the script's own hash from the input address and validates its own withdrawal script. The old script's `ProcessMigration` withdrawal then reads the new `hydra_account_script_hash` from the updated oracle to validate outputs are sent to the new script with correct migrated datums.

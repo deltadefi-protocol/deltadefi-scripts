@@ -235,6 +235,7 @@ pub type HydraAccountRedeemer {
   HydraAccountTrade { trade_redeemer: Data }
   HydraAccountOperate
   HydraAccountSpamPreventionWithdraw
+  HydraAccountMigrate
 }
 
 pub type HydraAccountOperation {
@@ -248,6 +249,7 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
+  ProcessMigration { account: UserAccount }
 }
 
 // 9 - HydraOrderBook

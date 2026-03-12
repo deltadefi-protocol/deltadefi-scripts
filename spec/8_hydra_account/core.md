@@ -25,3 +25,9 @@
    - Either one of below
      - Empty balance - Check balance against value by removing lovelace - is empty
      - There is no datum
+
+4. Migration - `HydraAccountMigrate`
+
+   - Find own input via `OutputReference`
+   - Derive own script hash from input address payment credential
+   - Validate own withdrawal script: `withdrawal_script_validated(withdrawals, own_script_hash)`

@@ -1,20 +1,22 @@
 use aiken/option.{is_none}
-use cardano/address.{Credential}
+use cardano/address.{Credential, Script}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
 use cocktail.{key_signed, withdrawal_script_validated}
 use hydra_account/cancel_withdrawal.{cancel_withdrawal}
 use hydra_account/combine_utxos_at_close.{combine_utxos_at_close}
+use hydra_account/migration.{migration}
 use hydra_account/same_account_transferal.{same_account_transferal}
 use hydra_account/split_utxos_at_open.{split_utxos_at_open}
 use hydra_account/transferal.{transferal}
 use hydra_account/withdrawal.{withdrawal}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraAccountOperate, HydraAccountOperation,
-  HydraAccountRedeemer, HydraAccountSpamPreventionWithdraw, HydraAccountTrade,
-  ProcessCancelWithdrawal, ProcessCombineUtxosAtClose,
-  ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
-  ProcessWithdrawal, TreeOrProofsWithTokenMap, UserAccount,
+  DexOrderBookDatum, HydraAccountMigrate, HydraAccountOperate,
+  HydraAccountOperation, HydraAccountRedeemer,
+  HydraAccountSpamPreventionWithdraw, HydraAccountTrade, ProcessCancelWithdrawal,
+  ProcessCombineUtxosAtClose, ProcessMigration, ProcessSameAccountTransferal,
+  ProcessSplitUtxosAtOpen, ProcessTransferal, ProcessWithdrawal,
+  TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -47,6 +49,13 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
       HydraAccountOperate ->
         withdrawal_script_validated(withdrawals, hydra_account_script_hash)?
 
+      HydraAccountMigrate -> {
+        expect Some(own_input) = inputs |> find_input(input)
+        expect Script(own_script_hash) =
+          own_input.output.address.payment_credential
+        withdrawal_script_validated(withdrawals, own_script_hash)?
+      }
+
       HydraAccountSpamPreventionWithdraw -> {
         // TODO: review
         expect Some(own_input) = inputs |> find_input(input)
@@ -73,7 +82,7 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
 
   withdraw(
     redeemer: HydraAccountOperation,
-    _credential: Credential,
+    credential: Credential,
     tx: Transaction,
   ) {
     when redeemer is {
@@ -94,6 +103,8 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
           tree_or_proofs_with_token_map
         combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
       }
+      ProcessMigration { account } ->
+        migration(dex_oracle_nft, account, credential, tx)
     }
   }
 

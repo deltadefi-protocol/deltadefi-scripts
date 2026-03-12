@@ -1,15 +1,18 @@
 use cardano/assets.{from_asset, zero}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
-use hydra_dex/types.{HydraAccountSpamPreventionWithdraw}
+use hydra_dex/types.{
+  HydraAccountMigrate, HydraAccountSpamPreventionWithdraw, ProcessMigration,
+}
 use mocktail.{
   complete, mock_tx_hash, mock_utxo_ref, mocktail_tx, ref_tx_in,
-  ref_tx_in_inline_datum, required_signer_hash, tx_in,
+  ref_tx_in_inline_datum, required_signer_hash, script_withdrawal, tx_in,
+  tx_in_inline_datum, withdrawal_redeemer_value,
 }
 use tests/utils.{
   mock_account, mock_dex_order_book_address, mock_dex_order_book_datum,
-  mock_dex_order_book_token, mock_hydra_account_address, mock_hydra_lovelace,
-  mock_operation_key, mock_user_account,
+  mock_dex_order_book_token, mock_hydra_account, mock_hydra_account_address,
+  mock_hydra_lovelace, mock_operation_key, mock_user_account,
 }
 
 type RemoveEmptyBalanceTestCase {
@@ -112,6 +115,61 @@ test s8_spend_fail_spam_prevention_with_non_empty_balance_and_with_datum() {
     mock_dex_order_book_token,
     Some(account),
     HydraAccountSpamPreventionWithdraw,
+    mock_utxo_ref(0, 0),
+    tx,
+  )
+}
+
+test s8_spend_success_migrate() {
+  let account = mock_user_account(mock_account)
+  let tx =
+    mocktail_tx()
+      |> ref_tx_in(
+          True,
+          mock_tx_hash(0),
+          1,
+          from_asset(mock_dex_order_book_token, "", 1),
+          mock_dex_order_book_address,
+        )
+      |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
+      |> tx_in(True, mock_tx_hash(0), 0, zero, mock_hydra_account_address)
+      |> tx_in_inline_datum(True, account)
+      |> script_withdrawal(True, mock_hydra_account, 0)
+      |> withdrawal_redeemer_value(
+          True,
+          ProcessMigration { account },
+        )
+      |> complete()
+
+  ha.hydra_account.spend(
+    mock_dex_order_book_token,
+    Some(account),
+    HydraAccountMigrate,
+    mock_utxo_ref(0, 0),
+    tx,
+  )
+}
+
+test s8_spend_fail_migrate_without_withdrawal_script() {
+  let account = mock_user_account(mock_account)
+  let tx =
+    mocktail_tx()
+      |> ref_tx_in(
+          True,
+          mock_tx_hash(0),
+          1,
+          from_asset(mock_dex_order_book_token, "", 1),
+          mock_dex_order_book_address,
+        )
+      |> ref_tx_in_inline_datum(True, mock_dex_order_book_datum)
+      |> tx_in(True, mock_tx_hash(0), 0, zero, mock_hydra_account_address)
+      |> tx_in_inline_datum(True, account)
+      |> complete()
+
+  !ha.hydra_account.spend(
+    mock_dex_order_book_token,
+    Some(account),
+    HydraAccountMigrate,
     mock_utxo_ref(0, 0),
     tx,
   )
