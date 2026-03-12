@@ -13,8 +13,7 @@
   - `AO_from` - Account Outputs with `from` account at intent
   - `AO_to` - Account Outputs with `to` account at intent
   - Other outputs
-- Other inputs length == 1 (the intent input)
-- No other outputs
+- No other inputs/outputs at `hydra_account_script_hash` (only `from` and `to` account UTxOs allowed)
 - The 3 value are equal:
   1. Deduct in value for `from` (`AI_from` - `AO_from`)
   2. Increase in value for `to` (`AO_to` - `AI_to`)
