@@ -249,6 +249,9 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
+}
+
+pub type ProcessMigrationRedeemer {
   ProcessMigration { account: UserAccount }
 }
 

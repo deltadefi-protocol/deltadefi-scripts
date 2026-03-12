@@ -135,10 +135,7 @@ test s8_spend_success_migrate() {
       |> tx_in(True, mock_tx_hash(0), 0, zero, mock_hydra_account_address)
       |> tx_in_inline_datum(True, account)
       |> script_withdrawal(True, mock_hydra_account, 0)
-      |> withdrawal_redeemer_value(
-          True,
-          ProcessMigration { account },
-        )
+      |> withdrawal_redeemer_value(True, ProcessMigration { account })
       |> complete()
 
   ha.hydra_account.spend(

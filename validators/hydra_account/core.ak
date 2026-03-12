@@ -14,9 +14,9 @@ use hydra_dex/types.{
   DexOrderBookDatum, HydraAccountMigrate, HydraAccountOperate,
   HydraAccountOperation, HydraAccountRedeemer,
   HydraAccountSpamPreventionWithdraw, HydraAccountTrade, ProcessCancelWithdrawal,
-  ProcessCombineUtxosAtClose, ProcessMigration, ProcessSameAccountTransferal,
-  ProcessSplitUtxosAtOpen, ProcessTransferal, ProcessWithdrawal,
-  TreeOrProofsWithTokenMap, UserAccount,
+  ProcessCombineUtxosAtClose, ProcessMigration, ProcessMigrationRedeemer,
+  ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
+  ProcessWithdrawal, TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -80,31 +80,30 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
     }
   }
 
-  withdraw(
-    redeemer: HydraAccountOperation,
-    credential: Credential,
-    tx: Transaction,
-  ) {
-    when redeemer is {
-      ProcessWithdrawal { mpf_action } ->
-        withdrawal(dex_oracle_nft, mpf_action, tx)
-      ProcessCancelWithdrawal { mpf_action } ->
-        cancel_withdrawal(dex_oracle_nft, mpf_action, tx)
-      ProcessSameAccountTransferal { account } ->
-        same_account_transferal(dex_oracle_nft, account, tx)
-      ProcessTransferal -> transferal(dex_oracle_nft, tx)
-      ProcessSplitUtxosAtOpen { tree_or_proofs_with_token_map } -> {
-        let TreeOrProofsWithTokenMap { proof, token_map } =
-          tree_or_proofs_with_token_map
-        split_utxos_at_open(dex_oracle_nft, proof, token_map, tx)
+  withdraw(redeemer: Data, credential: Credential, tx: Transaction) {
+    if redeemer is operation: HydraAccountOperation {
+      when operation is {
+        ProcessWithdrawal { mpf_action } ->
+          withdrawal(dex_oracle_nft, mpf_action, tx)
+        ProcessCancelWithdrawal { mpf_action } ->
+          cancel_withdrawal(dex_oracle_nft, mpf_action, tx)
+        ProcessSameAccountTransferal { account } ->
+          same_account_transferal(dex_oracle_nft, account, tx)
+        ProcessTransferal -> transferal(dex_oracle_nft, tx)
+        ProcessSplitUtxosAtOpen { tree_or_proofs_with_token_map } -> {
+          let TreeOrProofsWithTokenMap { proof, token_map } =
+            tree_or_proofs_with_token_map
+          split_utxos_at_open(dex_oracle_nft, proof, token_map, tx)
+        }
+        ProcessCombineUtxosAtClose { tree_or_proofs_with_token_map } -> {
+          let TreeOrProofsWithTokenMap { proof, token_map } =
+            tree_or_proofs_with_token_map
+          combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
+        }
       }
-      ProcessCombineUtxosAtClose { tree_or_proofs_with_token_map } -> {
-        let TreeOrProofsWithTokenMap { proof, token_map } =
-          tree_or_proofs_with_token_map
-        combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
-      }
-      ProcessMigration { account } ->
-        migration(dex_oracle_nft, account, credential, tx)
+    } else {
+      expect ProcessMigration { account }: ProcessMigrationRedeemer = redeemer
+      migration(dex_oracle_nft, account, credential, tx)
     }
   }
 
