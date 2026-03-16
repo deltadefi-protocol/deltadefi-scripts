@@ -3,8 +3,8 @@ use cardano/address.{from_script}
 use cardano/assets.{PolicyId, flatten}
 use cardano/transaction.{OutputReference, Transaction}
 use cocktail.{
-  key_signed, only_minted_token, output_inline_datum, outputs_at_with_policy,
-  outputs_with_policy,
+  key_signed, output_inline_datum, outputs_at_with_policy, outputs_with_policy,
+  policy_only_minted_token,
 }
 use hydra_dex/account_utils.{master_auth_by_account, trade_auth_by_account}
 use hydra_dex/types.{
@@ -61,7 +61,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
       from_script(oracle.hydra_user_intent_script_hash)
     when redeemer is {
       MintTradeIntent { account, intent } -> {
-        let token_check = only_minted_token(mint, policy_id, "", 1)
+        let token_check = policy_only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
           when
             outputs_at_with_policy(
@@ -85,7 +85,7 @@ validator hydra_user_intent(dex_oracle_nft: PolicyId) {
         token_check? && only_output_check? && is_account_auth?
       }
       MintMasterIntent { account, intent } -> {
-        let token_check = only_minted_token(mint, policy_id, "", 1)
+        let token_check = policy_only_minted_token(mint, policy_id, "", 1)
         let only_output_check =
           when
             outputs_at_with_policy(
