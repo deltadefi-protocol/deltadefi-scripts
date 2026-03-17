@@ -9,6 +9,8 @@ use hydra_account/migration.{migration}
 use hydra_account/same_account_transferal.{same_account_transferal}
 use hydra_account/split_utxos_at_open.{split_utxos_at_open}
 use hydra_account/transferal.{transferal}
+use hydra_account/vault_deposit.{vault_deposit}
+use hydra_account/vault_withdrawal.{vault_withdrawal}
 use hydra_account/withdrawal.{withdrawal}
 use hydra_dex/types.{
   DexOrderBookDatum, HydraAccountMigrate, HydraAccountOperate,
@@ -16,7 +18,8 @@ use hydra_dex/types.{
   HydraAccountSpamPreventionWithdraw, HydraAccountTrade, ProcessCancelWithdrawal,
   ProcessCombineUtxosAtClose, ProcessMigration, ProcessMigrationRedeemer,
   ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
-  ProcessWithdrawal, TreeOrProofsWithTokenMap, UserAccount,
+  ProcessVaultDeposit, ProcessVaultWithdrawal, ProcessWithdrawal,
+  TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -100,6 +103,28 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             tree_or_proofs_with_token_map
           combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
         }
+        ProcessVaultDeposit(prices_message, signatures, mpf_action) ->
+          vault_deposit(
+            dex_oracle_nft,
+            prices_message,
+            signatures,
+            mpf_action,
+            tx,
+          )
+        ProcessVaultWithdrawal(
+          prices_message,
+          signatures,
+          mpf_action,
+          operator_mpf_action,
+        ) ->
+          vault_withdrawal(
+            dex_oracle_nft,
+            prices_message,
+            signatures,
+            mpf_action,
+            operator_mpf_action,
+            tx,
+          )
       }
     } else {
       expect ProcessMigration { account }: ProcessMigrationRedeemer = redeemer

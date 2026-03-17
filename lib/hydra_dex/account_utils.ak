@@ -49,6 +49,34 @@ pub fn create_account_outputs_filter(
   }
 }
 
+pub fn create_master_key_inputs_filter(
+  master_key: Credential,
+  hydra_account_script_hash: ByteArray,
+) {
+  fn(input: Input) {
+    if input.output.address == from_script(hydra_account_script_hash) {
+      expect input_datum: UserAccount = input_inline_datum(input)
+      get_master_key(input_datum) == master_key
+    } else {
+      False
+    }
+  }
+}
+
+pub fn create_master_key_outputs_filter(
+  master_key: Credential,
+  hydra_account_script_hash: ByteArray,
+) {
+  fn(output: Output) {
+    if output.address == from_script(hydra_account_script_hash) {
+      expect output_datum: UserAccount = output_inline_datum(output)
+      get_master_key(output_datum) == master_key
+    } else {
+      False
+    }
+  }
+}
+
 //  Account Value related
 
 pub fn hash_token(policy_id: PolicyId, asset_name: AssetName) -> AssetName {

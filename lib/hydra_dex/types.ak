@@ -249,6 +249,13 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
+  ProcessVaultDeposit(ByteArray, List<ByteArray>, SharesMPFAction)
+  ProcessVaultWithdrawal(
+    ByteArray,
+    List<ByteArray>,
+    SharesMPFAction,
+    SharesMPFAction,
+  )
 }
 
 pub type ProcessMigrationRedeemer {
@@ -306,4 +313,62 @@ pub type HydraTokensRedeemer {
 pub type HydraInitialRedeemer {
   ViaAbort
   ViaCommit { committed_refs: List<OutputReference> }
+}
+
+// Shares Merkle Patricia Forestry action type
+// Note: new_value/to are computed from shares + total_deposited, not passed in redeemer
+pub type SharesMPFAction {
+  SharesInsert { proof: Proof }
+  SharesUpdate { from: ByteArray, to_proof: Proof }
+  SharesDelete { proof: Proof, old_value: ByteArray }
+}
+
+// Shares Record entry (serialized into MPF values)
+pub type SharesRecordEntry {
+  shares: Int,
+  total_deposited: Int,
+}
+
+// Price oracle message
+pub type Message {
+  vault_equity: Int,
+  prices: Pairs<(PolicyId, AssetName), Int>,
+  utxo_ref: OutputReference,
+}
+
+pub type VaultDepositIntentDatumL2 {
+  vault_oracle_nft: PolicyId,
+  depositor: UserAccount,
+  deposit_amount: MValue,
+}
+
+pub type VaultWithdrawalIntentDatumL2 {
+  vault_oracle_nft: PolicyId,
+  withdrawer: UserAccount,
+  shares_to_redeem: Int,
+}
+
+// Vault Oracle Datum — holds config + state, commits to Hydra
+pub type VaultOracleDatum {
+  // Config (all updatable via UpdateConfig)
+  app_oracle: PolicyId,
+  vault_script_hash: ByteArray,
+  l1_deposit_intent_script_hash: ByteArray,
+  l1_withdrawal_intent_script_hash: ByteArray,
+  l2_deposit_intent_script_hash: ByteArray,
+  l2_withdrawal_intent_script_hash: ByteArray,
+  pluggable_logic: ByteArray,
+  vault_stake_rotation_script_hash: ByteArray,
+  operator_key: VerificationKeyHash,
+  operator_account: UserAccount,
+  operator_charge_percentage: Int,
+  operator_min_deposit_percentage: Int,
+  hydra_node_pub_keys: List<ByteArray>,
+  is_active: Bool,
+  // State (mutable)
+  total_shares: Int,
+  operator_shares: Int,
+  total_deposited: Int,
+  shares_merkle_root: ByteArray,
+  total_fee_collected: Int,
 }
