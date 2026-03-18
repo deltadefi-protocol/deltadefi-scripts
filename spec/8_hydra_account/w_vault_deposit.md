@@ -17,11 +17,11 @@ Supports both initial deposit (when `total_shares == 0`) and regular deposits.
   - **Regular deposit**: `shares_minted = (deposit_usd_value * total_shares) / vault_equity` (round DOWN)
 - Categorize inputs into
   - `DI` - Depositor Inputs (by full `UserAccount`)
-  - `VI` - Vault Inputs (by `master_key == Script(l2_deposit_intent_script_hash)`)
+  - `VI` - Vault Inputs (by `master_key == Script(vault_script_hash)`)
   - Other inputs
 - Categorize outputs into
   - `DO` - Depositor Outputs (by full `UserAccount`)
-  - `VO` - Vault Outputs (by `master_key == Script(l2_deposit_intent_script_hash)`)
+  - `VO` - Vault Outputs (by `master_key == Script(vault_script_hash)`)
   - Other outputs
 - No other inputs/outputs at `hydra_account_script_hash`
 - The 3 values are equal (all in L2 format):

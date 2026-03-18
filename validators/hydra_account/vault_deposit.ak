@@ -76,6 +76,7 @@ pub fn vault_deposit(
   let VaultOracleDatum {
     l2_deposit_intent_script_hash,
     hydra_node_pub_keys,
+    vault_script_hash,
     total_shares: input_total_shares,
     total_deposited: input_total_deposited,
     shares_merkle_root: input_merkle_root,
@@ -114,7 +115,7 @@ pub fn vault_deposit(
 
   // 7. Group Account UTxOs (following transferal.ak pattern)
   // Vault UTxOs are filtered by master_key == intent script hash
-  let vault_master_key = Script(l2_deposit_intent_script_hash)
+  let vault_master_key = Script(vault_script_hash)
   let depositor_input_filter =
     create_account_inputs_filter(depositor, hydra_account_script_hash)
   let vault_input_filter =

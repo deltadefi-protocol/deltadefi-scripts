@@ -26,12 +26,15 @@ const mock_vault_oracle_nft = mock_policy_id(500)
 const mock_l2_deposit_intent_script_hash =
   #"1234567890abcdef1234567890abcdef1234567890abcdef12345678"
 
-// Mock vault account - uses intent script hash as master key
+const mock_vault_script_hash =
+  #"fedcba0987654321fedcba0987654321fedcba0987654321fedcba09"
+
+// Mock vault account - uses vault_script_hash as master key
 fn mock_vault_account() {
   Account {
     account_id: #"aabbccdd",
-    master_key: Script(mock_l2_deposit_intent_script_hash),
-    operation_key: Script(mock_l2_deposit_intent_script_hash),
+    master_key: Script(mock_vault_script_hash),
+    operation_key: Script(mock_vault_script_hash),
   }
 }
 
@@ -45,7 +48,7 @@ fn mock_vault_user_account() {
 fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
   VaultOracleDatum {
     app_oracle: mock_policy_id(0),
-    vault_script_hash: #"",
+    vault_script_hash: mock_vault_script_hash,
     l1_deposit_intent_script_hash: #"",
     l1_withdrawal_intent_script_hash: #"",
     l2_deposit_intent_script_hash: mock_l2_deposit_intent_script_hash,

@@ -50,7 +50,8 @@ pub fn vault_withdrawal(
     hydra_account_script_hash,
     hydra_token_policy_id,
     ..
-  }: DexOrderBookDatum = reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
+  }: DexOrderBookDatum =
+    reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
 
   // 2. Get L2 Withdrawal Intent from burn event (implicitly verifies burn)
   let mint_list = mint |> flatten()
@@ -79,6 +80,7 @@ pub fn vault_withdrawal(
     hydra_node_pub_keys,
     operator_account,
     operator_key,
+    vault_script_hash,
     operator_charge_percentage,
     total_shares: input_total_shares,
     operator_shares: input_operator_shares,
@@ -157,7 +159,7 @@ pub fn vault_withdrawal(
 
   // 7. Group Account UTxOs
   // Vault UTxOs are filtered by master_key == intent script hash
-  let vault_master_key = Script(l2_withdrawal_intent_script_hash)
+  let vault_master_key = Script(vault_script_hash)
   let withdrawer_input_filter =
     create_account_inputs_filter(withdrawer, hydra_account_script_hash)
   let vault_input_filter =
@@ -188,7 +190,11 @@ pub fn vault_withdrawal(
   let vault_deducted =
     merge(inputs_value(vault_inputs), negate(outputs_value(vault_outputs)))
   let vault_deducted_l1 =
-    from_hydra_balance_to_value(vault_deducted, hydra_token_policy_id, token_map)
+    from_hydra_balance_to_value(
+      vault_deducted,
+      hydra_token_policy_id,
+      token_map,
+    )
   let vault_deducted_usd = convert_value_to_usd(vault_deducted_l1, prices)
 
   // Withdrawer gains user_receives (in USD value)

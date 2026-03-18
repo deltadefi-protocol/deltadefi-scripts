@@ -17,11 +17,11 @@
   - `user_receives = gross_value - fee`
 - Categorize inputs into
   - `WI` - Withdrawer Inputs (by full `UserAccount`)
-  - `VI` - Vault Inputs (by `master_key == Script(l2_withdrawal_intent_script_hash)`)
+  - `VI` - Vault Inputs (by `master_key == Script(vault_script_hash)`)
   - Other inputs
 - Categorize outputs into
   - `WO` - Withdrawer Outputs (by full `UserAccount`)
-  - `VO` - Vault Outputs (by `master_key == Script(l2_withdrawal_intent_script_hash)`)
+  - `VO` - Vault Outputs (by `master_key == Script(vault_script_hash)`)
   - Other outputs
 - No other inputs/outputs at `hydra_account_script_hash`
 - Value transfer validated (in USD):
