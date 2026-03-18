@@ -11,13 +11,14 @@ use cocktail.{
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
   create_master_key_inputs_filter, create_master_key_outputs_filter,
+  from_hydra_balance_to_value,
 }
 use hydra_dex/price_oracle_utils.{
   convert_value_to_usd, verify_prices_oracle_messages,
 }
 use hydra_dex/types.{
   DexOrderBookDatum, SharesDelete, SharesMPFAction, SharesRecordEntry,
-  SharesUpdate, VaultOracleDatum, VaultWithdrawalIntentDatumL2,
+  SharesUpdate, TokenMap, VaultOracleDatum, VaultWithdrawalIntentDatumL2,
 }
 use hydra_dex/utils.{get_burning_intent_policy, get_dex_order_book_datum}
 use hydra_dex/withdraw_utils.{
@@ -29,6 +30,7 @@ pub fn vault_withdrawal(
   dex_oracle_nft: PolicyId,
   prices_message: ByteArray,
   signatures: List<ByteArray>,
+  token_map: TokenMap,
   mpf_action: SharesMPFAction,
   operator_mpf_action: SharesMPFAction,
   tx: Transaction,
@@ -43,8 +45,12 @@ pub fn vault_withdrawal(
   } = tx
 
   // 1. Get DexOrderBook datum (reference input with `dex_oracle_nft`)
-  let DexOrderBookDatum { operation_key, hydra_account_script_hash, .. }: DexOrderBookDatum =
-    reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
+  let DexOrderBookDatum {
+    operation_key,
+    hydra_account_script_hash,
+    hydra_token_policy_id,
+    ..
+  }: DexOrderBookDatum = reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
 
   // 2. Get L2 Withdrawal Intent from burn event (implicitly verifies burn)
   let mint_list = mint |> flatten()
@@ -178,9 +184,12 @@ pub fn vault_withdrawal(
 
   // 8. Validate value transfer
   // Vault loses user_receives (in USD value)
+  // Convert L2 values to L1 for price lookup (prices are L1-keyed)
   let vault_deducted =
     merge(inputs_value(vault_inputs), negate(outputs_value(vault_outputs)))
-  let vault_deducted_usd = convert_value_to_usd(vault_deducted, prices)
+  let vault_deducted_l1 =
+    from_hydra_balance_to_value(vault_deducted, hydra_token_policy_id, token_map)
+  let vault_deducted_usd = convert_value_to_usd(vault_deducted_l1, prices)
 
   // Withdrawer gains user_receives (in USD value)
   let withdrawer_added =
@@ -188,7 +197,13 @@ pub fn vault_withdrawal(
       outputs_value(withdrawer_outputs),
       negate(inputs_value(withdrawer_inputs)),
     )
-  let withdrawer_added_usd = convert_value_to_usd(withdrawer_added, prices)
+  let withdrawer_added_l1 =
+    from_hydra_balance_to_value(
+      withdrawer_added,
+      hydra_token_policy_id,
+      token_map,
+    )
+  let withdrawer_added_usd = convert_value_to_usd(withdrawer_added_l1, prices)
 
   let is_value_transfer_correct =
     vault_deducted_usd == user_receives && withdrawer_added_usd == user_receives

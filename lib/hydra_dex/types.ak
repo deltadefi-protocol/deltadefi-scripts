@@ -249,10 +249,11 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
-  ProcessVaultDeposit(ByteArray, List<ByteArray>, SharesMPFAction)
+  ProcessVaultDeposit(ByteArray, List<ByteArray>, TokenMap, SharesMPFAction)
   ProcessVaultWithdrawal(
     ByteArray,
     List<ByteArray>,
+    TokenMap,
     SharesMPFAction,
     SharesMPFAction,
   )

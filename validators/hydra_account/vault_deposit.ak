@@ -13,14 +13,15 @@ use cocktail.{
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
   create_master_key_inputs_filter, create_master_key_outputs_filter,
+  from_hydra_balance_to_value,
 }
 use hydra_dex/deposit_utils.{cal_shares_amount}
 use hydra_dex/price_oracle_utils.{
-  convert_m_value_to_usd, verify_prices_oracle_messages,
+  convert_value_to_usd, verify_prices_oracle_messages,
 }
 use hydra_dex/types.{
   DexOrderBookDatum, SharesInsert, SharesMPFAction, SharesRecordEntry,
-  SharesUpdate, VaultDepositIntentDatumL2, VaultOracleDatum,
+  SharesUpdate, TokenMap, VaultDepositIntentDatumL2, VaultOracleDatum,
 }
 use hydra_dex/utils.{get_burning_intent_policy, get_dex_order_book_datum}
 
@@ -28,6 +29,7 @@ pub fn vault_deposit(
   dex_oracle_nft: PolicyId,
   prices_message: ByteArray,
   signatures: List<ByteArray>,
+  token_map: TokenMap,
   mpf_action: SharesMPFAction,
   tx: Transaction,
 ) -> Bool {
@@ -41,8 +43,12 @@ pub fn vault_deposit(
   } = tx
 
   // 1. Get DexOrderBook datum (reference input with `dex_oracle_nft`)
-  let DexOrderBookDatum { operation_key, hydra_account_script_hash, .. }: DexOrderBookDatum =
-    reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
+  let DexOrderBookDatum {
+    operation_key,
+    hydra_account_script_hash,
+    hydra_token_policy_id,
+    ..
+  }: DexOrderBookDatum = reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
 
   // 2. Get L2 Deposit Intent from burn event (implicitly verifies burn)
   let mint_list = mint |> flatten()
@@ -89,7 +95,11 @@ pub fn vault_deposit(
     )
 
   // 6. Calculate shares and USD value (Division Order: multiply first!)
-  let deposit_usd_value = convert_m_value_to_usd(deposit_amount, prices)
+  // Convert L2 deposit amount to L1 for price lookup (prices are L1-keyed)
+  let deposit_amount_l1 =
+    from_asset_list(deposit_amount)
+      |> from_hydra_balance_to_value(hydra_token_policy_id, token_map)
+  let deposit_usd_value = convert_value_to_usd(deposit_amount_l1, prices)
   // Round DOWN (integer division) - protects vault
   let shares_minted =
     cal_shares_amount(deposit_usd_value, vault_equity, input_total_shares)
@@ -130,7 +140,10 @@ pub fn vault_deposit(
     outputs_value(vault_outputs)
       |> merge(negate(inputs_value(vault_inputs)))
       |> without_lovelace()
-  let intent_amount = from_asset_list(deposit_amount)
+  // deposit_amount is already in L2 format (consistent with UTxO values)
+  let intent_amount =
+    from_asset_list(deposit_amount)
+      |> without_lovelace()
 
   let is_value_transfer_correct =
     deducted_amount == added_amount && added_amount == intent_amount

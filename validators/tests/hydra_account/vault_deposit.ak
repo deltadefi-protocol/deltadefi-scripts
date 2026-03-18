@@ -3,7 +3,7 @@ use cardano/assets.{from_asset, merge, negate}
 use cardano/transaction.{Transaction}
 use hydra_account/core as ha
 use hydra_dex/types.{
-  Account, ProcessVaultDeposit, SharesInsert, UserTradeAccount,
+  Account, ProcessVaultDeposit, SharesInsert, TokenMap, UserTradeAccount,
   VaultDepositIntentDatumL2, VaultOracleDatum,
 }
 use hydra_dex/utils.{to_mvalue}
@@ -242,9 +242,10 @@ test s8_vd_failed_without_operation_key_signed() fail {
 
   // TODO: Replace with actual function call when merkle/price tests added
   // Currently tests validator structure only
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )
@@ -263,9 +264,10 @@ test s8_vd_failed_without_depositor_balance_deducted() fail {
 
   let tx = mock_vault_deposit_tx(test_case)
 
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )
@@ -284,9 +286,10 @@ test s8_vd_failed_without_vault_balance_increased() fail {
 
   let tx = mock_vault_deposit_tx(test_case)
 
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )
@@ -305,9 +308,10 @@ test s8_vd_failed_without_intent_token_burnt() fail {
 
   let tx = mock_vault_deposit_tx(test_case)
 
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )
@@ -326,9 +330,10 @@ test s8_vd_failed_with_other_account_input() fail {
 
   let tx = mock_vault_deposit_tx(test_case)
 
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )
@@ -347,9 +352,10 @@ test s8_vd_failed_with_other_account_output() fail {
 
   let tx = mock_vault_deposit_tx(test_case)
 
+  let mock_token_map: TokenMap = []
   ha.hydra_account.withdraw(
     mock_dex_order_book_token,
-    ProcessVaultDeposit(#"", [], SharesInsert { proof: [] }),
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
     Script(""),
     tx,
   )

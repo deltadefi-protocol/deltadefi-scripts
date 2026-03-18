@@ -103,17 +103,19 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             tree_or_proofs_with_token_map
           combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
         }
-        ProcessVaultDeposit(prices_message, signatures, mpf_action) ->
+        ProcessVaultDeposit(prices_message, signatures, token_map, mpf_action) ->
           vault_deposit(
             dex_oracle_nft,
             prices_message,
             signatures,
+            token_map,
             mpf_action,
             tx,
           )
         ProcessVaultWithdrawal(
           prices_message,
           signatures,
+          token_map,
           mpf_action,
           operator_mpf_action,
         ) ->
@@ -121,6 +123,7 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             dex_oracle_nft,
             prices_message,
             signatures,
+            token_map,
             mpf_action,
             operator_mpf_action,
             tx,

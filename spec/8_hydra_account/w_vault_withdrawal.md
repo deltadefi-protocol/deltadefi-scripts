@@ -25,8 +25,9 @@
   - Other outputs
 - No other inputs/outputs at `hydra_account_script_hash`
 - Value transfer validated (in USD):
-  - Vault deducted == `user_receives`
-  - Withdrawer added == `user_receives`
+  - Convert L2 UTxO values to L1 using `token_map` for price lookup
+  - Vault deducted (L2 → L1 → USD) == `user_receives`
+  - Withdrawer added (L2 → L1 → USD) == `user_receives`
 - Verify User Merkle transition (SharesUpdate or SharesDelete)
   - Key: `cbor.serialise(withdrawer)` (UserAccount)
   - SharesDelete: full withdrawal, `shares_to_redeem == old_entry.shares`
@@ -42,3 +43,22 @@
   - `shares_merkle_root = final_root`
 - The intent token is burnt
 - Signed by `operation_key` OR `operator_key`
+
+## L1 vs L2 Asset Units
+
+- **Price message** contains prices in **L1 format**: `Pairs<(PolicyId, AssetName), Int>`
+- **Account UTxOs** contain values in **L2 format**: `(hydra_token_policy_id, hash_token(policy_id, asset_name), qty)`
+- **Token map** (`TokenMap = Pairs<ByteArray, (PolicyId, AssetName)>`) maps L2 asset hash → L1 asset identity
+- Validator converts L2 UTxO values to L1 using `from_hydra_balance_to_value(l2_value, hydra_token_policy_id, token_map)` before price lookup
+
+## Redeemer
+
+```
+ProcessVaultWithdrawal(
+  prices_message: ByteArray,
+  signatures: List<ByteArray>,
+  token_map: TokenMap,
+  mpf_action: SharesMPFAction,
+  operator_mpf_action: SharesMPFAction,
+)
+```
