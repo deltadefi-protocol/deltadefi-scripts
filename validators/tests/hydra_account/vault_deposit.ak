@@ -69,6 +69,7 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
 // ========== Test Case Type ==========
 
 type VaultDepositTestCase {
+  is_initial_deposit: Bool,
   is_operation_key_signed: Bool,
   is_depositor_balance_deducted: Bool,
   is_vault_balance_increased: Bool,
@@ -81,6 +82,7 @@ type VaultDepositTestCase {
 
 fn mock_vault_deposit_tx(test_case: VaultDepositTestCase) -> Transaction {
   let VaultDepositTestCase {
+    is_initial_deposit,
     is_operation_key_signed,
     is_depositor_balance_deducted,
     is_vault_balance_increased,
@@ -109,15 +111,30 @@ fn mock_vault_deposit_tx(test_case: VaultDepositTestCase) -> Transaction {
 
   let vault_oracle_address = from_script("vault_oracle")
 
-  // Input oracle datum
-  let input_oracle_datum = mock_vault_oracle_datum_input()
+  // Input oracle datum - for initial deposit, total_shares = 0
+  let input_oracle_datum =
+    if is_initial_deposit {
+      VaultOracleDatum { ..mock_vault_oracle_datum_input(), total_shares: 0 }
+    } else {
+      mock_vault_oracle_datum_input()
+    }
 
   // Output oracle datum - updated with new shares
-  // TODO: Update shares calculation when price tests are added
+  // Initial deposit: shares_minted = deposit_usd_value (share price = 1.0)
+  // Regular deposit: shares_minted = (deposit_usd_value * total_shares) / vault_equity
+  let shares_minted =
+    if is_initial_deposit {
+      // Initial: share price = 1.0, so shares = USD value
+      100_000_000
+    } else {
+      // Regular: proportional calculation (simplified for test)
+      100_000_000_000
+    }
+
   let output_oracle_datum =
     VaultOracleDatum {
       ..input_oracle_datum,
-      total_shares: input_oracle_datum.total_shares + 100_000_000_000,
+      total_shares: input_oracle_datum.total_shares + shares_minted,
       total_deposited: input_oracle_datum.total_deposited + 100_000_000,
       shares_merkle_root: #"0000000000000000000000000000000000000000",
     }
@@ -230,6 +247,7 @@ fn mock_vault_deposit_tx(test_case: VaultDepositTestCase) -> Transaction {
 test s8_vd_failed_without_operation_key_signed() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
       is_operation_key_signed: False,
       is_depositor_balance_deducted: True,
       is_vault_balance_increased: True,
@@ -254,12 +272,13 @@ test s8_vd_failed_without_operation_key_signed() fail {
 test s8_vd_failed_without_depositor_balance_deducted() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
       is_operation_key_signed: True,
       is_depositor_balance_deducted: False,
       is_vault_balance_increased: True,
       is_intent_token_burnt: True,
       has_other_account_input: False,
-      has_other_account_output: False,
+ has_other_account_output: False,
     }
 
   let tx = mock_vault_deposit_tx(test_case)
@@ -276,6 +295,7 @@ test s8_vd_failed_without_depositor_balance_deducted() fail {
 test s8_vd_failed_without_vault_balance_increased() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
       is_operation_key_signed: True,
       is_depositor_balance_deducted: True,
       is_vault_balance_increased: False,
@@ -298,6 +318,7 @@ test s8_vd_failed_without_vault_balance_increased() fail {
 test s8_vd_failed_without_intent_token_burnt() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
       is_operation_key_signed: True,
       is_depositor_balance_deducted: True,
       is_vault_balance_increased: True,
@@ -320,6 +341,7 @@ test s8_vd_failed_without_intent_token_burnt() fail {
 test s8_vd_failed_with_other_account_input() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
       is_operation_key_signed: True,
       is_depositor_balance_deducted: True,
       is_vault_balance_increased: True,
@@ -342,6 +364,147 @@ test s8_vd_failed_with_other_account_input() fail {
 test s8_vd_failed_with_other_account_output() fail {
   let test_case =
     VaultDepositTestCase {
+      is_initial_deposit: False,
+      is_operation_key_signed: True,
+      is_depositor_balance_deducted: True,
+      is_vault_balance_increased: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: True,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+// ========== Initial Deposit Tests ==========
+
+test s8_vd_initial_failed_without_operation_key_signed() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
+      is_operation_key_signed: False,
+      is_depositor_balance_deducted: True,
+      is_vault_balance_increased: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+test s8_vd_initial_failed_without_depositor_balance_deducted() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
+      is_operation_key_signed: True,
+      is_depositor_balance_deducted: False,
+      is_vault_balance_increased: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+test s8_vd_initial_failed_without_vault_balance_increased() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
+      is_operation_key_signed: True,
+      is_depositor_balance_deducted: True,
+      is_vault_balance_increased: False,
+      is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+test s8_vd_initial_failed_without_intent_token_burnt() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
+      is_operation_key_signed: True,
+      is_depositor_balance_deducted: True,
+      is_vault_balance_increased: True,
+      is_intent_token_burnt: False,
+      has_other_account_input: False,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+test s8_vd_initial_failed_with_other_account_input() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
+      is_operation_key_signed: True,
+      is_depositor_balance_deducted: True,
+      is_vault_balance_increased: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: True,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_vault_deposit_tx(test_case)
+
+  let mock_token_map: TokenMap = []
+  ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessVaultDeposit(#"", [], mock_token_map, SharesInsert { proof: [] }),
+    Script(""),
+    tx,
+  )
+}
+
+test s8_vd_initial_failed_with_other_account_output() fail {
+  let test_case =
+    VaultDepositTestCase {
+      is_initial_deposit: True,
       is_operation_key_signed: True,
       is_depositor_balance_deducted: True,
       is_vault_balance_increased: True,
@@ -374,8 +537,13 @@ test s8_vd_failed_with_other_account_output() fail {
 // ========== TODO: Shares Calculation Tests ==========
 // test s8_vd_shares_calculation_correct() { ... }
 // test s8_vd_shares_round_down() { ... }
+// test s8_vd_initial_shares_equals_usd_value() { ... } -- initial deposit share price = 1.0
 
 // ========== TODO: Oracle Datum Update Tests ==========
 // test s8_vd_failed_total_shares_not_updated() fail { ... }
 // test s8_vd_failed_total_deposited_not_updated() fail { ... }
 // test s8_vd_failed_other_fields_changed() fail { ... }
+
+// ========== TODO: Initial Deposit Specific Tests ==========
+// test s8_vd_initial_success_anyone_can_deposit() { ... } -- no depositor restriction
+// test s8_vd_initial_shares_go_to_depositor() { ... } -- verify MPF key is depositor

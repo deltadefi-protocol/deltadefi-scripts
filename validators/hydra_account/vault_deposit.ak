@@ -48,7 +48,8 @@ pub fn vault_deposit(
     hydra_account_script_hash,
     hydra_token_policy_id,
     ..
-  }: DexOrderBookDatum = reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
+  }: DexOrderBookDatum =
+    reference_inputs |> get_dex_order_book_datum(dex_oracle_nft)
 
   // 2. Get L2 Deposit Intent from burn event (implicitly verifies burn)
   let mint_list = mint |> flatten()
@@ -81,6 +82,8 @@ pub fn vault_deposit(
     ..
   } = input_oracle_datum
 
+  let is_initial_deposit = input_total_shares == 0
+
   // 4. Validate intent script matches vault config
   let is_intent_valid = intent_policy_id == l2_deposit_intent_script_hash
 
@@ -100,9 +103,14 @@ pub fn vault_deposit(
     from_asset_list(deposit_amount)
       |> from_hydra_balance_to_value(hydra_token_policy_id, token_map)
   let deposit_usd_value = convert_value_to_usd(deposit_amount_l1, prices)
-  // Round DOWN (integer division) - protects vault
+  // Initial deposit: share price = 1.0, so shares = deposit_usd_value
+  // Regular deposit: Round DOWN (integer division) - protects vault
   let shares_minted =
-    cal_shares_amount(deposit_usd_value, vault_equity, input_total_shares)
+    if is_initial_deposit {
+      deposit_usd_value
+    } else {
+      cal_shares_amount(deposit_usd_value, vault_equity, input_total_shares)
+    }
 
   // 7. Group Account UTxOs (following transferal.ak pattern)
   // Vault UTxOs are filtered by master_key == intent script hash

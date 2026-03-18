@@ -1,5 +1,7 @@
 # Specification - HydraAccount - Vault Deposit
 
+Supports both initial deposit (when `total_shares == 0`) and regular deposits.
+
 ## User Action
 
 - Ref input with `dex_oracle_nft`
@@ -8,8 +10,11 @@
   - `vault_oracle_nft`, `depositor: UserAccount`, `deposit_amount: MValue`
 - Get Vault Oracle input/output (UTxO with `vault_oracle_nft`)
 - Validate intent script matches vault config (`intent_policy_id == l2_deposit_intent_script_hash`)
+- Check if initial deposit: `is_initial_deposit = input_total_shares == 0`
 - Verify prices message with hydra node signatures
-- Calculate shares: `shares_minted = (deposit_usd_value * total_shares) / vault_equity` (round DOWN)
+- Calculate shares:
+  - **Initial deposit**: `shares_minted = deposit_usd_value` (share price = 1.0)
+  - **Regular deposit**: `shares_minted = (deposit_usd_value * total_shares) / vault_equity` (round DOWN)
 - Categorize inputs into
   - `DI` - Depositor Inputs (by full `UserAccount`)
   - `VI` - Vault Inputs (by `master_key == Script(l2_deposit_intent_script_hash)`)
@@ -24,7 +29,7 @@
   2. Increase in value for vault (`VO` - `VI`) without lovelace
   3. Value in deposit intent (`deposit_amount`)
 - Verify Merkle transition (SharesInsert or SharesUpdate)
-  - Key: `cbor.serialise(depositor)` (UserAccount)
+  - Key: `cbor.serialise(depositor)` (shares always go to depositor)
   - Value: `SharesRecordEntry { shares, total_deposited }`
 - Vault Oracle output datum updated:
   - `total_shares += shares_minted`
@@ -32,6 +37,12 @@
   - `shares_merkle_root = computed_new_root`
 - The intent token is burnt
 - Signed by `operation_key`
+
+## Initial Deposit Notes
+
+- Anyone can perform the initial deposit (no depositor restriction)
+- Shares are minted for the depositor (same as regular deposit)
+- Share price is 1.0 (shares = USD value deposited)
 
 ## L2 Asset Units
 
