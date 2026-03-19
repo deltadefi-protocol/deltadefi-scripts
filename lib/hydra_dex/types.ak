@@ -371,5 +371,5 @@ pub type VaultOracleDatum {
   operator_shares: Int,
   total_deposited: Int,
   shares_merkle_root: ByteArray,
-  total_fee_collected: Int,
+  total_fee_share_collected: Int,
 }

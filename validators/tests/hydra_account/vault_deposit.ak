@@ -65,7 +65,7 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     operator_shares: 0,
     total_deposited: 1_000_000_000,
     shares_merkle_root: #"",
-    total_fee_collected: 0,
+    total_fee_share_collected: 0,
   }
 }
 

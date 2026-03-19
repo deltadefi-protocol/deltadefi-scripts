@@ -46,7 +46,7 @@
     - If `withdrawer == operator_account`: `operator_shares - shares_to_redeem + fee_shares`
     - If `withdrawer != operator_account`: `operator_shares + fee_shares`
   - `total_deposited -= cost_basis`
-  - `total_fee_collected += fee`
+  - `total_fee_share_collected += fee_shares`
   - `shares_merkle_root = final_root`
 - The intent token is burnt
 - Signed by `operation_key` OR `operator_key`

@@ -87,7 +87,7 @@ pub fn vault_withdrawal(
     operator_shares: input_operator_shares,
     total_deposited: input_total_deposited,
     shares_merkle_root: input_merkle_root,
-    total_fee_collected: input_total_fee_collected,
+    total_fee_share_collected: input_total_fee_share_collected,
     ..
   } = input_oracle_datum
 
@@ -259,7 +259,7 @@ pub fn vault_withdrawal(
       total_shares: new_total_shares,
       operator_shares: new_operator_shares,
       total_deposited: input_total_deposited - cost_basis,
-      total_fee_collected: input_total_fee_collected + fee,
+      total_fee_share_collected: input_total_fee_share_collected + fee_shares,
       shares_merkle_root: final_root,
     }
 

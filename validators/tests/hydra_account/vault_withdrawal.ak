@@ -81,7 +81,7 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     operator_shares: 0,
     total_deposited: 1_000_000_000,
     shares_merkle_root: #"",
-    total_fee_collected: 0,
+    total_fee_share_collected: 0,
   }
 }
 
@@ -748,7 +748,7 @@ test s8_vw_operator_withdrawal_with_fee_maintains_exact_min() fail {
 // test s8_vw_failed_total_shares_not_updated() fail { ... }
 // test s8_vw_failed_operator_shares_not_updated() fail { ... }
 // test s8_vw_failed_total_deposited_not_updated() fail { ... }
-// test s8_vw_failed_total_fee_collected_not_updated() fail { ... }
+// test s8_vw_failed_total_fee_share_collected_not_updated() fail { ... }
 // test s8_vw_failed_other_fields_changed() fail { ... }
 
 // ========== TODO: Value Transfer Tests ==========
