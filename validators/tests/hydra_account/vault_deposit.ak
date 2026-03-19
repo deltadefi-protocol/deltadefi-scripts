@@ -550,3 +550,19 @@ test s8_vd_initial_failed_with_other_account_output() fail {
 // ========== TODO: Initial Deposit Specific Tests ==========
 // test s8_vd_initial_success_anyone_can_deposit() { ... } -- no depositor restriction
 // test s8_vd_initial_shares_go_to_depositor() { ... } -- verify MPF key is depositor
+
+// ========== TODO: Operator == Depositor Edge Case ==========
+// When operator deposits (after receiving fee shares from withdrawals)
+// Uses SharesUpdate since operator already has an MPF entry
+//
+// test s8_vd_operator_deposits_with_existing_fee_shares() { ... }
+//   - Existing entry: { shares: fee_shares, total_deposited: 0 } (from fees)
+//   - After deposit: { shares: fee_shares + new_shares, total_deposited: deposit_usd_value }
+//   - Both shares and total_deposited increase correctly
+//   - operator_shares in VaultOracleDatum increases by shares_minted
+//
+// test s8_vd_operator_shares_updated_when_operator_deposits() { ... }
+//   - Verify operator_shares = input_operator_shares + shares_minted
+//
+// test s8_vd_operator_shares_unchanged_when_non_operator_deposits() { ... }
+//   - Verify operator_shares remains unchanged when depositor != operator

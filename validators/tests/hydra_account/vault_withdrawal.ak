@@ -456,9 +456,54 @@ test s8_vw_failed_with_other_account_output() fail {
 // test s8_vw_fee_shares_rounds_up() { ... }
 
 // ========== TODO: Operator Fee Share Tests ==========
+// Operator receives fee_shares when profit > 0
+// Key behavior: operator's total_deposited remains UNCHANGED (fee shares are earned, not deposited)
+//
 // test s8_vw_operator_fee_share_insert() { ... }
+//   - Operator has no existing MPF entry
+//   - New entry created: { shares: fee_shares, total_deposited: 0 }
+//
 // test s8_vw_operator_fee_share_update() { ... }
+//   - Operator has existing MPF entry
+//   - Entry updated: { shares: old_shares + fee_shares, total_deposited: old_deposited } (unchanged)
+//
 // test s8_vw_no_operator_fee_when_no_profit() { ... }
+//   - No fee when withdrawal_value <= cost_basis
+
+// ========== TODO: Operator == Withdrawer Edge Case ==========
+// When operator is also the withdrawer, both MPF transitions affect the same entry
+// Step 1 (user MPF) runs first, Step 2 (operator MPF) uses the resulting root
+// operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+//
+// test s8_vw_operator_is_withdrawer_full_withdrawal() { ... }
+//   - Step 1: SharesDelete (remove operator's entry)
+//   - Step 2: SharesInsert (re-insert with fee_shares only)
+//   - Final entry: { shares: fee_shares, total_deposited: 0 }
+//   - operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+//
+// test s8_vw_operator_is_withdrawer_partial_withdrawal() { ... }
+//   - Step 1: SharesUpdate (reduce shares and proportional cost_basis)
+//   - Step 2: SharesUpdate (add fee_shares, total_deposited unchanged from step 1)
+//   - Final entry: { shares: remaining + fee_shares, total_deposited: reduced }
+//   - operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+//
+// test s8_vw_operator_shares_updated_when_operator_withdraws() { ... }
+//   - Verify operator_shares = input - shares_to_redeem + fee_shares
+//
+// test s8_vw_operator_shares_only_adds_fee_when_non_operator_withdraws() { ... }
+//   - Verify operator_shares = input + fee_shares when withdrawer != operator
+
+// ========== TODO: Operator Minimum Percentage Tests ==========
+// When operator withdraws, must maintain: new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 100
+//
+// test s8_vw_operator_withdrawal_respects_min_percentage() { ... }
+//   - Operator can withdraw if they maintain minimum percentage
+//
+// test s8_vw_operator_withdrawal_fails_below_min_percentage() fail { ... }
+//   - Operator cannot withdraw if it would drop below minimum percentage
+//
+// test s8_vw_non_operator_withdrawal_ignores_min_percentage() { ... }
+//   - Non-operator withdrawals don't check minimum percentage
 
 // ========== TODO: Oracle Datum Update Tests ==========
 // test s8_vw_failed_total_shares_not_updated() fail { ... }

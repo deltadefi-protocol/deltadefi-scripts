@@ -77,7 +77,9 @@ pub fn vault_deposit(
     l2_deposit_intent_script_hash,
     hydra_node_pub_keys,
     vault_script_hash,
+    operator_account,
     total_shares: input_total_shares,
+    operator_shares: input_operator_shares,
     total_deposited: input_total_deposited,
     shares_merkle_root: input_merkle_root,
     ..
@@ -190,11 +192,23 @@ pub fn vault_deposit(
       _ -> fail @"Invalid MPF action for deposit"
     }
 
-  // 10. Verify Vault Oracle output datum
+  // 10. Calculate new operator_shares
+  // If depositor == operator: shares increase by shares_minted
+  // If depositor != operator: shares unchanged
+  let is_operator_depositing = depositor == operator_account
+  let new_operator_shares =
+    if is_operator_depositing {
+      input_operator_shares + shares_minted
+    } else {
+      input_operator_shares
+    }
+
+  // Verify Vault Oracle output datum
   let is_oracle_datum_updated =
     output_oracle_datum == VaultOracleDatum {
       ..input_oracle_datum,
       total_shares: input_total_shares + shares_minted,
+      operator_shares: new_operator_shares,
       total_deposited: input_total_deposited + deposit_usd_value,
       shares_merkle_root: computed_new_root,
     }

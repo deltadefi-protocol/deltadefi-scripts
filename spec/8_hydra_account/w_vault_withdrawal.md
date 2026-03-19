@@ -34,15 +34,36 @@
   - SharesUpdate: partial withdrawal, deduct shares and proportional cost_basis
 - Apply Operator Fee Shares (if `fee_shares > 0`)
   - Key: `cbor.serialise(operator_account)` (UserAccount)
-  - SharesInsert or SharesUpdate for operator
+  - SharesInsert: New entry with `{ shares: fee_shares, total_deposited: 0 }`
+  - SharesUpdate: Add fee_shares to existing entry, **`total_deposited` remains unchanged**
+  - Fee shares represent earned fees, not new capital deposits
+- **Operator minimum share percentage check** (only when operator withdraws):
+  - `new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares`
+  - Ensures operator maintains minimum stake in the vault
 - Vault Oracle output datum updated:
   - `total_shares = input_total_shares - shares_to_redeem + fee_shares`
-  - `operator_shares += fee_shares`
+  - `operator_shares`:
+    - If `withdrawer == operator_account`: `operator_shares - shares_to_redeem + fee_shares`
+    - If `withdrawer != operator_account`: `operator_shares + fee_shares`
   - `total_deposited -= cost_basis`
   - `total_fee_collected += fee`
   - `shares_merkle_root = final_root`
 - The intent token is burnt
 - Signed by `operation_key` OR `operator_key`
+
+## Edge Case: Operator == Withdrawer
+
+When the operator is also the withdrawer, both MPF transitions operate on the **same entry**:
+
+1. **Step 1 (User MPF)**: Update/delete the withdrawer's entry → `new_user_root`
+2. **Step 2 (Operator MPF)**: Insert/update the operator's entry using `new_user_root` → `final_root`
+
+| Scenario | Step 1 | Step 2 | Final Entry |
+|----------|--------|--------|-------------|
+| Full withdrawal | Delete entry | SharesInsert | `{ shares: fee_shares, total_deposited: 0 }` |
+| Partial withdrawal | Update (reduce shares/deposited) | SharesUpdate | `{ shares: remaining + fee_shares, total_deposited: reduced }` |
+
+**Important**: The `operator_mpf_action.from` value must reflect the state **AFTER** step 1's transition.
 
 ## L1 vs L2 Asset Units
 

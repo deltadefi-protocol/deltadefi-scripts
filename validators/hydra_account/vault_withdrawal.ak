@@ -82,6 +82,7 @@ pub fn vault_withdrawal(
     operator_key,
     vault_script_hash,
     operator_charge_percentage,
+    operator_min_deposit_percentage,
     total_shares: input_total_shares,
     operator_shares: input_operator_shares,
     total_deposited: input_total_deposited,
@@ -227,12 +228,36 @@ pub fn vault_withdrawal(
       new_user_root
     }
 
-  // 11. Verify Vault Oracle output datum
+  // 11. Calculate new operator_shares
+  // If withdrawer == operator: shares decrease by shares_to_redeem, increase by fee_shares
+  // If withdrawer != operator: shares only increase by fee_shares
+  let is_operator_withdrawing = withdrawer == operator_account
+  let new_operator_shares =
+    if is_operator_withdrawing {
+      input_operator_shares - shares_to_redeem + fee_shares
+    } else {
+      input_operator_shares + fee_shares
+    }
+
+  // Calculate new total_shares for min percentage check
+  let new_total_shares = input_total_shares - shares_to_redeem + fee_shares
+
+  // Verify operator maintains minimum share percentage when withdrawing
+  // new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 100
+  // Rearranged to avoid division: new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares
+  let is_operator_min_percentage_maintained =
+    if is_operator_withdrawing {
+      new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares
+    } else {
+      True
+    }
+
+  // Verify Vault Oracle output datum
   let is_oracle_datum_updated =
     output_oracle_datum == VaultOracleDatum {
       ..input_oracle_datum,
-      total_shares: input_total_shares - shares_to_redeem + fee_shares,
-      operator_shares: input_operator_shares + fee_shares,
+      total_shares: new_total_shares,
+      operator_shares: new_operator_shares,
       total_deposited: input_total_deposited - cost_basis,
       total_fee_collected: input_total_fee_collected + fee,
       shares_merkle_root: final_root,
@@ -251,6 +276,7 @@ pub fn vault_withdrawal(
     no_other_account_inputs?,
     no_other_account_outputs?,
     is_value_transfer_correct?,
+    is_operator_min_percentage_maintained?,
     is_oracle_datum_updated?,
     is_signed?,
   }

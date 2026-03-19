@@ -33,6 +33,7 @@ Supports both initial deposit (when `total_shares == 0`) and regular deposits.
   - Value: `SharesRecordEntry { shares, total_deposited }`
 - Vault Oracle output datum updated:
   - `total_shares += shares_minted`
+  - `operator_shares += shares_minted` (only if `depositor == operator_account`)
   - `total_deposited += deposit_usd_value`
   - `shares_merkle_root = computed_new_root`
 - The intent token is burnt
@@ -43,6 +44,14 @@ Supports both initial deposit (when `total_shares == 0`) and regular deposits.
 - Anyone can perform the initial deposit (no depositor restriction)
 - Shares are minted for the depositor (same as regular deposit)
 - Share price is 1.0 (shares = USD value deposited)
+
+## Edge Case: Operator == Depositor
+
+If the operator deposits (after previously receiving fee shares from withdrawals):
+- Existing entry might be: `{ shares: fee_shares, total_deposited: 0 }` (fees don't add to deposited)
+- After deposit: `{ shares: fee_shares + new_shares, total_deposited: 0 + deposit_usd_value }`
+
+This is handled correctly by `SharesUpdate` which adds to both `shares` and `total_deposited`.
 
 ## L2 Asset Units
 
