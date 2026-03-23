@@ -55,7 +55,6 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     l2_withdrawal_intent_script_hash: #"",
     pluggable_logic: #"",
     vault_stake_rotation_script_hash: #"",
-    operator_key: mock_operation_key,
     operator_account: mock_user_account(mock_account),
     operator_charge_percentage: 10,
     operator_min_deposit_percentage: 0,

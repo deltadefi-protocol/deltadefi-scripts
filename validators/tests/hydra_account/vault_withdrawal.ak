@@ -71,7 +71,6 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     l2_withdrawal_intent_script_hash: mock_l2_withdrawal_intent_script_hash,
     pluggable_logic: #"",
     vault_stake_rotation_script_hash: #"",
-    operator_key: mock_operator_key,
     operator_account: mock_operator_user_account(),
     operator_charge_percentage: 10,
     operator_min_deposit_percentage: 0,
@@ -456,45 +455,52 @@ test s8_vw_failed_with_other_account_output() fail {
 // test s8_vw_fee_shares_rounds_up() { ... }
 
 // ========== TODO: Operator Fee Share Tests ==========
-// Operator receives fee_shares when profit > 0
+// Operator receives fee_shares ONLY from non-operator withdrawals (when profit > 0)
 // Key behavior: operator's total_deposited remains UNCHANGED (fee shares are earned, not deposited)
+// NOTE: Fee is SKIPPED when operator withdraws (economically neutral - paying fee to self)
 //
 // test s8_vw_operator_fee_share_insert() { ... }
+//   - Non-operator withdraws with profit
 //   - Operator has no existing MPF entry
 //   - New entry created: { shares: fee_shares, total_deposited: 0 }
 //
 // test s8_vw_operator_fee_share_update() { ... }
+//   - Non-operator withdraws with profit
 //   - Operator has existing MPF entry
 //   - Entry updated: { shares: old_shares + fee_shares, total_deposited: old_deposited } (unchanged)
 //
 // test s8_vw_no_operator_fee_when_no_profit() { ... }
 //   - No fee when withdrawal_value <= cost_basis
+//
+// test s8_vw_no_operator_fee_when_operator_withdraws() { ... }
+//   - Fee is skipped when operator is the withdrawer (fee_shares = 0)
 
 // ========== TODO: Operator == Withdrawer Edge Case ==========
-// When operator is also the withdrawer, both MPF transitions affect the same entry
-// Step 1 (user MPF) runs first, Step 2 (operator MPF) uses the resulting root
-// operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+// When operator is also the withdrawer:
+// - Fee is SKIPPED (economically neutral - operator paying fee to themselves)
+// - Only user MPF transition is performed (no operator MPF action needed)
+// - operator_shares = input_operator_shares - shares_to_redeem (no fee_shares offset)
 //
 // test s8_vw_operator_is_withdrawer_full_withdrawal() { ... }
-//   - Step 1: SharesDelete (remove operator's entry)
-//   - Step 2: SharesInsert (re-insert with fee_shares only)
-//   - Final entry: { shares: fee_shares, total_deposited: 0 }
-//   - operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+//   - SharesDelete (remove operator's entry completely)
+//   - No operator MPF action (fee_shares = 0)
+//   - operator_shares = 0
 //
 // test s8_vw_operator_is_withdrawer_partial_withdrawal() { ... }
-//   - Step 1: SharesUpdate (reduce shares and proportional cost_basis)
-//   - Step 2: SharesUpdate (add fee_shares, total_deposited unchanged from step 1)
-//   - Final entry: { shares: remaining + fee_shares, total_deposited: reduced }
-//   - operator_shares = input_operator_shares - shares_to_redeem + fee_shares
+//   - SharesUpdate (reduce shares and proportional cost_basis)
+//   - No operator MPF action (fee_shares = 0)
+//   - Final entry: { shares: remaining, total_deposited: reduced }
+//   - operator_shares = input_operator_shares - shares_to_redeem
 //
-// test s8_vw_operator_shares_updated_when_operator_withdraws() { ... }
-//   - Verify operator_shares = input - shares_to_redeem + fee_shares
+// test s8_vw_operator_shares_decreases_when_operator_withdraws() { ... }
+//   - Verify operator_shares = input - shares_to_redeem (no fee offset)
 //
 // test s8_vw_operator_shares_only_adds_fee_when_non_operator_withdraws() { ... }
 //   - Verify operator_shares = input + fee_shares when withdrawer != operator
 
 // ========== Operator Minimum Percentage Tests ==========
 // When operator withdraws, must maintain: new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 100
+// NOTE: Fee is skipped when operator withdraws (fee_shares = 0), so no fee offset
 
 type OperatorMinPercentageTestCase {
   // Vault state
@@ -503,7 +509,6 @@ type OperatorMinPercentageTestCase {
   operator_min_deposit_percentage: Int,
   // Withdrawal params
   shares_to_redeem: Int,
-  fee_shares: Int,
 }
 
 fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> Transaction {
@@ -512,7 +517,6 @@ fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> 
     operator_shares,
     operator_min_deposit_percentage,
     shares_to_redeem,
-    fee_shares,
   } = test_case
 
   let withdrawal_value = mock_hydra_lovelace(100_000_000)
@@ -535,8 +539,9 @@ fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> 
     }
 
   // Calculate new values after withdrawal
-  let new_total_shares = total_shares - shares_to_redeem + fee_shares
-  let new_operator_shares = operator_shares - shares_to_redeem + fee_shares
+  // NOTE: fee_shares = 0 when operator withdraws (fee is skipped)
+  let new_total_shares = total_shares - shares_to_redeem
+  let new_operator_shares = operator_shares - shares_to_redeem
 
   let output_oracle_datum =
     VaultOracleDatum {
@@ -623,7 +628,7 @@ fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> 
 }
 
 // Operator has 20% of shares (200 of 1000), min is 10%
-// Withdraws 50 shares -> new: 150/950 = 15.7% >= 10% ✓
+// Withdraws 50 shares -> new: 150/950 = 15.8% >= 10% ✓
 // NOTE: Test marked `fail` because merkle/price verification not mocked.
 // Min percentage check PASSES in this scenario (150*100 >= 10*950 -> 15000 >= 9500)
 test s8_vw_operator_withdrawal_respects_min_percentage() fail {
@@ -633,7 +638,6 @@ test s8_vw_operator_withdrawal_respects_min_percentage() fail {
       operator_shares: 200,
       operator_min_deposit_percentage: 10,
       shares_to_redeem: 50,
-      fee_shares: 0,
     }
 
   let tx = mock_operator_min_percentage_tx(test_case)
@@ -663,7 +667,6 @@ test s8_vw_operator_withdrawal_fails_below_min_percentage() fail {
       operator_shares: 150,
       operator_min_deposit_percentage: 10,
       shares_to_redeem: 100,
-      fee_shares: 0,
     }
 
   let tx = mock_operator_min_percentage_tx(test_case)
@@ -684,16 +687,16 @@ test s8_vw_operator_withdrawal_fails_below_min_percentage() fail {
 }
 
 // Operator has 10% of shares (100 of 1000), min is 10%
-// Withdraws 50 shares, earns 40 fee_shares -> new: 90/990 = 9.09% < 10% ✗
-// Min percentage check FAILS (90*100 >= 10*990 -> 9000 >= 9900 is FALSE)
-test s8_vw_operator_withdrawal_with_fee_still_fails_below_min() fail {
+// Withdraws 50 shares -> new: 50/950 = 5.3% < 10% ✗
+// Min percentage check FAILS (50*100 >= 10*950 -> 5000 >= 9500 is FALSE)
+// NOTE: Fee is skipped when operator withdraws, so no fee_shares offset
+test s8_vw_operator_withdrawal_at_min_fails_below() fail {
   let test_case =
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 100,
       operator_min_deposit_percentage: 10,
       shares_to_redeem: 50,
-      fee_shares: 40,
     }
 
   let tx = mock_operator_min_percentage_tx(test_case)
@@ -713,18 +716,16 @@ test s8_vw_operator_withdrawal_with_fee_still_fails_below_min() fail {
   )
 }
 
-// Operator has 10% (100 of 1000), min is 10%
-// Withdraws 50, earns 50 fee_shares -> new: 100/1000 = 10% == 10% ✓
-// NOTE: Test marked `fail` because merkle/price verification not mocked.
-// Min percentage check PASSES (100*100 >= 10*1000 -> 10000 >= 10000)
-test s8_vw_operator_withdrawal_with_fee_maintains_exact_min() fail {
+// Operator has exactly 10% (100 of 1000), min is 10%
+// Cannot withdraw ANY shares without falling below minimum
+// Withdraws 1 share -> new: 99/999 = 9.9% < 10% ✗
+test s8_vw_operator_at_exact_min_cannot_withdraw() fail {
   let test_case =
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 100,
       operator_min_deposit_percentage: 10,
-      shares_to_redeem: 50,
-      fee_shares: 50,
+      shares_to_redeem: 1,
     }
 
   let tx = mock_operator_min_percentage_tx(test_case)

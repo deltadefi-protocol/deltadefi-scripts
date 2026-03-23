@@ -1,6 +1,7 @@
 use aiken/cbor
 use aiken/collection/list
 use aiken/collection/pairs
+use aiken/crypto.{VerificationKey}
 use cardano/assets.{AssetName, PolicyId, Value}
 use cardano/transaction.{Input}
 use cocktail.{verify_pub_keys, verify_signatures}
@@ -9,8 +10,8 @@ use hydra_dex/types.{MValue, Message}
 pub fn verify_prices_oracle_messages(
   prices_message: ByteArray,
   inputs: List<Input>,
-  hydra_signers: List<ByteArray>,
-  hydra_node_pub_keys: List<ByteArray>,
+  hydra_signers: List<VerificationKey>,
+  hydra_node_pub_keys: List<VerificationKey>,
   signatures: List<ByteArray>,
 ) -> (Int, Pairs<(PolicyId, AssetName), Int>, Bool) {
   expect Some(signed_data) = cbor.deserialise(prices_message)
@@ -19,9 +20,13 @@ pub fn verify_prices_oracle_messages(
   let is_utxo_consumed =
     list.any(inputs, fn(input) { input.output_reference == utxo_ref })
 
-  let keys_check = verify_pub_keys(hydra_node_pub_keys, hydra_signers)
+  // Convert VerificationKey to ByteArray for cocktail functions
+  let pub_keys_bytes = list.map(hydra_node_pub_keys, fn(vk) { vk })
+  let signers_bytes = list.map(hydra_signers, fn(vk) { vk })
+
+  let keys_check = verify_pub_keys(pub_keys_bytes, signers_bytes)
   let signatures_check =
-    verify_signatures(hydra_node_pub_keys, prices_message, signatures)
+    verify_signatures(pub_keys_bytes, prices_message, signatures)
 
   let message_verified = is_utxo_consumed? && keys_check? && signatures_check?
 

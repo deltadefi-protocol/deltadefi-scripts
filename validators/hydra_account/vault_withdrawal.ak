@@ -1,6 +1,6 @@
 use aiken/cbor
 use aiken/merkle_patricia_forestry as mpf
-use cardano/address.{Script, from_script}
+use cardano/address.{Script, VerificationKey, from_script}
 use cardano/assets.{PolicyId, flatten, merge, negate}
 use cardano/transaction.{Transaction}
 use cocktail.{
@@ -11,7 +11,7 @@ use cocktail.{
 use hydra_dex/account_utils.{
   create_account_inputs_filter, create_account_outputs_filter,
   create_master_key_inputs_filter, create_master_key_outputs_filter,
-  from_hydra_balance_to_value,
+  from_hydra_balance_to_value, get_master_key,
 }
 use hydra_dex/price_oracle_utils.{
   convert_value_to_usd, verify_prices_oracle_messages,
@@ -79,7 +79,6 @@ pub fn vault_withdrawal(
     l2_withdrawal_intent_script_hash,
     hydra_node_pub_keys,
     operator_account,
-    operator_key,
     vault_script_hash,
     operator_charge_percentage,
     operator_min_deposit_percentage,
@@ -104,7 +103,10 @@ pub fn vault_withdrawal(
       signatures,
     )
 
-  // 6. Calculate withdrawal values (Division Order: multiply first!)
+  // 6. Check if operator is withdrawing (skip fee if so)
+  let is_operator_withdrawing = withdrawer == operator_account
+
+  // 7. Calculate withdrawal values (Division Order: multiply first!)
   // Gross value: Round DOWN (integer division) - protects vault
   let gross_value =
     convert_shares_to_usd(shares_to_redeem, input_total_shares, vault_equity)
@@ -144,19 +146,34 @@ pub fn vault_withdrawal(
       _ -> fail @"Invalid MPF action for withdrawal"
     }
 
-  // Calculate fee based on profit - Round UP to protect operator
-  let fee =
-    cal_per_user_operator_fee(
-      gross_value,
-      cost_basis,
-      operator_charge_percentage,
-    )
+  // Calculate fee based on profit - Skip fee when operator withdraws (economically neutral)
+  let fee_shares =
+    if is_operator_withdrawing {
+      0
+    } else {
+      let fee =
+        cal_per_user_operator_fee(
+          gross_value,
+          cost_basis,
+          operator_charge_percentage,
+        )
+      // Fee shares - Round UP to protect operator
+      compute_fee_shares(fee, input_total_shares, vault_equity)
+    }
 
-  // Fee shares - Round UP to protect operator
-  let fee_shares = compute_fee_shares(fee, input_total_shares, vault_equity)
-
-  // User receives (naturally rounds DOWN)
-  let user_receives = gross_value - fee
+  // User receives: gross_value when operator, gross_value - fee otherwise
+  let user_receives =
+    if is_operator_withdrawing {
+      gross_value
+    } else {
+      let fee =
+        cal_per_user_operator_fee(
+          gross_value,
+          cost_basis,
+          operator_charge_percentage,
+        )
+      gross_value - fee
+    }
 
   // 7. Group Account UTxOs
   // Vault UTxOs are filtered by master_key == intent script hash
@@ -215,7 +232,8 @@ pub fn vault_withdrawal(
   let is_value_transfer_correct =
     vault_deducted_usd == user_receives && withdrawer_added_usd == user_receives
 
-  // 10. Apply Operator Fee Shares (if fee > 0)
+  // 10. Apply Operator Fee Shares (only when non-operator withdraws with profit)
+  // When operator withdraws, fee_shares is 0, so no operator MPF action needed
   let final_root =
     if fee_shares > 0 {
       apply_operator_fee_share(
@@ -229,12 +247,11 @@ pub fn vault_withdrawal(
     }
 
   // 11. Calculate new operator_shares
-  // If withdrawer == operator: shares decrease by shares_to_redeem, increase by fee_shares
-  // If withdrawer != operator: shares only increase by fee_shares
-  let is_operator_withdrawing = withdrawer == operator_account
+  // If withdrawer == operator: shares decrease by shares_to_redeem (no fee earned from self)
+  // If withdrawer != operator: shares increase by fee_shares
   let new_operator_shares =
     if is_operator_withdrawing {
-      input_operator_shares - shares_to_redeem + fee_shares
+      input_operator_shares - shares_to_redeem
     } else {
       input_operator_shares + fee_shares
     }
@@ -263,12 +280,16 @@ pub fn vault_withdrawal(
       shares_merkle_root: final_root,
     }
 
-  // 12. Verify signature (operation_key OR operator_key)
+  // 12. Verify signature (operation_key OR operator's master_key)
+  // Operator key is derived from operator_account's master_key
+  let is_operator_signed =
+    when get_master_key(operator_account) is {
+      VerificationKey(operator_key_hash) ->
+        key_signed(extra_signatories, operator_key_hash)
+      _ -> False
+    }
   let is_signed =
-    key_signed(extra_signatories, operation_key) || key_signed(
-      extra_signatories,
-      operator_key,
-    )
+    key_signed(extra_signatories, operation_key) || is_operator_signed
 
   and {
     is_intent_valid?,

@@ -1,4 +1,4 @@
-use aiken/crypto.{ScriptHash, VerificationKeyHash}
+use aiken/crypto.{ScriptHash, VerificationKey, VerificationKeyHash}
 use aiken/merkle_patricia_forestry.{Proof}
 use cardano/address.{Address, Credential}
 use cardano/assets.{AssetName, PolicyId}
@@ -360,11 +360,10 @@ pub type VaultOracleDatum {
   l2_withdrawal_intent_script_hash: ByteArray,
   pluggable_logic: ByteArray,
   vault_stake_rotation_script_hash: ByteArray,
-  operator_key: VerificationKeyHash,
   operator_account: UserAccount,
   operator_charge_percentage: Int,
   operator_min_deposit_percentage: Int,
-  hydra_node_pub_keys: List<ByteArray>,
+  hydra_node_pub_keys: List<VerificationKey>,
   is_active: Bool,
   // State (mutable)
   total_shares: Int,
