@@ -331,9 +331,11 @@ pub type SharesRecordEntry {
 }
 
 // Price oracle message
+// prices: Pairs<(PolicyId, AssetName), (Int, Int)> where tuple is (price, scale)
+// USD calculation: usd_value = Σ(amount * price / 10^scale) for each asset
 pub type Message {
   vault_equity: Int,
-  prices: Pairs<(PolicyId, AssetName), Int>,
+  prices: Pairs<(PolicyId, AssetName), (Int, Int)>,
   utxo_ref: OutputReference,
 }
 

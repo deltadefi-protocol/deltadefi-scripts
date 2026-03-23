@@ -74,10 +74,25 @@ This simplifies the transaction and reduces computation compared to the case whe
 
 ## L1 vs L2 Asset Units
 
-- **Price message** contains prices in **L1 format**: `Pairs<(PolicyId, AssetName), Int>`
+- **Price message** contains prices in **L1 format**: `Pairs<(PolicyId, AssetName), (Int, Int)>` where tuple is `(price, scale)`
 - **Account UTxOs** contain values in **L2 format**: `(hydra_token_policy_id, hash_token(policy_id, asset_name), qty)`
 - **Token map** (`TokenMap = Pairs<ByteArray, (PolicyId, AssetName)>`) maps L2 asset hash → L1 asset identity
 - Validator converts L2 UTxO values to L1 using `from_hydra_balance_to_value(l2_value, hydra_token_policy_id, token_map)` before price lookup
+- **USD calculation**: `usd_value = Σ(amount * price / 10^scale)` for each asset
+
+## Price Format
+
+Each asset's price entry is a tuple `(price, scale)` where:
+- `price`: Integer price value
+- `scale`: Exponent for power of 10 divisor (10^scale)
+
+| Token | Real Price | price | scale | Example Calculation |
+|-------|------------|-------|-------|---------------------|
+| USDC | $1.00 | 1 | 0 | `1000000 * 1 / 10^0 = 1000000` (1 USD) |
+| ADA | $0.50 | 5 | 1 | `1000000 * 5 / 10^1 = 500000` (0.50 USD) |
+| BTC | $50,000 | 50000 | 0 | `100000000 * 50000 / 10^0 = 5000000000000` |
+
+This allows each token to have its own scale factor (as power of 10) to prevent integer overflow in the backend while maintaining integer-only arithmetic on-chain.
 
 ## Redeemer
 

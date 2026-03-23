@@ -48,6 +48,7 @@ Supports both initial deposit (when `total_shares == 0`) and regular deposits.
 ## Edge Case: Operator == Depositor
 
 If the operator deposits (after previously receiving fee shares from withdrawals):
+
 - Existing entry might be: `{ shares: fee_shares, total_deposited: 0 }` (fees don't add to deposited)
 - After deposit: `{ shares: fee_shares + new_shares, total_deposited: 0 + deposit_usd_value }`
 
@@ -57,9 +58,25 @@ This is handled correctly by `SharesUpdate` which adds to both `shares` and `tot
 
 - **Intent datum** contains `deposit_amount` in **L2 format**: `MValue = Pairs<hydra_token_policy_id, Pairs<hashed_asset_name, Int>>`
 - **Account UTxOs** contain values in **L2 format**: `(hydra_token_policy_id, hash_token(policy_id, asset_name), qty)`
-- **Price message** contains prices in **L1 format**: `Pairs<(PolicyId, AssetName), Int>`
+- **Price message** contains prices in **L1 format**: `Pairs<(PolicyId, AssetName), (Int, Int)>` where tuple is `(price, scale)`
 - **Token map** (`TokenMap`) maps L2 asset hash → L1 asset identity for price lookup
 - Validator converts L2 deposit amount to L1 using `from_hydra_balance_to_value(l2_value, hydra_token_policy_id, token_map)` for USD calculation
+- **USD calculation**: `usd_value = Σ(amount * price / 10^scale)` for each asset
+
+## Price Format
+
+Each asset's price entry is a tuple `(price, scale)` where:
+
+- `price`: Integer price value
+- `scale`: Exponent for power of 10 divisor (10^scale)
+
+| Token | Real Price | price | scale | Example Calculation                          |
+| ----- | ---------- | ----- | ----- | -------------------------------------------- |
+| USDC  | $1.00      | 1     | 0     | `1000000 * 1 / 10^0 = 1000000` (1 USD)       |
+| ADA   | $0.50      | 5     | 1     | `1000000 * 5 / 10^1 = 500000` (0.50 USD)     |
+| BTC   | $50,000    | 50000 | 0     | `100000000 * 50000 / 10^0 = 5000000000000`   |
+
+This allows each token to have its own scale factor (as power of 10) to prevent integer overflow in the backend while maintaining integer-only arithmetic on-chain.
 
 ## Redeemer
 

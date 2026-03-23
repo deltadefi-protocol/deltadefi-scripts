@@ -2,12 +2,13 @@ use cardano/assets.{AssetName, PolicyId}
 use hydra_dex/price_oracle_utils.{convert_m_value_to_usd}
 use hydra_dex/types.{MValue}
 
-const prices: Pairs<(PolicyId, AssetName), Int> =
+// prices: (price, scale) tuple - USD = amount * price / 10^scale
+const prices: Pairs<(PolicyId, AssetName), (Int, Int)> =
   [
-    Pair((#"", #""), 2),
+    Pair((#"", #""), (2, 0)),
     Pair(
       (#"c69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913", #"5553444d"),
-      1,
+      (1, 0),
     ),
   ]
 
@@ -44,10 +45,10 @@ const m_value_c =
     ),
   ]
 
-// m_value_a: 100 * 2 (ADA) + 100 * 1 (USDM) = 300
+// m_value_a: 100 * 2 / 10^0 (ADA) + 100 * 1 / 10^0 (USDM) = 300
 const m_value_a_in_usd = 300
 
-// m_value_b: 200 * 2 (ADA) + 200 * 1 (USDM) = 600
+// m_value_b: 200 * 2 / 10^0 (ADA) + 200 * 1 / 10^0 (USDM) = 600
 const m_value_b_in_usd = 600
 
 test du_convert_m_value_to_usd_a() {

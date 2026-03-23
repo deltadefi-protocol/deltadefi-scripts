@@ -5,13 +5,14 @@ const usdm_policy = #"c69b981db7a65e339a6d783755f85a2e03afa1cece9714c55fe4c913"
 
 const usdm_name = #"5553444d"
 
-const prices: Pairs<(PolicyId, AssetName), Int> =
-  [Pair((#"", #""), 2), Pair((usdm_policy, usdm_name), 1)]
+// prices: (price, scale) tuple - USD = amount * price / 10^scale
+const prices: Pairs<(PolicyId, AssetName), (Int, Int)> =
+  [Pair((#"", #""), (2, 0)), Pair((usdm_policy, usdm_name), (1, 0))]
 
 // ========== check_output_value_equal_to_shares_usd_value tests ==========
 
-// Output value: 1000000 USDM (price=1) + 2000000 ADA (price=2)
-// USD value = 1000000 * 1 + 2000000 * 2 = 5000000
+// Output value: 1000000 USDM (price=1, scale=0) + 2000000 ADA (price=2, scale=0)
+// USD value = 1000000 * 1 / 10^0 + 2000000 * 2 / 10^0 = 5000000
 const output_value_a =
   from_asset(usdm_policy, usdm_name, 1000000)
     |> add(#"", #"", 2000000)
@@ -26,8 +27,8 @@ test wu_check_output_value_mixed_a() {
   )
 }
 
-// Output value: 2000000 USDM (price=1) + 1000000 ADA (price=2)
-// USD value = 2000000 * 1 + 1000000 * 2 = 4000000
+// Output value: 2000000 USDM (price=1, scale=0) + 1000000 ADA (price=2, scale=0)
+// USD value = 2000000 * 1 / 10^0 + 1000000 * 2 / 10^0 = 4000000
 const output_value_b =
   from_asset(usdm_policy, usdm_name, 2000000)
     |> add(#"", #"", 1000000)
