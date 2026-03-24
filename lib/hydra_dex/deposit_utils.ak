@@ -33,13 +33,17 @@ pub fn combine_m_value(left_m_value: MValue, right_m_value: MValue) -> MValue {
     |> dict.to_pairs()
 }
 
+// Calculate shares to mint for a deposit
+// Initial deposit (total_shares == 0): share price = 1.0, so shares = usd_value
+// Subsequent deposits: shares = (usd_value * total_shares) / vault_equity (round DOWN)
 pub fn cal_shares_amount(
   usd_value: Int,
   vault_equity: Int,
   total_shares: Int,
 ) -> Int {
-  when total_shares is {
-    0 -> fail @"Total shares cannot be zero"
-    _ -> usd_value * total_shares / vault_equity
+  if total_shares == 0 {
+    usd_value
+  } else {
+    usd_value * total_shares / vault_equity
   }
 }
