@@ -64,6 +64,7 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             is_no_value?,
             is_no_datum?,
           },
+          trace @"todo: remove it"
           is_operation_key_signed?,
         }
       }
