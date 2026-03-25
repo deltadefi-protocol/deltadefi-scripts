@@ -99,7 +99,6 @@ pub fn vault_withdrawal(
       prices_message,
       inputs,
       hydra_node_pub_keys,
-      hydra_node_pub_keys,
       signatures,
     )
 
