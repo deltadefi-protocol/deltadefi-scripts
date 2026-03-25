@@ -160,6 +160,7 @@ pub fn vault_deposit(
 
   // 9. Verify Merkle root transition
   let mpf_key = cbor.serialise(depositor)
+  trace @"mpf_key": mpf_key
   let computed_new_root =
     when mpf_action is {
       SharesInsert { proof } -> {
@@ -170,6 +171,7 @@ pub fn vault_deposit(
             total_deposited: deposit_usd_value,
           }
         let new_value = cbor.serialise(new_entry)
+        trace @"new_value": new_value
         let trie = mpf.from_root(input_merkle_root)
         let new_trie = mpf.insert(trie, mpf_key, new_value, proof)
         mpf.root(new_trie)
