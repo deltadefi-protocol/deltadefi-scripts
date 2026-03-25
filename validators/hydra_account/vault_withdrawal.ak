@@ -268,15 +268,27 @@ pub fn vault_withdrawal(
       True
     }
 
-  // Verify Vault Oracle output datum
-  let is_oracle_datum_updated =
-    output_oracle_datum == VaultOracleDatum {
-      ..input_oracle_datum,
-      total_shares: new_total_shares,
-      operator_shares: new_operator_shares,
-      total_deposited: input_total_deposited - cost_basis,
-      total_fee_share_collected: input_total_fee_share_collected + fee_shares,
-      shares_merkle_root: final_root,
+  // Verify Vault Oracle output datum (field by field for debugging)
+  let is_total_shares_correct =
+    output_oracle_datum.total_shares == new_total_shares
+  let is_operator_shares_correct =
+    output_oracle_datum.operator_shares == new_operator_shares
+  let is_total_deposited_correct =
+    output_oracle_datum.total_deposited == input_total_deposited - cost_basis
+  let is_total_fee_share_collected_correct =
+    output_oracle_datum.total_fee_share_collected == input_total_fee_share_collected + fee_shares
+  let is_merkle_root_correct =
+    output_oracle_datum.shares_merkle_root == final_root
+  let is_other_fields_unchanged =
+    output_oracle_datum.app_oracle == input_oracle_datum.app_oracle && output_oracle_datum.vault_script_hash == input_oracle_datum.vault_script_hash && output_oracle_datum.l1_deposit_intent_script_hash == input_oracle_datum.l1_deposit_intent_script_hash && output_oracle_datum.l1_withdrawal_intent_script_hash == input_oracle_datum.l1_withdrawal_intent_script_hash && output_oracle_datum.l2_deposit_intent_script_hash == input_oracle_datum.l2_deposit_intent_script_hash && output_oracle_datum.l2_withdrawal_intent_script_hash == input_oracle_datum.l2_withdrawal_intent_script_hash && output_oracle_datum.pluggable_logic == input_oracle_datum.pluggable_logic && output_oracle_datum.vault_stake_rotation_script_hash == input_oracle_datum.vault_stake_rotation_script_hash && output_oracle_datum.operator_account == input_oracle_datum.operator_account && output_oracle_datum.operator_charge_percentage == input_oracle_datum.operator_charge_percentage && output_oracle_datum.operator_min_deposit_percentage == input_oracle_datum.operator_min_deposit_percentage && output_oracle_datum.hydra_node_pub_keys == input_oracle_datum.hydra_node_pub_keys && output_oracle_datum.is_active == input_oracle_datum.is_active
+
+  let is_oracle_datum_updated = and {
+      is_total_shares_correct?,
+      is_operator_shares_correct?,
+      is_total_deposited_correct?,
+      is_total_fee_share_collected_correct?,
+      is_merkle_root_correct?,
+      is_other_fields_unchanged?,
     }
 
   // 12. Verify signature (operation_key OR operator's master_key)
