@@ -25,11 +25,8 @@ pub fn verify_prices_oracle_messages(
   let is_utxo_consumed =
     list.any(inputs, fn(input) { input.output_reference == utxo_ref })
 
-  // Convert VerificationKey to ByteArray for cocktail functions
-  let pub_keys_bytes = list.map(hydra_node_pub_keys, fn(vk) { vk })
-
   let signatures_check =
-    verify_signatures(pub_keys_bytes, prices_message, signatures)
+    verify_signatures(hydra_node_pub_keys, prices_message, signatures)
 
   let message_verified = is_utxo_consumed? && signatures_check?
 
