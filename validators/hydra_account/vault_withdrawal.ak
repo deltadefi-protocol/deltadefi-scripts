@@ -32,7 +32,7 @@ pub fn vault_withdrawal(
   signatures: List<ByteArray>,
   token_map: TokenMap,
   mpf_action: SharesMPFAction,
-  operator_mpf_action: SharesMPFAction,
+  operator_mpf_action: Option<SharesMPFAction>,
   tx: Transaction,
 ) -> Bool {
   let Transaction {
@@ -235,11 +235,12 @@ pub fn vault_withdrawal(
   // When operator withdraws, fee_shares is 0, so no operator MPF action needed
   let final_root =
     if fee_shares > 0 {
+      expect Some(action) = operator_mpf_action
       apply_operator_fee_share(
         new_user_root,
         fee_shares,
         operator_account,
-        operator_mpf_action,
+        action,
       )
     } else {
       new_user_root

@@ -102,6 +102,9 @@ ProcessVaultWithdrawal(
   signatures: List<ByteArray>,
   token_map: TokenMap,
   mpf_action: SharesMPFAction,
-  operator_mpf_action: SharesMPFAction,
+  operator_mpf_action: Option<SharesMPFAction>,
 )
 ```
+
+- `operator_mpf_action` is `Some(action)` when `fee_shares > 0` (non-operator withdrawal with profit)
+- `operator_mpf_action` is `None` when `fee_shares == 0` (operator withdrawal or no profit)

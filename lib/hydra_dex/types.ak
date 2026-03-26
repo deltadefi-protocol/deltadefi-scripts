@@ -255,7 +255,7 @@ pub type HydraAccountOperation {
     List<ByteArray>,
     TokenMap,
     SharesMPFAction,
-    SharesMPFAction,
+    Option<SharesMPFAction>,
   )
 }
 
