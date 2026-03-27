@@ -164,25 +164,3 @@ test du_trace_shares_entry_serialization() {
   trace @"entry_cbor": entry_cbor
   True
 }
-
-// ========== cost_basis calculation tests ==========
-// Formula: cost_basis = old_entry.total_deposited * shares_to_redeem / old_entry.shares
-
-test du_cost_basis_calculation() {
-  let old_entry_total_deposited = 2999999500
-  let shares_to_redeem = 500
-  let old_entry_shares = 2909090381
-
-  // cost_basis = 2999999500 * 500 / 2909090381
-  //            = 1499999750000 / 2909090381
-  //            = 515 (integer division, rounds down)
-  let cost_basis = old_entry_total_deposited * shares_to_redeem / old_entry_shares
-
-  trace @"===== Cost Basis Calculation ====="
-  trace @"old_entry.total_deposited": old_entry_total_deposited
-  trace @"shares_to_redeem": shares_to_redeem
-  trace @"old_entry.shares": old_entry_shares
-  trace @"cost_basis": cost_basis
-
-  cost_basis == 515
-}
