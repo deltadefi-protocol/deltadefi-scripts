@@ -249,6 +249,10 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
+}
+
+pub type ProcessHydraAccountOtherRedeemer {
+  ProcessMigration { account: UserAccount }
   ProcessVaultDeposit(ByteArray, List<ByteArray>, TokenMap, SharesMPFAction)
   ProcessVaultWithdrawal(
     ByteArray,
@@ -257,10 +261,6 @@ pub type HydraAccountOperation {
     SharesMPFAction,
     Option<SharesMPFAction>,
   )
-}
-
-pub type ProcessMigrationRedeemer {
-  ProcessMigration { account: UserAccount }
 }
 
 // 9 - HydraOrderBook

@@ -16,7 +16,7 @@ use hydra_dex/types.{
   DexOrderBookDatum, HydraAccountMigrate, HydraAccountOperate,
   HydraAccountOperation, HydraAccountRedeemer,
   HydraAccountSpamPreventionWithdraw, HydraAccountTrade, ProcessCancelWithdrawal,
-  ProcessCombineUtxosAtClose, ProcessMigration, ProcessMigrationRedeemer,
+  ProcessCombineUtxosAtClose, ProcessHydraAccountOtherRedeemer, ProcessMigration,
   ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
   ProcessVaultDeposit, ProcessVaultWithdrawal, ProcessWithdrawal,
   TreeOrProofsWithTokenMap, UserAccount,
@@ -103,6 +103,12 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             tree_or_proofs_with_token_map
           combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
         }
+      }
+    } else {
+      expect operation: ProcessHydraAccountOtherRedeemer = redeemer
+      when operation is {
+        ProcessMigration { account } ->
+          migration(dex_oracle_nft, account, credential, tx)
         ProcessVaultDeposit(prices_message, signatures, token_map, mpf_action) ->
           vault_deposit(
             dex_oracle_nft,
@@ -129,9 +135,6 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
             tx,
           )
       }
-    } else {
-      expect ProcessMigration { account }: ProcessMigrationRedeemer = redeemer
-      migration(dex_oracle_nft, account, credential, tx)
     }
   }
 
