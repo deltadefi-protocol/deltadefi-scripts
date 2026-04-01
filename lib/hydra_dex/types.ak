@@ -188,6 +188,7 @@ pub type DexOrderBookRedeemer {
   DexOrderBookHydraCommit
   DexOrderBookSpamPreventionWithdraw
   DexOrderBookEmergencyCancelOrder
+  DexOrderBookMigration
 }
 
 pub type DexOrderBookDatum {
