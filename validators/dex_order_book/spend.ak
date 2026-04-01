@@ -6,9 +6,8 @@ use hydra_dex/hydra_commit_utils.{validate_hydra_commit}
 use hydra_dex/types.{
   AppOracleDatum, CombineOrderMerkle, DexOrderBookCombineMerkleTree,
   DexOrderBookDatum, DexOrderBookEmergencyCancelOrder, DexOrderBookHydraCommit,
-  DexOrderBookMigration, DexOrderBookRedeemer,
-  DexOrderBookSpamPreventionWithdraw, DexOrderBookSplitMerkleTree,
-  HydraOrderBookRedeemer, SplitOrderMerkle,
+  DexOrderBookRedeemer, DexOrderBookSpamPreventionWithdraw,
+  DexOrderBookSplitMerkleTree, HydraOrderBookRedeemer, SplitOrderMerkle,
 }
 use hydra_dex/utils.{get_app_oracle_datum}
 
@@ -77,10 +76,6 @@ validator dex_order_book(oracle_nft: PolicyId, dex_order_book_nft: PolicyId) {
           key_signed(extra_signatories, oracle_input_datum.operation_key)
 
         no_auth_token_check? && is_operation_key_signed?
-      }
-      DexOrderBookMigration -> {
-        expect Some(datum) = datum_opt
-        key_signed(extra_signatories, datum.stop_key)?
       }
     }
   }
