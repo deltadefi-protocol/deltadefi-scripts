@@ -1,4 +1,4 @@
-use aiken/crypto.{ScriptHash, VerificationKeyHash}
+use aiken/crypto.{ScriptHash, VerificationKey, VerificationKeyHash}
 use aiken/merkle_patricia_forestry.{Proof}
 use cardano/address.{Address, Credential}
 use cardano/assets.{AssetName, PolicyId}
@@ -188,6 +188,7 @@ pub type DexOrderBookRedeemer {
   DexOrderBookHydraCommit
   DexOrderBookSpamPreventionWithdraw
   DexOrderBookEmergencyCancelOrder
+  DexOrderBookMigration
 }
 
 pub type DexOrderBookDatum {
@@ -235,6 +236,7 @@ pub type HydraAccountRedeemer {
   HydraAccountTrade { trade_redeemer: Data }
   HydraAccountOperate
   HydraAccountSpamPreventionWithdraw
+  HydraAccountMigrate
 }
 
 pub type HydraAccountOperation {
@@ -248,6 +250,18 @@ pub type HydraAccountOperation {
   ProcessSplitUtxosAtOpen {
     tree_or_proofs_with_token_map: TreeOrProofsWithTokenMap,
   }
+}
+
+pub type ProcessHydraAccountOtherRedeemer {
+  ProcessMigration { account: UserAccount }
+  ProcessVaultDeposit(ByteArray, List<ByteArray>, TokenMap, SharesMPFAction)
+  ProcessVaultWithdrawal(
+    ByteArray,
+    List<ByteArray>,
+    TokenMap,
+    SharesMPFAction,
+    Option<SharesMPFAction>,
+  )
 }
 
 // 9 - HydraOrderBook
@@ -301,4 +315,63 @@ pub type HydraTokensRedeemer {
 pub type HydraInitialRedeemer {
   ViaAbort
   ViaCommit { committed_refs: List<OutputReference> }
+}
+
+// Shares Merkle Patricia Forestry action type
+// Note: new_value/to are computed from shares + total_deposited, not passed in redeemer
+pub type SharesMPFAction {
+  SharesInsert { proof: Proof }
+  SharesUpdate { from: ByteArray, to_proof: Proof }
+  SharesDelete { proof: Proof, old_value: ByteArray }
+}
+
+// Shares Record entry (serialized into MPF values)
+pub type SharesRecordEntry {
+  shares: Int,
+  total_deposited: Int,
+}
+
+// Price oracle message
+// prices: Pairs<(PolicyId, AssetName), (Int, Int)> where tuple is (price, scale)
+// USD calculation: usd_value = Σ(amount * price / 10^scale) for each asset
+pub type Message {
+  vault_equity: Int,
+  prices: Pairs<(PolicyId, AssetName), (Int, Int)>,
+  utxo_ref: OutputReference,
+}
+
+pub type VaultDepositIntentDatumL2 {
+  vault_oracle_nft: PolicyId,
+  depositor: UserAccount,
+  deposit_amount: MValue,
+}
+
+pub type VaultWithdrawalIntentDatumL2 {
+  vault_oracle_nft: PolicyId,
+  withdrawer: UserAccount,
+  shares_to_redeem: Int,
+}
+
+// Vault Oracle Datum — holds config + state, commits to Hydra
+pub type VaultOracleDatum {
+  // Config (all updatable via UpdateConfig)
+  app_oracle: PolicyId,
+  vault_script_hash: ByteArray,
+  l1_deposit_intent_script_hash: ByteArray,
+  l1_withdrawal_intent_script_hash: ByteArray,
+  l2_deposit_intent_script_hash: ByteArray,
+  l2_withdrawal_intent_script_hash: ByteArray,
+  pluggable_logic: ByteArray,
+  vault_stake_rotation_script_hash: ByteArray,
+  operator_account: UserAccount,
+  operator_charge_percentage: Int,
+  operator_min_deposit_percentage: Int,
+  hydra_node_pub_keys: List<VerificationKey>,
+  is_active: Bool,
+  // State (mutable)
+  total_shares: Int,
+  operator_shares: Int,
+  total_deposited: Int,
+  shares_merkle_root: ByteArray,
+  total_fee_share_collected: Int,
 }

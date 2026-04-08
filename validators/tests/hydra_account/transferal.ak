@@ -9,11 +9,11 @@ use mocktail.{
   required_signer_hash, tx_in, tx_in_inline_datum, tx_out, tx_out_inline_datum,
 }
 use tests/utils.{
-  mock_account, mock_account_2, mock_dex_order_book_address,
-  mock_dex_order_book_datum, mock_dex_order_book_token,
-  mock_hydra_account_address, mock_hydra_lovelace,
-  mock_hydra_user_intent_address, mock_hydra_user_intent_token,
-  mock_operation_key, mock_user_account,
+  mock_account, mock_account_2, mock_account_3,
+  mock_dex_order_book_address, mock_dex_order_book_datum,
+  mock_dex_order_book_token, mock_hydra_account_address,
+  mock_hydra_lovelace, mock_hydra_user_intent_address,
+  mock_hydra_user_intent_token, mock_operation_key, mock_user_account,
 } as test_utils
 
 type HydraInternalTransferTestCase {
@@ -21,6 +21,8 @@ type HydraInternalTransferTestCase {
   is_from_account_balance_deducted: Bool,
   is_to_account_balance_added: Bool,
   is_intent_token_burnt: Bool,
+  has_other_account_input: Bool,
+  has_other_account_output: Bool,
 }
 
 fn mock_hydra_internal_transfer_tx(
@@ -31,6 +33,8 @@ fn mock_hydra_internal_transfer_tx(
     is_from_account_balance_deducted,
     is_to_account_balance_added,
     is_intent_token_burnt,
+    has_other_account_input,
+    has_other_account_output,
   } = test_case
 
   let transferal_amount = mock_hydra_lovelace(100_000_000)
@@ -95,6 +99,26 @@ fn mock_hydra_internal_transfer_tx(
     |> tx_in_inline_datum(True, mock_user_account(mock_account_2))
     |> tx_out(True, mock_hydra_account_address, to_balance_end)
     |> tx_out_inline_datum(True, mock_user_account(mock_account_2))
+    |> tx_in(
+        has_other_account_input,
+        mock_tx_hash(0),
+        3,
+        mock_hydra_lovelace(500_000_000),
+        mock_hydra_account_address,
+      )
+    |> tx_in_inline_datum(
+        has_other_account_input,
+        mock_user_account(mock_account_3),
+      )
+    |> tx_out(
+        has_other_account_output,
+        mock_hydra_account_address,
+        mock_hydra_lovelace(500_000_000),
+      )
+    |> tx_out_inline_datum(
+        has_other_account_output,
+        mock_user_account(mock_account_3),
+      )
     |> mint(is_intent_token_burnt, -1, mock_hydra_user_intent_token, "")
     |> required_signer_hash(is_operation_key_signed, mock_operation_key)
     |> complete()
@@ -107,6 +131,8 @@ test s8_wt_success() {
       is_from_account_balance_deducted: True,
       is_to_account_balance_added: True,
       is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
     }
 
   let tx = mock_hydra_internal_transfer_tx(test_case)
@@ -126,6 +152,8 @@ test s8_wt_failed_without_operation_key_signed() {
       is_from_account_balance_deducted: True,
       is_to_account_balance_added: True,
       is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
     }
 
   let tx = mock_hydra_internal_transfer_tx(test_case)
@@ -145,6 +173,8 @@ test s8_wt_failed_without_from_account_balance_deducted() {
       is_from_account_balance_deducted: False,
       is_to_account_balance_added: True,
       is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
     }
 
   let tx = mock_hydra_internal_transfer_tx(test_case)
@@ -164,6 +194,8 @@ test s8_wt_failed_without_to_account_balance_added() {
       is_from_account_balance_deducted: True,
       is_to_account_balance_added: False,
       is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: False,
     }
 
   let tx = mock_hydra_internal_transfer_tx(test_case)
@@ -183,6 +215,50 @@ test s8_wt_failed_without_intent_token_burnt() {
       is_from_account_balance_deducted: True,
       is_to_account_balance_added: True,
       is_intent_token_burnt: False,
+      has_other_account_input: False,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_hydra_internal_transfer_tx(test_case)
+
+  !ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessTransferal,
+    Script(""),
+    tx,
+  )
+}
+
+test s8_wt_failed_with_other_account_input() {
+  let test_case =
+    HydraInternalTransferTestCase {
+      is_operation_key_signed: True,
+      is_from_account_balance_deducted: True,
+      is_to_account_balance_added: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: True,
+      has_other_account_output: False,
+    }
+
+  let tx = mock_hydra_internal_transfer_tx(test_case)
+
+  !ha.hydra_account.withdraw(
+    mock_dex_order_book_token,
+    ProcessTransferal,
+    Script(""),
+    tx,
+  )
+}
+
+test s8_wt_failed_with_other_account_output() {
+  let test_case =
+    HydraInternalTransferTestCase {
+      is_operation_key_signed: True,
+      is_from_account_balance_deducted: True,
+      is_to_account_balance_added: True,
+      is_intent_token_burnt: True,
+      has_other_account_input: False,
+      has_other_account_output: True,
     }
 
   let tx = mock_hydra_internal_transfer_tx(test_case)

@@ -394,6 +394,23 @@ pub fn mock_mobile_account(account: Account) -> UserAccount {
   UserMobileAccount { account, trading_logic: mock_hydra_order_book }
 }
 
+pub const mock_new_hydra_account = mock_script_hash(801)
+
+pub const mock_new_hydra_account_address = from_script(mock_new_hydra_account)
+
+pub const mock_new_hydra_order_book = mock_script_hash(901)
+
+pub const mock_migration_dex_order_book_datum: DexOrderBookDatum =
+  DexOrderBookDatum {
+    ..mock_dex_order_book_datum,
+    hydra_account_script_hash: mock_new_hydra_account,
+    hydra_order_book_script_hash: mock_new_hydra_order_book,
+  }
+
+pub fn mock_migrated_user_account(account: Account) -> UserAccount {
+  UserTradeAccount { account, trading_logic: mock_new_hydra_order_book }
+}
+
 pub const mock_token_map: TokenMap =
   [
     Pair("", ("", "")),
