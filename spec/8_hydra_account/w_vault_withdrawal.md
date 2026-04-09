@@ -16,8 +16,8 @@
     - `fee = 0`, `fee_shares = 0`
     - `user_receives = gross_value`
   - **If `withdrawer != operator_account`**: Calculate fee on profit
-    - `fee = ceil((profit * operator_charge_percentage) / 100)` if profit > 0
-    - `fee_shares = ceil((fee * total_shares) / vault_equity)`
+    - `fee = floor((profit * operator_fee_rate_bp) / 10000)` if profit > 0
+    - `fee_shares = floor((fee * total_shares) / vault_equity)`
     - `user_receives = gross_value - fee`
 - Categorize inputs into
   - `WI` - Withdrawer Inputs (by full `UserAccount`)
@@ -43,7 +43,7 @@
   - Fee shares represent earned fees, not new capital deposits
   - **Skipped when operator withdraws** (no fee collected from self)
 - **Operator minimum share percentage check** (only when operator withdraws):
-  - `new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares`
+  - `new_operator_shares * 10000 >= operator_min_deposit_rate_bp * new_total_shares`
   - Ensures operator maintains minimum stake in the vault
 - Vault Oracle output datum updated:
   - `total_shares = input_total_shares - shares_to_redeem + fee_shares`
@@ -83,14 +83,15 @@ This simplifies the transaction and reduces computation compared to the case whe
 ## Price Format
 
 Each asset's price entry is a tuple `(price, scale)` where:
+
 - `price`: Integer price value
 - `scale`: Exponent for power of 10 divisor (10^scale)
 
-| Token | Real Price | price | scale | Example Calculation |
-|-------|------------|-------|-------|---------------------|
-| USDC | $1.00 | 1 | 0 | `1000000 * 1 / 10^0 = 1000000` (1 USD) |
-| ADA | $0.50 | 5 | 1 | `1000000 * 5 / 10^1 = 500000` (0.50 USD) |
-| BTC | $50,000 | 50000 | 0 | `100000000 * 50000 / 10^0 = 5000000000000` |
+| Token | Real Price | price | scale | Example Calculation                        |
+| ----- | ---------- | ----- | ----- | ------------------------------------------ |
+| USDC  | $1.00      | 1     | 0     | `1000000 * 1 / 10^0 = 1000000` (1 USD)     |
+| ADA   | $0.50      | 5     | 1     | `1000000 * 5 / 10^1 = 500000` (0.50 USD)   |
+| BTC   | $50,000    | 50000 | 0     | `100000000 * 50000 / 10^0 = 5000000000000` |
 
 This allows each token to have its own scale factor (as power of 10) to prevent integer overflow in the backend while maintaining integer-only arithmetic on-chain.
 

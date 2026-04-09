@@ -72,8 +72,8 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     pluggable_logic: #"",
     vault_stake_rotation_script_hash: #"",
     operator_account: mock_operator_user_account(),
-    operator_charge_percentage: 10,
-    operator_min_deposit_percentage: 0,
+    operator_fee_rate_bp: 10,
+    operator_min_deposit_rate_bp: 0,
     hydra_node_pub_keys: [],
     is_active: True,
     total_shares: 1_000_000_000_000,
@@ -433,6 +433,7 @@ test s8_vw_failed_with_other_account_output() fail {
     tx,
   )
 }
+
 // ========== TODO: Signature Tests ==========
 // test s8_vw_success_with_operation_key_only() { ... }
 // test s8_vw_success_with_operator_key_only() { ... }
@@ -499,23 +500,25 @@ test s8_vw_failed_with_other_account_output() fail {
 //   - Verify operator_shares = input + fee_shares when withdrawer != operator
 
 // ========== Operator Minimum Percentage Tests ==========
-// When operator withdraws, must maintain: new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 100
+// When operator withdraws, must maintain: new_operator_shares / new_total_shares >= operator_min_deposit_rate_bp / 100
 // NOTE: Fee is skipped when operator withdraws (fee_shares = 0), so no fee offset
 
 type OperatorMinPercentageTestCase {
   // Vault state
   total_shares: Int,
   operator_shares: Int,
-  operator_min_deposit_percentage: Int,
+  operator_min_deposit_rate_bp: Int,
   // Withdrawal params
   shares_to_redeem: Int,
 }
 
-fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> Transaction {
+fn mock_operator_min_percentage_tx(
+  test_case: OperatorMinPercentageTestCase,
+) -> Transaction {
   let OperatorMinPercentageTestCase {
     total_shares,
     operator_shares,
-    operator_min_deposit_percentage,
+    operator_min_deposit_rate_bp,
     shares_to_redeem,
   } = test_case
 
@@ -535,7 +538,7 @@ fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> 
       ..mock_vault_oracle_datum_input(),
       total_shares: total_shares,
       operator_shares: operator_shares,
-      operator_min_deposit_percentage: operator_min_deposit_percentage,
+      operator_min_deposit_rate_bp: operator_min_deposit_rate_bp,
     }
 
   // Calculate new values after withdrawal
@@ -636,7 +639,7 @@ test s8_vw_operator_withdrawal_respects_min_percentage() fail {
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 200,
-      operator_min_deposit_percentage: 10,
+      operator_min_deposit_rate_bp: 10,
       shares_to_redeem: 50,
     }
 
@@ -665,7 +668,7 @@ test s8_vw_operator_withdrawal_fails_below_min_percentage() fail {
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 150,
-      operator_min_deposit_percentage: 10,
+      operator_min_deposit_rate_bp: 10,
       shares_to_redeem: 100,
     }
 
@@ -695,7 +698,7 @@ test s8_vw_operator_withdrawal_at_min_fails_below() fail {
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 100,
-      operator_min_deposit_percentage: 10,
+      operator_min_deposit_rate_bp: 10,
       shares_to_redeem: 50,
     }
 
@@ -724,7 +727,7 @@ test s8_vw_operator_at_exact_min_cannot_withdraw() fail {
     OperatorMinPercentageTestCase {
       total_shares: 1000,
       operator_shares: 100,
-      operator_min_deposit_percentage: 10,
+      operator_min_deposit_rate_bp: 10,
       shares_to_redeem: 1,
     }
 
@@ -744,7 +747,6 @@ test s8_vw_operator_at_exact_min_cannot_withdraw() fail {
     tx,
   )
 }
-
 // ========== TODO: Oracle Datum Update Tests ==========
 // test s8_vw_failed_total_shares_not_updated() fail { ... }
 // test s8_vw_failed_operator_shares_not_updated() fail { ... }

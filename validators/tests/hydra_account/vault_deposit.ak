@@ -56,8 +56,8 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     pluggable_logic: #"",
     vault_stake_rotation_script_hash: #"",
     operator_account: mock_user_account(mock_account),
-    operator_charge_percentage: 10,
-    operator_min_deposit_percentage: 0,
+    operator_fee_rate_bp: 10,
+    operator_min_deposit_rate_bp: 0,
     hydra_node_pub_keys: [],
     is_active: True,
     total_shares: 1_000_000_000_000,
@@ -280,7 +280,7 @@ test s8_vd_failed_without_depositor_balance_deducted() fail {
       is_vault_balance_increased: True,
       is_intent_token_burnt: True,
       has_other_account_input: False,
- has_other_account_output: False,
+      has_other_account_output: False,
     }
 
   let tx = mock_vault_deposit_tx(test_case)

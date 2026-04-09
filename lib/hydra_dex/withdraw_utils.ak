@@ -20,28 +20,23 @@ pub fn convert_shares_to_usd(
   shares_amount * vault_equity / total_shares
 }
 
-// Round UP: ceil(a * b / c) = (a * b + c - 1) / c
-fn ceil_div(numerator: Int, denominator: Int) -> Int {
-  ( numerator + denominator - 1 ) / denominator
-}
-
 pub fn cal_per_user_operator_fee(
   withdrawal_value: Int,
   cost_basis: Int,
-  operator_charge_percentage: Int,
+  operator_fee_rate_bp: Int,
 ) -> Int {
   let profit = withdrawal_value - cost_basis
   if profit <= 0 {
     0
   } else {
-    // Round UP — fee never underpaid
-    ceil_div(profit * operator_charge_percentage, 100)
+    // Round DOWN — fee never overpaid
+    profit * operator_fee_rate_bp / 10000
   }
 }
 
 pub fn compute_fee_shares(fee: Int, total_shares: Int, vault_equity: Int) -> Int {
-  // Round UP — protects operator
-  ceil_div(fee * total_shares, vault_equity)
+  // Round DOWN
+  fee * total_shares / vault_equity
 }
 
 // USD calculation: usd_value = Σ(amount * price / 10^scale) for each asset
