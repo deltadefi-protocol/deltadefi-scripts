@@ -57,7 +57,7 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     vault_stake_rotation_script_hash: #"",
     operator_account: mock_user_account(mock_account),
     operator_fee_rate_bp: 10,
-    operator_min_deposit_percentage: 0,
+    operator_min_deposit_rate_bp: 0,
     hydra_node_pub_keys: [],
     is_active: True,
     total_shares: 1_000_000_000_000,

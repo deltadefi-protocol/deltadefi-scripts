@@ -365,7 +365,7 @@ pub type VaultOracleDatum {
   vault_stake_rotation_script_hash: ByteArray,
   operator_account: UserAccount,
   operator_fee_rate_bp: Int,
-  operator_min_deposit_percentage: Int,
+  operator_min_deposit_rate_bp: Int,
   hydra_node_pub_keys: List<VerificationKey>,
   is_active: Bool,
   // State (mutable)

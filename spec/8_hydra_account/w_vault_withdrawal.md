@@ -43,7 +43,7 @@
   - Fee shares represent earned fees, not new capital deposits
   - **Skipped when operator withdraws** (no fee collected from self)
 - **Operator minimum share percentage check** (only when operator withdraws):
-  - `new_operator_shares * 10000 >= operator_min_deposit_percentage * new_total_shares`
+  - `new_operator_shares * 10000 >= operator_min_deposit_rate_bp * new_total_shares`
   - Ensures operator maintains minimum stake in the vault
 - Vault Oracle output datum updated:
   - `total_shares = input_total_shares - shares_to_redeem + fee_shares`
