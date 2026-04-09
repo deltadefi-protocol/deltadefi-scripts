@@ -72,7 +72,7 @@ fn mock_vault_oracle_datum_input() -> VaultOracleDatum {
     pluggable_logic: #"",
     vault_stake_rotation_script_hash: #"",
     operator_account: mock_operator_user_account(),
-    operator_charge_percentage: 10,
+    operator_fee_rate_bp: 10,
     operator_min_deposit_percentage: 0,
     hydra_node_pub_keys: [],
     is_active: True,
@@ -433,6 +433,7 @@ test s8_vw_failed_with_other_account_output() fail {
     tx,
   )
 }
+
 // ========== TODO: Signature Tests ==========
 // test s8_vw_success_with_operation_key_only() { ... }
 // test s8_vw_success_with_operator_key_only() { ... }
@@ -511,7 +512,9 @@ type OperatorMinPercentageTestCase {
   shares_to_redeem: Int,
 }
 
-fn mock_operator_min_percentage_tx(test_case: OperatorMinPercentageTestCase) -> Transaction {
+fn mock_operator_min_percentage_tx(
+  test_case: OperatorMinPercentageTestCase,
+) -> Transaction {
   let OperatorMinPercentageTestCase {
     total_shares,
     operator_shares,
@@ -744,7 +747,6 @@ test s8_vw_operator_at_exact_min_cannot_withdraw() fail {
     tx,
   )
 }
-
 // ========== TODO: Oracle Datum Update Tests ==========
 // test s8_vw_failed_total_shares_not_updated() fail { ... }
 // test s8_vw_failed_operator_shares_not_updated() fail { ... }

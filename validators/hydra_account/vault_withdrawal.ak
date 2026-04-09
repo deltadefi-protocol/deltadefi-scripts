@@ -80,7 +80,7 @@ pub fn vault_withdrawal(
     hydra_node_pub_keys,
     operator_account,
     vault_script_hash,
-    operator_charge_percentage,
+    operator_fee_rate_bp,
     operator_min_deposit_percentage,
     total_shares: input_total_shares,
     operator_shares: input_operator_shares,
@@ -151,11 +151,7 @@ pub fn vault_withdrawal(
       0
     } else {
       let fee =
-        cal_per_user_operator_fee(
-          gross_value,
-          cost_basis,
-          operator_charge_percentage,
-        )
+        cal_per_user_operator_fee(gross_value, cost_basis, operator_fee_rate_bp)
       // Fee shares - Round UP to protect operator
       compute_fee_shares(fee, input_total_shares, vault_equity)
     }
@@ -166,11 +162,7 @@ pub fn vault_withdrawal(
       gross_value
     } else {
       let fee =
-        cal_per_user_operator_fee(
-          gross_value,
-          cost_basis,
-          operator_charge_percentage,
-        )
+        cal_per_user_operator_fee(gross_value, cost_basis, operator_fee_rate_bp)
       gross_value - fee
     }
 
@@ -260,11 +252,11 @@ pub fn vault_withdrawal(
   let new_total_shares = input_total_shares - shares_to_redeem + fee_shares
 
   // Verify operator maintains minimum share percentage when withdrawing
-  // new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 100
-  // Rearranged to avoid division: new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares
+  // new_operator_shares / new_total_shares >= operator_min_deposit_percentage / 10000
+  // Rearranged to avoid division: new_operator_shares * 10000 >= operator_min_deposit_percentage * new_total_shares
   let is_operator_min_percentage_maintained =
     if is_operator_withdrawing {
-      new_operator_shares * 100 >= operator_min_deposit_percentage * new_total_shares
+      new_operator_shares * 10000 >= operator_min_deposit_percentage * new_total_shares
     } else {
       True
     }
@@ -281,7 +273,7 @@ pub fn vault_withdrawal(
   let is_merkle_root_correct =
     output_oracle_datum.shares_merkle_root == final_root
   let is_other_fields_unchanged =
-    output_oracle_datum.app_oracle == input_oracle_datum.app_oracle && output_oracle_datum.vault_script_hash == input_oracle_datum.vault_script_hash && output_oracle_datum.l1_deposit_intent_script_hash == input_oracle_datum.l1_deposit_intent_script_hash && output_oracle_datum.l1_withdrawal_intent_script_hash == input_oracle_datum.l1_withdrawal_intent_script_hash && output_oracle_datum.l2_deposit_intent_script_hash == input_oracle_datum.l2_deposit_intent_script_hash && output_oracle_datum.l2_withdrawal_intent_script_hash == input_oracle_datum.l2_withdrawal_intent_script_hash && output_oracle_datum.pluggable_logic == input_oracle_datum.pluggable_logic && output_oracle_datum.vault_stake_rotation_script_hash == input_oracle_datum.vault_stake_rotation_script_hash && output_oracle_datum.operator_account == input_oracle_datum.operator_account && output_oracle_datum.operator_charge_percentage == input_oracle_datum.operator_charge_percentage && output_oracle_datum.operator_min_deposit_percentage == input_oracle_datum.operator_min_deposit_percentage && output_oracle_datum.hydra_node_pub_keys == input_oracle_datum.hydra_node_pub_keys && output_oracle_datum.is_active == input_oracle_datum.is_active
+    output_oracle_datum.app_oracle == input_oracle_datum.app_oracle && output_oracle_datum.vault_script_hash == input_oracle_datum.vault_script_hash && output_oracle_datum.l1_deposit_intent_script_hash == input_oracle_datum.l1_deposit_intent_script_hash && output_oracle_datum.l1_withdrawal_intent_script_hash == input_oracle_datum.l1_withdrawal_intent_script_hash && output_oracle_datum.l2_deposit_intent_script_hash == input_oracle_datum.l2_deposit_intent_script_hash && output_oracle_datum.l2_withdrawal_intent_script_hash == input_oracle_datum.l2_withdrawal_intent_script_hash && output_oracle_datum.pluggable_logic == input_oracle_datum.pluggable_logic && output_oracle_datum.vault_stake_rotation_script_hash == input_oracle_datum.vault_stake_rotation_script_hash && output_oracle_datum.operator_account == input_oracle_datum.operator_account && output_oracle_datum.operator_fee_rate_bp == input_oracle_datum.operator_fee_rate_bp && output_oracle_datum.operator_min_deposit_percentage == input_oracle_datum.operator_min_deposit_percentage && output_oracle_datum.hydra_node_pub_keys == input_oracle_datum.hydra_node_pub_keys && output_oracle_datum.is_active == input_oracle_datum.is_active
 
   let is_oracle_datum_updated = and {
       is_total_shares_correct?,
