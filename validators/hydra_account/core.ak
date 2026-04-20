@@ -1,20 +1,25 @@
 use aiken/option.{is_none}
-use cardano/address.{Credential}
+use cardano/address.{Credential, Script}
 use cardano/assets.{PolicyId, without_lovelace, zero}
 use cardano/transaction.{OutputReference, Transaction, find_input}
 use cocktail.{key_signed, withdrawal_script_validated}
 use hydra_account/cancel_withdrawal.{cancel_withdrawal}
 use hydra_account/combine_utxos_at_close.{combine_utxos_at_close}
+use hydra_account/migration.{migration}
 use hydra_account/same_account_transferal.{same_account_transferal}
 use hydra_account/split_utxos_at_open.{split_utxos_at_open}
 use hydra_account/transferal.{transferal}
+use hydra_account/vault_deposit.{vault_deposit}
+use hydra_account/vault_withdrawal.{vault_withdrawal}
 use hydra_account/withdrawal.{withdrawal}
 use hydra_dex/types.{
-  DexOrderBookDatum, HydraAccountOperate, HydraAccountOperation,
-  HydraAccountRedeemer, HydraAccountSpamPreventionWithdraw, HydraAccountTrade,
-  ProcessCancelWithdrawal, ProcessCombineUtxosAtClose,
+  DexOrderBookDatum, HydraAccountMigrate, HydraAccountOperate,
+  HydraAccountOperation, HydraAccountRedeemer,
+  HydraAccountSpamPreventionWithdraw, HydraAccountTrade, ProcessCancelWithdrawal,
+  ProcessCombineUtxosAtClose, ProcessHydraAccountOtherRedeemer, ProcessMigration,
   ProcessSameAccountTransferal, ProcessSplitUtxosAtOpen, ProcessTransferal,
-  ProcessWithdrawal, TreeOrProofsWithTokenMap, UserAccount,
+  ProcessVaultDeposit, ProcessVaultWithdrawal, ProcessWithdrawal,
+  TreeOrProofsWithTokenMap, UserAccount,
 }
 use hydra_dex/utils.{get_dex_order_book_datum}
 
@@ -47,6 +52,13 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
       HydraAccountOperate ->
         withdrawal_script_validated(withdrawals, hydra_account_script_hash)?
 
+      HydraAccountMigrate -> {
+        expect Some(own_input) = inputs |> find_input(input)
+        expect Script(own_script_hash) =
+          own_input.output.address.payment_credential
+        withdrawal_script_validated(withdrawals, own_script_hash)?
+      }
+
       HydraAccountSpamPreventionWithdraw -> {
         // TODO: review
         expect Some(own_input) = inputs |> find_input(input)
@@ -70,28 +82,57 @@ validator hydra_account(dex_oracle_nft: PolicyId) {
     }
   }
 
-  withdraw(
-    redeemer: HydraAccountOperation,
-    _credential: Credential,
-    tx: Transaction,
-  ) {
-    when redeemer is {
-      ProcessWithdrawal { mpf_action } ->
-        withdrawal(dex_oracle_nft, mpf_action, tx)
-      ProcessCancelWithdrawal { mpf_action } ->
-        cancel_withdrawal(dex_oracle_nft, mpf_action, tx)
-      ProcessSameAccountTransferal { account } ->
-        same_account_transferal(dex_oracle_nft, account, tx)
-      ProcessTransferal -> transferal(dex_oracle_nft, tx)
-      ProcessSplitUtxosAtOpen { tree_or_proofs_with_token_map } -> {
-        let TreeOrProofsWithTokenMap { proof, token_map } =
-          tree_or_proofs_with_token_map
-        split_utxos_at_open(dex_oracle_nft, proof, token_map, tx)
+  withdraw(redeemer: Data, credential: Credential, tx: Transaction) {
+    if redeemer is operation: HydraAccountOperation {
+      when operation is {
+        ProcessWithdrawal { mpf_action } ->
+          withdrawal(dex_oracle_nft, mpf_action, tx)
+        ProcessCancelWithdrawal { mpf_action } ->
+          cancel_withdrawal(dex_oracle_nft, mpf_action, tx)
+        ProcessSameAccountTransferal { account } ->
+          same_account_transferal(dex_oracle_nft, account, tx)
+        ProcessTransferal -> transferal(dex_oracle_nft, tx)
+        ProcessSplitUtxosAtOpen { tree_or_proofs_with_token_map } -> {
+          let TreeOrProofsWithTokenMap { proof, token_map } =
+            tree_or_proofs_with_token_map
+          split_utxos_at_open(dex_oracle_nft, proof, token_map, tx)
+        }
+        ProcessCombineUtxosAtClose { tree_or_proofs_with_token_map } -> {
+          let TreeOrProofsWithTokenMap { proof, token_map } =
+            tree_or_proofs_with_token_map
+          combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
+        }
       }
-      ProcessCombineUtxosAtClose { tree_or_proofs_with_token_map } -> {
-        let TreeOrProofsWithTokenMap { proof, token_map } =
-          tree_or_proofs_with_token_map
-        combine_utxos_at_close(dex_oracle_nft, proof, token_map, tx)
+    } else {
+      expect operation: ProcessHydraAccountOtherRedeemer = redeemer
+      when operation is {
+        ProcessMigration { account } ->
+          migration(dex_oracle_nft, account, credential, tx)
+        ProcessVaultDeposit(prices_message, signatures, token_map, mpf_action) ->
+          vault_deposit(
+            dex_oracle_nft,
+            prices_message,
+            signatures,
+            token_map,
+            mpf_action,
+            tx,
+          )
+        ProcessVaultWithdrawal(
+          prices_message,
+          signatures,
+          token_map,
+          mpf_action,
+          operator_mpf_action,
+        ) ->
+          vault_withdrawal(
+            dex_oracle_nft,
+            prices_message,
+            signatures,
+            token_map,
+            mpf_action,
+            operator_mpf_action,
+            tx,
+          )
       }
     }
   }

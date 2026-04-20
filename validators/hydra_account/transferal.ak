@@ -1,10 +1,9 @@
-use aiken/collection/list
 use cardano/address.{from_script}
 use cardano/assets.{PolicyId, from_asset_list, merge, negate, without_lovelace}
 use cardano/transaction.{Transaction}
 use cocktail.{
-  group_inputs_2, group_outputs_2, input_inline_datum, inputs_at_with_policy,
-  key_signed,
+  group_inputs_2, group_outputs_2, input_inline_datum, inputs_at,
+  inputs_at_with_policy, key_signed, outputs_at,
 }
 use cocktail/vodka_value.{inputs_value, outputs_value}
 use hydra_dex/account_utils.{
@@ -70,10 +69,12 @@ pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
   let (account_outputs_from, account_outputs_to, other_outputs) =
     group_outputs_2(outputs, ao_from_filter, ao_to_filter)
 
-  // - Other inputs length == 1 (the intent input)
-  // - No other outputs
-  let no_other_inputs = list.length(other_inputs) == 1
-  let no_other_outputs = other_outputs == []
+  // - No other inputs/outputs at `hydra_account_script_hash`
+  let hydra_account_address = from_script(hydra_account_script_hash)
+  let no_other_account_inputs =
+    inputs_at(other_inputs, hydra_account_address) == []
+  let no_other_account_outputs =
+    outputs_at(other_outputs, hydra_account_address) == []
 
   // - The 3 value are equal:
   //   1. Deduct in value for `from` (`AI_from` - `AO_from`)
@@ -100,8 +101,8 @@ pub fn transferal(oracle_nft: PolicyId, tx: Transaction) -> Bool {
     key_signed(extra_signatories, operation_key)
 
   and {
-    no_other_inputs?,
-    no_other_outputs?,
+    no_other_account_inputs?,
+    no_other_account_outputs?,
     is_values_matching?,
     is_hydra_internal_transfer_authorized?,
     is_intent_token_burnt?,

@@ -126,3 +126,19 @@ pub fn to_mvalue(value: Value) -> MValue {
   expect mvalue: MValue = mvalue_raw
   mvalue
 }
+
+/// Find the policy being burnt (negative quantity) from mint field
+pub fn get_burning_intent_policy(
+  mint: List<(PolicyId, AssetName, Int)>,
+) -> PolicyId {
+  expect Some((policy_id, _asset_name, quantity)) =
+    list.find(
+      mint,
+      fn(entry) {
+        let (_, _, qty) = entry
+        qty < 0
+      },
+    )
+  expect quantity == -1
+  policy_id
+}
